@@ -26,7 +26,6 @@ import tempfile
 from fpdf import FPDF
 import tempfile
 import os
-import boto3
 from django.core.cache import cache
 
 # PROCESSO 
@@ -190,7 +189,6 @@ class ProcessoDetailView(LoginRequiredMixin, DetailView):
 
             processo = context['object']
 
-            # Formatando os valores antes de enviar para o template.
             if processo.valor_tributo:
                 valor_tributo = '{:,.2f}'.format(processo.valor_tributo).replace(',', 'X').replace('.', ',').replace('X', '.')
             else:
@@ -567,29 +565,6 @@ class LimparCacheProcessoView(View):
         cache.delete(f'processos_filtrados_{self.request.user.id}')
         
         return redirect(reverse('processo-list'))
-
-# def convert_to_pdf(docx_content, temp_dir):
-#     """
-#     Converte um conteúdo de arquivo do Word (DOCX) para PDF usando o LibreOffice do ubuntu
-#     """
-    
-#     temp_docx_path = os.path.join(temp_dir, 'temp.docx')
-
-#     temp_pdf_path = os.path.join(temp_dir, 'temp.pdf')
-   
-#     try:
-#         with open(temp_docx_path, 'wb') as temp_docx_file:
-#             temp_docx_file.write(docx_content)
-
-#         command = f'libreoffice --headless --convert-to pdf --outdir {temp_dir} {temp_docx_path}'
-
-#         subprocess.run(command, shell=True, check=True)
-
-#         return temp_pdf_path
-    
-#     except Exception as error:
-#         print(f'A função convert_to_pdf não conseguiu realizar a conversão - Erro: {error}')
-#         return None
     
 def AtendimentoList(request, id):
     if request.method == 'GET':
@@ -722,117 +697,6 @@ class AndamentoCreate(LoginRequiredMixin, CreateView):
                 form.add_error(None, 'Erro no formulário de avaliação')
                 return self.form_invalid(form)
 
-            # Converter o arquivo Word para PDF
-            # file = form.cleaned_data['arquivo']  
-            # if file: 
-            #     file_read = file.read()
-
-            # file2= form.cleaned_data['arquivo2']
-            # if file2:
-            #     file2_read = file2.read()
-
-            # if file:
-            #     if file.name.lower().endswith(('.docx', '.doc')):
-            #         docx_content = file_read
-
-            #         temp_dir = '/tmp'
-
-            #         pdf_file_path = convert_to_pdf(docx_content, temp_dir)
-
-            #         if pdf_file_path:
-            #             with open(pdf_file_path, 'rb') as pdf_file:
-            #                 pdf_content = pdf_file.read()
-                        
-            #             pdf_file_name = file.name.lower()
-            #             file_format_docx = pdf_file_name[-5:]
-            #             file_format_doc = pdf_file_name[-4:]
-
-            #             if file_format_docx  == '.docx':
-            #                 pdf_file_name = pdf_file_name.split('.docx')[0]
-            #                 pdf_file_name = f'{pdf_file_name}.pdf'
-
-            #             elif file_format_doc == '.doc':
-            #                 pdf_file_name = pdf_file_name.split('.doc')[0]
-            #                 pdf_file_name = f'{pdf_file_name}.pdf'
-
-            #             s3_client = boto3.client('s3')
-            #             bucket_name = settings.AWS_STORAGE_BUCKET_NAME
-            #             s3_key = f'arquivo/{pdf_file_name}'
-            #             content_type = 'application/pdf'
-                    
-            #             if s3_file_exists(s3_client, bucket_name, s3_key) == True:
-            #                 s3_key = s3_key.split('.pdf')
-            #                 unique_code = str(uuid.uuid4())[:4]
-            #                 s3_key_unique = f'{s3_key[0]}.{unique_code}.pdf'
-
-            #                 s3_client.upload_fileobj(ContentFile(pdf_content), bucket_name, s3_key_unique, ExtraArgs={'ContentType': content_type})
-
-            #                 os.remove(pdf_file_path)
-
-            #                 andamento = form.save(commit=False)
-            #                 andamento.arquivo = s3_key_unique
-            #                 andamento.save()
-                        
-            #             else:
-            #                 s3_client.upload_fileobj(ContentFile(pdf_content), bucket_name, s3_key, ExtraArgs={'ContentType': content_type})
-
-            #                 os.remove(pdf_file_path)
-
-            #                 andamento = form.save(commit=False)
-            #                 andamento.arquivo = f'arquivo/{pdf_file_name}'
-            #                 andamento.save()
-
-            # if file2:
-            #     if file2.name.lower().endswith(('.docx', '.doc')):
-            #         docx_content = file2_read
-
-            #         temp_dir = '/tmp'
-
-            #         pdf_file_path = convert_to_pdf(docx_content, temp_dir)
-
-            #         if pdf_file_path:
-            #             with open(pdf_file_path, 'rb') as pdf_file:
-            #                 pdf_content = pdf_file.read()
-                        
-            #             pdf_file_name = file2.name.lower()
-            #             file_format_docx = pdf_file_name[-5:]
-            #             file_format_doc = pdf_file_name[-4:]
-
-            #             if file_format_docx  == '.docx':
-            #                 pdf_file_name = pdf_file_name.split('.docx')[0]
-            #                 pdf_file_name = f'{pdf_file_name}.pdf'
-
-            #             elif file_format_doc == '.doc':
-            #                 pdf_file_name = pdf_file_name.split('.doc')[0]
-            #                 pdf_file_name = f'{pdf_file_name}.pdf'
-
-            #             s3_client = boto3.client('s3')
-            #             bucket_name = settings.AWS_STORAGE_BUCKET_NAME
-            #             s3_key = f'arquivo/{pdf_file_name}'
-            #             content_type = 'application/pdf' 
-                    
-            #             if s3_file_exists(s3_client, bucket_name, s3_key) == True:
-            #                 s3_key = s3_key.split('.pdf')
-            #                 unique_code = str(uuid.uuid4())[:4]
-            #                 s3_key_unique = f'{s3_key[0]}.{unique_code}.pdf'
-
-            #                 s3_client.upload_fileobj(ContentFile(pdf_content), bucket_name, s3_key_unique, ExtraArgs={'ContentType': content_type})
-
-            #                 os.remove(pdf_file_path)
-
-            #                 andamento = form.save(commit=False)
-            #                 andamento.arquivo2 = s3_key_unique
-            #                 andamento.save()
-                        
-            #             else:
-            #                 s3_client.upload_fileobj(ContentFile(pdf_content), bucket_name, s3_key, ExtraArgs={'ContentType': content_type})
-
-            #                 os.remove(pdf_file_path)
-
-            #                 andamento = form.save(commit=False)
-            #                 andamento.arquivo2 = f'arquivo/{pdf_file_name}'
-            #                 andamento.save()
-
             return super().form_valid(form)
         
         except Exception as error:
@@ -881,67 +745,6 @@ class AndamentoCreate(LoginRequiredMixin, CreateView):
         except Exception as error:
             print(f'Error na funcao (get_form) - views: (AndamentoCreate) - error: {str(error)}')
 
-# class UploadArquivoAndamento(CreateView):
-#     model = ArquivoAndamento
-#     fields = ['arquivo']
-
-#     def form_valid(self, form):
-#         """
-#             Estou fazendo o envio do arquivo com MultiPart, dividindo o arquivo em pedaços e enviando para o Bucket S3. O S3 junta os pedaços em um único arquivo.
-#         """
-#         try:
-#             form.instance.andamento_id = self.kwargs.get('andamento_id')
-#             form.instance.usuario_criador = self.request.user
-
-#             arquivo = self.request.FILES['arquivo']
-#             file_name = arquivo.name
-
-#             s3 = boto3.client(
-#                 's3',
-#                 aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
-#                 aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
-#             )
-
-#             response = s3.create_multipart_upload(
-#                 Bucket=settings.AWS_STORAGE_BUCKET_NAME,
-#                 Key=file_name,
-#             )
-            
-#             upload_id = response['UploadId']
-
-#             parts = []
-#             part_number = 1
-#             while True:
-#                 part = arquivo.read(settings.AWS_S3_MULTIPART_UPLOAD_CHUNK_SIZE)
-#                 if not part:
-#                     break
-#                 response = s3.upload_part(
-#                     Body=part,
-#                     Bucket=settings.AWS_STORAGE_BUCKET_NAME,
-#                     Key=file_name,
-#                     PartNumber=part_number,
-#                     UploadId=upload_id,
-#                 )
-#                 parts.append({'PartNumber': part_number, 'ETag': response['ETag']})
-#                 part_number += 1
-
-#             if len(parts) == 0:
-#                 return
-#             else:
-
-#             response = s3.complete_multipart_upload(
-#                 Bucket=settings.AWS_STORAGE_BUCKET_NAME,
-#                 Key=file_name,
-#                 MultipartUpload={'Parts': parts},
-#                 UploadId=upload_id,
-#             )
-            
-#             return super().form_valid(form)
-        
-#         except Exception as error:
-#             print(f'Error na funcao (form_valid) - views: (UploadArquivoAndamento) - error: {str(error)}')
-#             return HttpResponse({'Ocorreu um erro ao processar o formulário'}, status=500)
-
     def get_success_url(self):
         try:
             andamento_id = self.kwargs.get('andamento_id')
@@ -952,20 +755,6 @@ class AndamentoCreate(LoginRequiredMixin, CreateView):
 
         except Exception as error:
             print(f'Error na funcao (get_success_url) - views: (UploadArquivoAndamento) - error: {str(error)}')
-
-# def s3_file_exists(client, bucket, key):
-#     """
-#       A função verifica se o arquivo já existe no bucket s3 aws através da Key que contem o path(caminho do arquivo).
-#     """
-#     try:
-#         s3 = client
-#         s3.head_object(Bucket=bucket, Key=key)
-#         return True
-#     except Exception as error:
-#         if error.response['Error']['Code'] == "404":
-#             return False
-#         else:
-#             raise
 
 class AndamentoDetailView(LoginRequiredMixin, DetailView):
     model = Andamento
@@ -1488,7 +1277,6 @@ class Estrutura_Pdf(FPDF):
         self.y_andamento = y_andamento
 
     def header(self):
-        # Logo Aeg:
         self.image("static/img/empresa.png", 10, 4, 20)
 
         self.add_font('Calibri', 'B', fname='fonts/Calibri.ttf', uni=True)
@@ -1623,7 +1411,6 @@ class RelatorioProcessosPorStatus(LoginRequiredMixin, View):
                         if processo.ativo == True:
                             andamentos_do_processo = processo.andamento_set.filter(ativo=True)
                             for andamento in andamentos_do_processo:                  
-                                # Executado
                                 if andamento.tipo_andamento.status == 'Executado':
                                     status_list.append('Executado')
 
@@ -1747,7 +1534,7 @@ class RelatorioProcessosPorStatus(LoginRequiredMixin, View):
                                     if valor_pago:
                                         valor_pago = '{:,.2f}'.format(valor_pago).replace(',', 'X').replace('.', ',').replace('X', '.') 
                                     data_andamento = str(andamento.data_andamento).split('-')
-                                    ano, mes, dia = data_andamento # Desempacotamento
+                                    ano, mes, dia = data_andamento
                                     data_andamento_convertida = f'{dia}/{mes}/{ano}'
 
                                 if len(str(processo.numero)) > 4:
@@ -1810,7 +1597,6 @@ class RelatorioProcessosPorStatus(LoginRequiredMixin, View):
                                 else:
                                     numero_processo = processo.numero
 
-                                # Dados da tabela
                                 pdf.set_font('Arial', size=9)
                                 pdf.cell(115, 4, str(processo.contribuinte.nome_contribuinte[:49]), 1, align='L')
                                 pdf.cell(22, 4, str(numero_processo), 1, align='R')
@@ -2230,7 +2016,6 @@ class RelatorioAvaliacoes(LoginRequiredMixin, View):
                     tot_itbi_apurado = '{:,.2f}'.format(tot_itbi_apurado).replace(',', 'X').replace('.', ',').replace('X', '.')
                     tot_itbi_pago = '{:,.2f}'.format(tot_itbi_pago).replace(',', 'X').replace('.', ',').replace('X', '.')
 
-                    # Totais
                     pdf.set_font('Arial', size=6)
                     pdf.cell(145, 5, txt=f'{tot_registros} Registro(s)')
                     pdf.cell(3, 5, txt=f'R$ {tot_val_declarado}', align='R')
@@ -2539,7 +2324,7 @@ class RelatorioAvaliacoes(LoginRequiredMixin, View):
                                 else:
                                     valor_avaliado = '-'
 
-                                if avaliacao.valor_itbi_diferenca and avaliacao.valor_itbi_diferenca > 0: # ITBI Apurado
+                                if avaliacao.valor_itbi_diferenca and avaliacao.valor_itbi_diferenca > 0:
                                     tot_itbi_apurado += avaliacao.valor_itbi_diferenca
                                     valor_itbi_diferenca = '{:,.2f}'.format(avaliacao.valor_itbi_diferenca).replace(',', 'X').replace('.', ',').replace('X', '.')   
                                 else:

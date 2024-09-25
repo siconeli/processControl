@@ -17,7 +17,6 @@ from django.contrib.auth.models import User
 from django.http import HttpResponse
 from datetime import datetime, timedelta
 from django.db.models import Q
-import requests
 from django.core.cache import cache
 
 # Relatórios

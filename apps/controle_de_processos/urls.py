@@ -1,6 +1,6 @@
 from django.urls import path
 from .views import ProcessoCreate, ProcessoUpdate, ProcessoDelete, ProcessoList, ProcessoDetailView, LimparCacheProcessoView
-from .views import AndamentoCreate, UploadArquivoAndamento, AndamentoUpdate, AndamentoDelete, AndamentoList, AndamentoDetailView
+from .views import AndamentoCreate, AndamentoUpdate, AndamentoDelete, AndamentoList, AndamentoDetailView
 from .views import RelatoriosProcesso, RelatorioProcessosPorStatus, RelatorioAvaliacoes
 from .views import LancamentoUsuario
 from .views import BuscaDocumento, BuscaAndamentoPeloCodigo, BuscaPrazo, BuscaPagamento, BuscaEncaminhamento, BuscaNumeroAiti, BuscaAvaliacaoImobiliaria, VerificaMatricula
@@ -28,7 +28,6 @@ urlpatterns = [
     path('andamento/busca-numero_aiti/', BuscaNumeroAiti.as_view(), name='busca-numero_aiti'),
     path('andamento/busca-avaliacao_imobiliaria/', BuscaAvaliacaoImobiliaria.as_view(), name='busca-avaliacao_imobiliaria'),
     path('andamento/verifica-matricula/', VerificaMatricula.as_view(), name='verifica-matricula'),
-    path('andamento/<int:andamento_id>/upload/arquivo/', UploadArquivoAndamento.as_view(), name='andamento-upload'),
     path('andamento/detail-view/<int:id>/', AndamentoDetailView.as_view(), name='andamento-detail-view'),
     path('andamento/update/<int:id>/', AndamentoUpdate.as_view(), name='andamento-update'),
     path('andamento/delete/<int:id>/', AndamentoDelete.as_view(), name='andamento-delete'),
