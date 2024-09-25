@@ -72,11 +72,11 @@ WSGI_APPLICATION = 'portal.wsgi.application'
 
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'process',
-        'USER': 'superuser',
-        'PASSWORD': 'dbteste123',
+    'default': {  
+        'ENGINE': 'django.db.backends.postgresql', 
+        'NAME': 'portal_development',
+        'USER': 'postgres',
+        'PASSWORD': 'Clodomir753$',
         'HOST': 'localhost',
         'PORT': '5432',
     }
@@ -126,7 +126,10 @@ LOGIN_URL = 'login'
 CACHES = {
     "default": {
         "BACKEND": "django.core.cache.backends.redis.RedisCache",
-        "LOCATION": "redis://localhost:6379",
-        "TIMEOUT": 3600,  # Tempo de expiração em segundos (10 minutos)
+        "LOCATION": "redis://localhost:5434",
+        "TIMEOUT": 3600
     }
 }
+
+SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
+SESSION_CACHE_ALIAS = 'default'
