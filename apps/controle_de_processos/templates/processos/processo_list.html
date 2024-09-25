@@ -1,5 +1,3 @@
-<!--Lista de Processos Administrativos-->
-
 {% extends 'core/inicio.html' %}
 
 {% load static %}
@@ -118,11 +116,10 @@
                             <tr class="table" >
                                 <th id="cabecalho-list-processos">Processo</th>
                                 <th id="cabecalho-list-processos">Tipo</th>
-                                <!-- <th id="cabecalho-list-processos">Status</th> -->
                                 <th id="cabecalho-list-processos">Município</th>
                                 <th id="cabecalho-list-processos">Contribuinte</th>
                                 <th id="cabecalho-list-processos">CPF/CNPJ</th>
-                                <th id="cabecalho-list-processos"><!--Ações--></th>
+                                <th id="cabecalho-list-processos"></th>
                                 <th id="cabecalho-list-processos"></th>
                                 <th id="cabecalho-list-processos"></th>
                             </tr>
@@ -132,17 +129,14 @@
                                 <tr>
                                     <td id="linhas-list-processos" class="n-mask">{{ processo.numero }}</td>
                                     <td id="linhas-list-processos">{{ processo.tipo }}</td>
-                                    <!-- <td id="linhas-list-processos">{{ processo.status0 }}  {{ processo.status1 }} {{ processo.status2 }} {{ processo.status3 }}</td> -->
                                     <td id="linhas-list-processos">{{ processo.municipio }}</td>
                                     <td id="linhas-list-processos">{{ processo.contribuinte.nome_contribuinte|truncatechars:45 }}</td>
                                     <td id="linhas-list-processos" class="d-mask">{{ processo.contribuinte.documento }}</td>
                                     <td id="linhas-list-processos">
-                                        <!-- <a href="{% url 'processo-detail-view' processo.id %}"><button type="button" class="btn btn-secondary btn-sm" style="width: 85px; height: 25px; padding: 0; line-height: 25px; text-align: center; display: inline-block;"><b>Visualizar</b></button></a> -->
                                         <a href="{% url 'processo-detail-view' processo.id %}"><button type="button" style="border-radius: 4px; background-color: #ffffff;">Visualizar</button></a>
                                         <a href="{% url 'processo-update' processo.id %}"><button type="button" style="border-radius: 4px; background-color: #ffffff;">Editar</button></a> 
                                     </td>
                                     <td id="linhas-list-processos">
-                                        <!------------------- Modal de exclusão do processo -------------------------------------------------------------------------->
                                         <div class="modal fade" id="modalDeleteProcesso" tabindex="-1" role="dialog" aria-labelledby="confirmDeleteModalLabel" aria-hidden="true">
                                             <div class="modal-dialog modal-dialog-centered" role="document">
                                                 <div class="modal-content">
@@ -168,12 +162,10 @@
                                             </div>
                                         </div>
 
-                                        <!-- Formulário de exclusão do processo utilizando Modal, para não precisa utilizar um novo template html -->
                                         <form class="deleteForm" method="post" action="{% url 'processo-delete' processo.id %}">
                                             {% csrf_token %}
                                             <button type="button" class="deleteButton" style="border-radius: 4px; background-color: #ffffff;">Excluir</button>
                                         </form>
-                                        <!------------------- Modal de exclusão do processo -------------------------------------------------------------------------->
                                     </td>
                                     <td id="linhas-list-processos">                                 
                                         <a href="{% url 'andamento-list' processo.id %}"><button type="button" style="border-radius: 4px; background-color: #ffb14c;color: white;"><b>Andamentos</b></button></a>
@@ -199,7 +191,6 @@
             $("#doccontri").mask("00000000000000", {reverse: true});
             $(".n-mask").mask("00000/0000", {reverse: true});
 
-            // Aplica máscara de cpf ou cnpj para cada valor da coluna da lista
             $('.d-mask').each(function() {
                 var documento = $(this).text().replace(/\D/g, '');
                 
@@ -216,21 +207,17 @@
             });
                 
 
-            // JS PARA CONTROLAR MODAL DE EXCLUSÃO DO PROCESSO
-            $('.deleteButton').click(function() { // Para funcionar, preciso pegar o botão pela classe
+            $('.deleteButton').click(function() { 
                 var form = $(this).closest('.deleteForm');
                 var modal = $('#modalDeleteProcesso');
 
-                // Abri o modal ao clicar em excluir processo
                 modal.modal('show');
 
-                // Enviar o formulário de exclusão ao clicar em confirmar exclusão
                 modal.find('#confirmDeleteBtn').click(function() {
                     form.submit();
                 });
             });
 
-            //  Evento de click para fechar o modal de alerta de delete ao clicar no x
             $('.btn-close').on('click', function() {
                 var modal = $(this).closest('.modal');
                 modal.modal('hide');
@@ -239,9 +226,7 @@
 
             $('#tabela-listar-processos').DataTable({
                 responsive: true,
-                // "ordering": false, // Remove as opções das colunas de ordenar a tabela.
-                "searching": false, // Remove o campo input de busca "search"
-                // "bSort": false,
+                "searching": false, 
                 "aaSorting": [],
                 "pageLength": 8,
                 "language": {
@@ -255,7 +240,6 @@
                     "lengthMenu": "Mostrar _MENU_ processos",
                     "loadingRecords": "A carregar dados...",
                     "processing": "A processar...",
-                    // "search": "Buscar:",
                     "zeroRecords": "Nenhum processo filtrado",
                     "paginate": {
                         "first": "Primeiro",

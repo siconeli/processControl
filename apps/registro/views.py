@@ -382,7 +382,7 @@ class Estrutura_Pdf(FPDF):
         self.y_contrato = y_contrato
 
     def header(self):
-        self.image("static/img/empresa.png", 10, 4, 27)
+        self.image("static/img/empresa.png", 10, 4, 20)
 
         self.add_font('Calibri', 'B', fname='fonts/Calibri.ttf', uni=True)
         self.set_font('Calibri', 'B', size=12)
@@ -414,37 +414,37 @@ class Estrutura_Pdf(FPDF):
         self.cell(0, 10, f'Página {self.page_no()}', align="C")
         self.cell(0, 10, f'Usuário: {self.usuario_gerou}  {self.data_gerou}  -  Empresa Teste ', 0, 0, 'R')
 
-def download_image(url):
-    try:
-        response = requests.get(url)
-        response.raise_for_status()
-        return response
-    except requests.RequestException as e:
-        print(f"Erro ao baixar a imagem: {e}")
-        return None
+# def download_image(url):
+#     try:
+#         response = requests.get(url)
+#         response.raise_for_status()
+#         return response
+#     except requests.RequestException as e:
+#         print(f"Erro ao baixar a imagem: {e}")
+#         return None
     
-def save_image_to_temp_file(image_response):
-    content_type = image_response.headers.get('Content-Type')
+# def save_image_to_temp_file(image_response):
+#     content_type = image_response.headers.get('Content-Type')
     
-    if 'image/jpeg' in content_type:
-        suffix = '.jpg'
-    elif 'image/png' in content_type:
-        suffix = '.png'
-    else:
-        print("Formato de imagem não suportado.")
-        return None
+#     if 'image/jpeg' in content_type:
+#         suffix = '.jpg'
+#     elif 'image/png' in content_type:
+#         suffix = '.png'
+#     else:
+#         print("Formato de imagem não suportado.")
+#         return None
 
     # Cria um arquivo temporário
-    temp_file = tempfile.NamedTemporaryFile(delete=False, suffix=suffix)
-    try:
-        with open(temp_file.name, 'wb') as f:
-            f.write(image_response.content)
-        return temp_file.name
-    except IOError as e:
-        print(f"Erro ao salvar a imagem temporária: {e}")
-        return None
-    finally:
-        temp_file.close()
+    # temp_file = tempfile.NamedTemporaryFile(delete=False, suffix=suffix)
+    # try:
+    #     with open(temp_file.name, 'wb') as f:
+    #         f.write(image_response.content)
+    #     return temp_file.name
+    # except IOError as e:
+    #     print(f"Erro ao salvar a imagem temporária: {e}")
+    #     return None
+    # finally:
+    #     temp_file.close()
     
 def relatorioAtendimentos(request):
     """

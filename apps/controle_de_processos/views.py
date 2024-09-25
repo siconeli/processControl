@@ -1266,7 +1266,7 @@ class Estrutura_Pdf(FPDF):
         self.y_andamento = y_andamento
 
     def header(self):
-        self.image("static/img/empresa.png", 10, 4, 20)
+        self.image("static/img/empresa.png", 10, 4, 15)
 
         self.add_font('Calibri', 'B', fname='fonts/Calibri.ttf', uni=True)
         self.set_font('Calibri', 'B', size=12)
