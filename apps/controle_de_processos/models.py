@@ -97,8 +97,8 @@ class Andamento(Base):
     localizacao_processo = models.ForeignKey(LocalizacaoProcesso, on_delete=models.SET_NULL, blank=True, null=True)
     data_recebimento = models.DateField(blank=True, null=True)
     obs = models.TextField(max_length=2000, blank=True, null=True)
-    arquivo = models.FileField(upload_to='arquivo/', verbose_name='Arquivo', blank=True, null=True) 
-    arquivo2 = models.FileField(upload_to='arquivo/', verbose_name='Arquivo 2', blank=True, null=True)
+    arquivo = models.FileField(upload_to='arquivo/', blank=True, null=True) 
+    arquivo2 = models.FileField(upload_to='arquivo/', blank=True, null=True)
 
     def __str__(self):
         return str(self.sequencial)

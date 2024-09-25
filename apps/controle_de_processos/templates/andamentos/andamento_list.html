@@ -58,13 +58,8 @@
                                 <th id="cabecalho-list-andamentos">Criado por</th>
                                 <th id="cabecalho-list-andamentos">Criado em</th>
                                 <th id="cabecalho-list-andamentos"></th> 
-                                {% if acesso_interno %}
-                                    <th id="cabecalho-list-andamentos"></th>
-                                {% endif %}
                                 <th id="cabecalho-list-andamentos"></th>
-                                {% if user.is_superuser %}
-                                    <th id="cabecalho-list-andamentos">Upload</th>
-                                {% endif %}
+                                <th id="cabecalho-list-andamentos"></th>
                             </tr>
                         </thead>
                         <tbody>
@@ -105,36 +100,7 @@
                                         <a href="{{ andamento.arquivo2.url }}" target="arquivo_andamento"><button type="button" style="border-radius: 4px; background-color: #ffffff;">PDF 2</b></button></a>
                                     {% endif %}
                                 </td>
-
-                                {% if user.is_superuser %}
-                                    <td id="linha-list-andamentos">
-                                        <form method="post" enctype="multipart/form-data" action="{% url 'andamento-upload' andamento.id %}">
-                                            {% csrf_token %}
-                                            <input type="hidden" name="andamento_id" value="{{ andamento.id }}">
-                                            <button type="button" class="uploadButton" data-toggle="modal" data-target="#modalUploadArquivo_{{ andamento.id }}" style="border: none; box-shadow: none; background-color: transparent;">Upload</button>
-                                            
-                                            <div class="modal fade" id="modalUploadArquivo_{{ andamento.id }}" tabindex="-1" role="dialog">
-                                                <div class="modal-dialog modal-dialog-centered" role="document">
-                                                    <div class="modal-content">
-                                                        <div class="modal-header">
-                                                            <h5 class="modal-title" id="modalUploadArquivoLabel_{{ andamento.id }}">Upload de arquivo</h5>
-                                                            <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close"></button>
-                                                        </div>
-                                                        <div class="modal-body">
-                                                            <div class="form-group">
-                                                                <input type="file" class="form-control" id="arquivo" name="arquivo">
-                                                            </div>
-                                                        </div>
-                                                        <div class="modal-footer">
-                                                            <button type="submit" class="btn btn-primary" id="btn-andamentos">Enviar</button>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </form>
-                                    </td>
-                                {% endif %}
-
+                                
                                 <td id="linha-list-andamentos">
                                     <div class="modal fade" id="modalDeleteAndamento" tabindex="-1" role="dialog" aria-labelledby="confirmDeleteModalLabel" aria-hidden="true">
                                         <div class="modal-dialog modal-dialog-centered" role="document">

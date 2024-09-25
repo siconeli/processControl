@@ -74,7 +74,7 @@ WSGI_APPLICATION = 'portal.wsgi.application'
 DATABASES = {
     'default': {  
         'ENGINE': 'django.db.backends.postgresql', 
-        'NAME': 'portal_development',
+        'NAME': 'db_portal',
         'USER': 'postgres',
         'PASSWORD': 'Clodomir753$',
         'HOST': 'localhost',
@@ -114,7 +114,7 @@ STATIC_ROOT = os.path.join(BASE_DIR, "static")
 MEDIA_URL = '/media/'
 
 MEDIA_ROOT = (
-  os.path.join(BASE_DIR, "media"),
+  os.path.join(BASE_DIR, "media")
 )
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'

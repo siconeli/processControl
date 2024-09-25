@@ -745,17 +745,6 @@ class AndamentoCreate(LoginRequiredMixin, CreateView):
         except Exception as error:
             print(f'Error na funcao (get_form) - views: (AndamentoCreate) - error: {str(error)}')
 
-    def get_success_url(self):
-        try:
-            andamento_id = self.kwargs.get('andamento_id')
-            andamento = Andamento.objects.get(id=andamento_id)
-            processo_id = andamento.processo_id  
-
-            return reverse('andamento-list', args=[processo_id])
-
-        except Exception as error:
-            print(f'Error na funcao (get_success_url) - views: (UploadArquivoAndamento) - error: {str(error)}')
-
 class AndamentoDetailView(LoginRequiredMixin, DetailView):
     model = Andamento
     template_name ='andamentos/andamento_detail_view.html'
