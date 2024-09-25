@@ -1,0 +1,272 @@
+{% extends 'core/inicio.html' %}
+
+{% load static %}
+
+{% block titulo %}
+    <title>Listar Atendimentos</title>
+{% endblock %}
+
+{% block conteudo %}  
+    <div class="p-4" id="style_containers">
+        <div class="card">
+            <div class="card-header text-white" style="background-color: #5c5c5c;">
+                <div class="row">
+                    <div class="col">
+                        <a href="{% url 'atendimento-create' %}"><button type="button"  style="border-radius: 4px; background-color: #e06e6e; color: white;"><b>Cadastrar</b></button></a>
+                    </div>
+                    <div class="col">
+                        <h4 style="text-align: right;">Listar Atendimentos</h4>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card-body">
+                <form method="get" action="" id="form_filtro_atendimentos">
+                    <div class="row">
+                        <div class="col-auto">
+                            <label for="municipio_atendimento">Município</label>
+                            <select name="municipio_atendimento" id="municipio_atendimento" class="form-control" style="padding: 2px;">
+                                <option value="">--------</option>
+                                {% for municipio in municipios %}
+                                    <option value="{{ municipio.id }}" {% if municipio.id|stringformat:"s" == filtro_municipio_atendimento|stringformat:"s" %}selected{% endif %}>{{ municipio.nome }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-auto">
+                            <label for="data_inicial">Data</label>
+                            <input type="date" class="form-control" name="data_inicial" id="data_inicial" value="{{ filtro_data_inicial }}" style="padding: 2px;">
+                        </div>
+                        <div class="col-auto">
+                            <label for="data_final">Até</label>
+                            <input type="date" class="form-control" name="data_final" id="data_final" value="{{ filtro_data_final }}" style="padding: 2px;">
+                        </div>
+                        <div class="col-auto">
+                            <label for="status">Status</label>
+                            <select name="status" id="status" class="form-control" style="padding: 2px;">
+                                <option value="">--------</option>
+                                {% for sts in status %}
+                                    <option value="{{ sts.id }}" {% if sts.id|stringformat:"s" == filtro_status|stringformat:"s" %}selected{% endif %}>{{ sts.nome }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-auto">
+                            <label for="criador">Funcionário</label>
+                            <select name="criador" id="criador" class="form-control" style="padding: 2px;">
+                                <option value="">--------</option>
+                                {% for usuario in usuarios %}
+                                    <option value="{{ usuario.id }}" {% if usuario.id|stringformat:"s" == filtro_funcionario|stringformat:"s" %}selected{% endif %}>{{ usuario.username }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-auto">
+                            <label for="ticket">Ticket</label>
+                            <input type="text" class="form-control" name="ticket" id="ticket" value="{{ filtro_ticket }}" oninput="maiuscula(this)" style="padding: 2px;">
+                        </div>
+                        <div class="col-auto">
+                            <label for="processo_atendimento">Processo</label>
+                            <input type="text" class="form-control" name="processo_atendimento" id="processo_atendimento" value="{{ filtro_processo }}" style="padding: 2px;">
+                        </div>
+                        <div class="col">
+                            <label for="descricao_atendimento">Descrição</label>
+                            <input type="text" class="form-control" name="descricao_atendimento" id="descricao_atendimento" value="{{ filtro_descricao }}" oninput="maiuscula(this)" style="padding: 2px;">
+                        </div>
+                    </div>
+                    <br>
+                    <div class="row">
+                        <div class="col">
+                            <button type="submit" style="border-radius: 4px; height: 29px;">Pesquisar</button>
+                        </div>
+                        <div class="col">
+                            <a href="{% url 'limpar_cache' %}"><button type="button" style="border-radius: 4px; height: 29px;">Limpar</button></a>
+                        </div>
+                        <div class="col">
+
+                        </div>
+                        <div class="col">
+                            <a href="{% url 'relatorio-atendimentos' %}" target="_blank"><button type="button" style="border-radius: 4px; background-color: #e06e6e; color: white;"><b>Imprimir</b></button></a>
+                        </div>
+                        <div class="col"></div>
+                        <div class="col"></div>
+                        <div class="col"></div>
+                        <div class="col"></div>                  
+                        <div class="col"></div>
+                        <div class="col"></div>
+                        <div class="col"></div>
+                        <div class="col"></div>
+                        <div class="col"></div>
+                        <div class="col"></div>
+                        <div class="col"></div>
+                        <div class="col"></div>
+                        <div class="col"></div>
+                        <div class="col"></div>
+                        <div class="col"></div>
+                    </div>
+                    <br>
+                </form>
+                <div class="table-responsive">
+                    <table class="table table-hover" id="tabela-listar-avaliacoes">
+                        <thead>
+                            <tr class="table-secondary">
+                                <th id="cabecalho-list-atendimentos">Ticket</th>
+                                <th id="cabecalho-list-atendimentos">Status</th>
+                                <th id="cabecalho-list-atendimentos">Município</th>
+                                <th id="cabecalho-list-atendimentos">Data</th>
+                                <th id="cabecalho-list-atendimentos">Func.</th>
+                                <th id="cabecalho-list-atendimentos">Processo</th>
+                                <th id="cabecalho-list-atendimentos">Cliente</th>
+                                <th id="cabecalho-list-atendimentos">Contato</th>
+                                <th id="cabecalho-list-atendimentos">Tempo</th>
+                                <th id="cabecalho-list-atendimentos"></th>
+                                <th id="cabecalho-list-atendimentos"></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for atendimento in object_list %}
+                                <tr>
+                                    <td id="linhas-list-processos">{{ atendimento.ticket }}</td>
+                                    {% if atendimento.status_id == 1 %}
+                                        <td style="background-color: rgb(255, 231, 47); width: 13%;"><b>{{ atendimento.status }}</b></td>
+                                    {% elif atendimento.status_id == 2 %}
+                                        <td style="background-color: rgb(15, 216, 65); width: 13%"><b>{{ atendimento.status }}</b></td>
+                                    {% else %}
+                                        <td style="background-color: rgb(255, 130, 47); width: 13%"><b>{{ atendimento.status }}</b></td>
+                                    {% endif %}
+                                    <td id="linhas-list-processos">{{ atendimento.municipio_atendimento }}</td>
+                                    <td id="linhas-list-processos">{{ atendimento.data_atendimento|date:'d/m/Y' }}</td>
+                                    <td id="linhas-list-processos" class="criador">{{ atendimento.usuario_criador }}</td>
+                                    <td id="linhas-list-processos" class="n-mask">{{ atendimento.atendimento_processo|default:'' }}</td>
+                                    <td id="linhas-list-processos">{{ atendimento.cliente_atendimento }}</td>
+                                    <td id="linhas-list-processos">{{ atendimento.contato|default:'' }}</td>
+                                    <td id="linhas-list-processos">{{ atendimento.tempo|default:'00:00:00' }}</td>
+                                    <td id="linhas-list-processos"><a href="{% url 'atendimento-update' atendimento.id %}"><button type="button" style="border-radius: 4px; background-color: #ffffff;">Editar</button></a></td>
+
+                                    <td id="linhas-list-processos">
+                                        <div class="modal fade" id="modalDeleteAtendimento" tabindex="-1" role="dialog" aria-labelledby="confirmDeleteModalLabel" aria-hidden="true">
+                                            <div class="modal-dialog modal-dialog-centered" role="document">
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                        <h5 class="modal-title" id="confirmDeleteModalLabel"><b>Confirmar Exclusão</b></h5>
+                                                        <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close"></button>                                                               
+                                                    </div>
+                                                    <div class="modal-body" style="text-align: center;">
+                                                        <div class="col">
+                                                            <h5>Tem certeza de que deseja excluir o atendimento?</h5>
+                                                        </div>
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <div class="col">
+
+                                                        </div>
+                                                        <button type="button" id="confirmDeleteBtn" style="border-radius: 4px; background-color: #ff0000; color: white;"><b>Excluir</b></button>
+                                                        <div class="col">
+
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <form class="deleteForm" method="post" action="{% url 'atendimento-delete' atendimento.id %}">
+                                            {% csrf_token %}
+                                            <button type="button" class="deleteButton" style="border-radius: 4px; background-color: #ffffff;">Excluir</button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>   
+{% endblock %}
+
+{% block scripts %}
+    <!-- Importação do Jquery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <!-- Importações para utilizar maskMoney -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-maskmoney/3.0.2/jquery.maskMoney.min.js"></script>
+
+    <!-- Importação JS da minha 'datatable' -->
+    <script src="https://cdn.datatables.net/v/bs5/dt-1.13.6/datatables.min.js"></script>
+
+    <script>
+        $(document).ready(function(){
+            $('#tabela-listar-avaliacoes').DataTable({
+                responsive: true,
+                "ordering": false, 
+                "searching": false, 
+                "aaSorting": [],
+                "pageLength": 25,
+                "language": {
+                    "decimal": "",
+                    "emptyTable": "Nenhum atendimento filtrado",
+                    "info": "Atendimentos: _TOTAL_",
+                    "infoEmpty": "Atendimentos: 0",
+                    "infoFiltered": "",
+                    "infoPostFix": "",
+                    "thousands": ",",
+                    "lengthMenu": "Mostrar _MENU_ atendimentos",
+                    "loadingRecords": "A carregar dados...",
+                    "processing": "A processar...",
+                    "search": "Buscar:",
+                    "zeroRecords": "Nenhuma atendimento encontrado",
+                    "paginate": {
+                        "first": "Primeiro",
+                        "last": "Último",
+                        "next": "Próximo",
+                        "previous": "Anterior"
+                    },
+                    "aria": {
+                        "sortAscending": ": ordem crescente",
+                        "sortDescending": ": ordem decrescente"
+                    }
+                }
+            });
+            
+            $("#processo_atendimento").mask("00000/0000", {reverse: true});
+            $(".n-mask").mask("00000/0000", {reverse: true});
+
+            $("#form_filtro_atendimentos").submit(function() {
+                $("#processo_atendimento").unmask();
+                return true;
+            });
+    
+            $('.criador').each(function() {
+                var maiuscula = $(this).text().toUpperCase();
+                $(this).text(maiuscula);
+            });
+
+            $('.deleteButton').click(function() { 
+                var form = $(this).closest('.deleteForm');
+                var modal = $('#modalDeleteAtendimento');
+
+                modal.modal('show');
+
+                modal.find('#confirmDeleteBtn').click(function() {
+                    form.submit();
+                });
+            });
+
+            $('.btn-close').on('click', function() {
+                var modal = $(this).closest('.modal');
+                modal.modal('hide');
+            });
+
+        });
+    </script>
+   
+    <script>
+        function maiuscula(input){
+            var start = input.selectionStart; 
+            var end = input.selectionEnd; 
+            
+            input.value = input.value.toUpperCase();
+            
+            input.setSelectionRange(start, end);
+        }
+    </script>
+{% endblock %}

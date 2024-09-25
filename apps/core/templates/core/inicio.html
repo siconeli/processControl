@@ -1,0 +1,139 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  {% block titulo %}
+    <title>Empresa Teste</title>
+  {% endblock %}
+  
+  <!-- Importação Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9" crossorigin="anonymous">
+  
+  <!-- Importação do Bootstrap Icons  -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+  
+  <!-- Importação do meu arquivo CSS próprio para edição de todos os templates-->
+  {% block css %}
+    <link rel="stylesheet" href="{% static 'css/estilos.css' %}">
+  {% endblock %}
+
+  <!-- Importação CSS da minha 'datatable' presente na lista de processos administrativos -->
+  <link href="https://cdn.datatables.net/v/bs5/dt-1.13.6/datatables.min.css" rel="stylesheet">
+
+  {% block estilo %}
+  {% endblock %}
+
+  <!-- Arquivo Favicon -->
+  <link rel="shortcut icon" type="image/x-icon" href="{% static 'img/favicon-aeg.ico' %}">
+
+</head>
+
+<body>
+
+  {% block menu %}
+    <nav class="navbar">
+      <div class="container-fluid">
+        <img src="{% static 'img/aeg5.png' %}" alt="" width="70">
+        <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasNavbar" aria-controls="offcanvasNavbar" aria-label="Toggle navigation" style="background-color: white;"> 
+          <span><img src="{% static 'img/menu.png' %}" width="30"></span>
+        </button>
+        <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasNavbar" aria-labelledby="offcanvasNavbarLabel">
+          <div class="offcanvas-header" id="cor-menu-lateral">
+          <dt class="nav-item">
+            <a class="nav-link active" id="texto-inicio-navbar-menu" aria-current="page" href="{% url 'inicio' %}"> Início </a>
+          </dt>
+          {% if user.is_authenticated %}
+            <dt class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" id="texto-inicio-navbar-menu" role="button" data-bs-toggle="dropdown" aria-expanded="false" >{{ user }}</a>
+              <ul class="dropdown-menu" style="font-size: large;">
+                <form method="post" action="{% url 'logout' %}">
+                  {% csrf_token %}
+                  <button type="submit" class="dropdown-item">Sair</button>
+                </form>
+              </ul>
+            </dt>
+          {% else %}
+            <a class="nav-link active" id="texto-inicio-navbar-menu" aria-current="page" href="{% url 'login' %}"><img src="{% static 'img/entrar.png' %}" width="30"><b> Entrar </b></a>
+          {% endif %} 
+            
+          <dt class="nav-item">
+            {% if user.is_superuser %} 
+              <a class="nav-link" id="texto-navbar-menu" href="{% url 'admin:index' %}" role="button" aria-expanded="false"><img src="{% static 'img/central-adm.png' %}" width="30"></a>
+            {% endif %}
+          </dt>
+          <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+        <div class="offcanvas-body">
+          <ul class="navbar-nav justify-content-end flex-grow-1 pe-3">
+            {% if user.is_authenticated %}
+              <li>
+                <p><b>Empresa:</b>{% if user.funcionario_user %} {{ user.funcionario_user.empresa }} {% endif %}</p>
+                <p><b>Funcionário:</b>{% if user.funcionario_user %} {{ user.funcionario_user.nome }} {% endif%}</p>   
+              </li>
+              <hr>
+              <h4 style="background-color: #0098DB; color: white; height: 35px; text-align: center;"> Processos</h4>
+              <div>
+                <a class="nav-link" id="texto-navbar-menu" href="{% url 'processo-create' %}" role="button" aria-expanded="false">Cadastrar</a>
+              </div>
+              <div>
+                <a class="nav-link" id="texto-navbar-menu" href="{% url 'processo-list' %}" role="button" aria-expanded="false">Listar</a>
+              </div>
+              <div>
+                <a class="nav-link" id="texto-navbar-menu" href="{% url 'relatorios-processo' %}" role="button" aria-expanded="false">Relatórios</a>
+              </div>
+              <div>
+                <a class="nav-link" id="texto-navbar-menu" href="{% url 'lancamento-por-usuario' %}" role="button" aria-expanded="false">Lançamentos por Funcionário</a>
+              </div>
+              <hr>
+              <h4 style="background-color: #e06e6e; color: white; height: 35px; text-align: center;"> Atendimentos</h4> 
+              <div>
+                <a class="nav-link" id="texto-navbar-menu" href="{% url 'atendimento-create' %}" role="button" aria-expanded="false">Cadastrar</a>
+              </div>
+              <div>
+                <a class="nav-link" id="texto-navbar-menu" href="{% url 'atendimento-list' %}" role="button" aria-expanded="false">Listar</a>
+              </div>
+              <hr>
+              <h4 style="background-color: #83a4b1; color: white; height: 35px; text-align: center;"> Contatos</h4> 
+              <div>
+                <a class="nav-link" id="texto-navbar-menu" href="{% url 'contato-create' %}" role="button" aria-expanded="false">Cadastrar</a>
+              </div>
+              <div>
+                <a class="nav-link" id="texto-navbar-menu" href="{% url 'contato-list' %}" role="button" aria-expanded="false">Listar</a>
+              </div>
+            {% endif %}
+          </ul>
+          </div>
+        </div>
+      </div>
+    </nav> 
+  {% endblock %}
+
+  {% block conteudo %}   
+   
+  {% endblock %}
+  
+  <!-- Importação JS do Jquery -->
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  
+  <!-- Importação JS do Bootstrap JS  -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-HwwvtgBNo3bZJJLYd8oVXjrBZt8cqVSpeBNS5n7C8IVInixGAoxmnlMuBnhbgrkm" crossorigin="anonymous"></script>
+
+  {% block scripts %}
+  {% endblock %}
+</body>
+
+<footer>
+  <div>
+    {% if user.is_authenticated %}
+      Empresa Teste | Versão 1.0.1 | Data: {% now 'd/m/Y' %} | Usuário: {{ user }}
+    {% else %}
+      Empresa Teste | Versão 1.0.1 | Data: {% now 'd/m/Y' %} | Usuário:
+    {% endif %}
+  </div>
+</footer>
+</html>

@@ -1,0 +1,282 @@
+{% extends 'core/inicio.html' %}
+
+{% load static %}
+
+{% block titulo %}
+    <title>Listar Processos</title>
+{% endblock %}
+
+{% block conteudo %} 
+    <div class="p-4" id="style_containers">
+        <div class="card" id="card-processos">
+            <div class="card-header text-white" style="background-color: #5c5c5c;">
+                <div class="row">
+                    <div class="col">
+                        <a href="{% url 'processo-create' %}"><button type="button"  style="border-radius: 4px; background-color: #0098DB; color: white;"><b>Cadastrar</b></button></a>
+                        <a href="{% url 'relatorios-processo' %}"><button type="button" style="border-radius: 4px; background-color: #0098DB; color: white;"><b>Relatórios</b></button></a>
+                        <a href="{% url 'lancamento-por-usuario' %}"><button type="button" style="border-radius: 4px; background-color: #0098DB; color: white;"><b>Lançamentos</b></button></a>
+                    </div>
+                    <div class="col">
+                        <h4 style="text-align: right;">Listar Processos</h4>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                <form method="get" action="{% url 'processo-list' %}" id="form_filtros">
+                    <div class="row">
+                        <div class="col-auto">
+                            <label for="municipio">Município</label>
+                            <select name="municipio" id="municipio" class="form-control" style="padding: 2px;">
+                                <option value="">--------</option>
+                                {% for municipio in municipios %}
+                                    <option value="{{ municipio.id }}" {% if municipio.id|stringformat:"s" == cache_key_municipio|stringformat:"s" %}selected{% endif %}>{{ municipio.nome }}</option>
+                                {% endfor %}
+                            </select>
+                            <small class="form-text text-muted">Filtro município obrigatório</small>
+                        </div>
+                        <div class="col-auto">
+                            <label for="exercicio">Exercício</label>
+                            <input style="padding: 2px;" type="number" class="form-control" name="exercicio" id="exercicio" value="{{ cache_key_exercicio }}" autocomplete="off">
+                        </div>
+                        <div class="col-auto">
+                            <label for="numero">Número</label>
+                            <input style="padding: 2px;" type="text" class="form-control" name="numero" id="numproc" value="{{ cache_key_numero }}" autocomplete="off">
+                        </div>
+                        <div class="col">
+                            <label for="contribuinte">Nome contribuinte</label>
+                            <input style="padding: 2px;" type="text" class="form-control" name="contribuinte" id="contribuinte" value="{{ cache_key_contribuinte }}" autocomplete="off" oninput="limparTexto(this)">
+                        </div>
+                        <div class="col-auto">
+                            <label for="documento">CPF / CNPJ</label>
+                            <input style="padding: 2px;" type="text" class="form-control" name="documento" id="doccontri" value="{{ cache_key_documento }}" autocomplete="off">
+                        </div>
+                        <div class="col-auto">
+                            <label for="tipo">Tipo</label>
+                            <select name="tipo" id="tipo" class="form-control" style="padding: 2px;">
+                                <option value="">--------</option>
+                                {% for tipo in tipos %}
+                                <option value="{{ tipo.id }}" {% if tipo.id|stringformat:"s" == cache_key_tipo|stringformat:"s" %}selected{% endif %}>{{ tipo.tipo }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-auto">
+                            <label for="criador">Criador</label>
+                            <select name="criador" id="criador" class="form-control" style="padding: 2px;">
+                                <option value="">--------</option>
+                                {% for usuario in usuarios %}
+                                {% with usuario_selecionado=criador_session|stringformat:"s" %}
+                                <option value="{{ usuario.id }}" {% if usuario.id|stringformat:"s" == cache_key_criador|stringformat:"s" %}selected{% endif %}>{{ usuario.username }}</option>
+                                {% endwith %}
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-auto">
+                            <label for="matricula">Matrícula Avaliação</label>
+                            <input type="text" id="matricula" name="matricula" class="form-control" value="{{ cache_key_matricula }}" style="padding: 2px;">
+                        </div>
+                    </div>
+                    <br>
+                    <div class="row">
+                        <div class="col">
+                            <button type="submit"  style="border-radius: 4px;"><b>Pesquisar</b></button>
+                        </div>
+                        <div class="col">
+                            <a href="{% url 'limpar-cache-processos' %}"><button type="button" name="limpar_filtros" style="border-radius: 4px;"><b>Limpar</b></button></a>
+                        </div>
+                        <div class="col"></div>
+                        <div class="col"></div>
+                        <div class="col"></div>
+                        <div class="col"></div>
+                        <div class="col"></div>
+                        <div class="col"></div>
+                        <div class="col"></div>
+                        <div class="col"></div>
+                        <div class="col"></div>
+                        <div class="col"></div>
+                        <div class="col"></div>
+                        <div class="col"></div>
+                        <div class="col"></div>
+                        <div class="col"></div>
+                        <div class="col"></div>
+                        <div class="col"></div>
+                        <div class="col"></div>
+                        <div class="col"></div>
+                        <div class="col"></div>
+                        <div class="col"></div>
+                        <div class="col"></div>
+                        <div class="col"></div>
+                        <div class="col"></div>
+                        <div class="col"></div>
+                    </div>
+                </form>
+                <br>
+                <div class="table-responsive">
+                    <table class="table table-hover" id="tabela-listar-processos">
+                        <thead>
+                            <tr class="table" >
+                                <th id="cabecalho-list-processos">Processo</th>
+                                <th id="cabecalho-list-processos">Tipo</th>
+                                <th id="cabecalho-list-processos">Município</th>
+                                <th id="cabecalho-list-processos">Contribuinte</th>
+                                <th id="cabecalho-list-processos">CPF/CNPJ</th>
+                                <th id="cabecalho-list-processos"></th>
+                                <th id="cabecalho-list-processos"></th>
+                                <th id="cabecalho-list-processos"></th>
+                                {% if user.is_superuser %}
+                                    <th id="cabecalho-list-processos"></th>
+                                {% endif %}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for processo in object_list %}
+                                <tr>
+                                    <td id="linhas-list-processos" class="n-mask">{{ processo.numero }}</td>
+                                    <td id="linhas-list-processos">{{ processo.tipo }}</td>
+                                    <td id="linhas-list-processos">{{ processo.municipio }}</td>
+                                    <td id="linhas-list-processos">{{ processo.contribuinte.nome_contribuinte|truncatechars:45 }}</td>
+                                    <td id="linhas-list-processos" class="d-mask">{{ processo.contribuinte.documento }}</td>
+                                    <td id="linhas-list-processos">
+                                        <a href="{% url 'processo-detail-view' processo.id %}"><button type="button" style="border-radius: 4px; background-color: #ffffff;">Visualizar</button></a>
+                                        <a href="{% url 'processo-update' processo.id %}"><button type="button" style="border-radius: 4px; background-color: #ffffff;">Editar</button></a> 
+                                    </td>
+                                    <td id="linhas-list-processos">
+                                        <div class="modal fade" id="modalDeleteProcesso" tabindex="-1" role="dialog" aria-labelledby="confirmDeleteModalLabel" aria-hidden="true">
+                                            <div class="modal-dialog modal-dialog-centered" role="document">
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                        <h5 class="modal-title" id="confirmDeleteModalLabel"><b>Confirmar Exclusão</b></h5>
+                                                        <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close"></button>                                                               
+                                                    </div>
+                                                    <div class="modal-body" style="text-align: center;">
+                                                        <div class="col">
+                                                            <h5>Tem certeza que deseja excluir o processo?</h5>
+                                                        </div>
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <div class="col">
+
+                                                        </div>
+                                                        <button type="button" id="confirmDeleteBtn" style="border-radius: 4px; background-color: #ff0000; color: white;"><b>Excluir</b></button>
+                                                        <div class="col">
+
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <form class="deleteForm" method="post" action="{% url 'processo-delete' processo.id %}">
+                                            {% csrf_token %}
+                                            <button type="button" class="deleteButton" style="border-radius: 4px; background-color: #ffffff;">Excluir</button>
+                                        </form>
+                                    </td>
+                                    <td id="linhas-list-processos">                                 
+                                        <a href="{% url 'andamento-list' processo.id %}"><button type="button" style="border-radius: 4px; background-color: #ffb14c;color: white;"><b>Andamentos</b></button></a>
+                                    </td>
+                                    {% if user.is_superuser %}
+                                        <td id="linhas-list-processos">
+                                            <a href="{% url 'proc-atendimento-list' processo.id %}"><button type="button" style="border-radius: 4px; background-color: #ffffff;">Atendimentos</button></a>
+                                        </td>
+                                    {% endif %}
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>   
+    </div>
+    <br><br><br><br>
+{% endblock %}
+
+{% block scripts %}
+    <!-- Importação JS da minha 'datatable' -->
+    <script src="https://cdn.datatables.net/v/bs5/dt-1.13.6/datatables.min.js"></script>
+
+    <script>
+        $(document).ready(function(){
+            $("#numproc").mask("00000/0000", {reverse: true});
+            $("#doccontri").mask("00000000000000", {reverse: true});
+            $(".n-mask").mask("00000/0000", {reverse: true});
+
+            $('.d-mask').each(function() {
+                var documento = $(this).text().replace(/\D/g, '');
+                
+                if (documento.length === 11) {
+                    $(this).mask('000.000.000-00', { reverse: true });
+                } else if (documento.length === 14) {
+                    $(this).mask('00.000.000/0000-00', { reverse: true });
+                }
+            });
+
+            $('.criador').each(function() {
+                var maiuscula = $(this).text().toUpperCase();
+                $(this).text(maiuscula);
+            });
+
+            $('.deleteButton').click(function() { 
+                var form = $(this).closest('.deleteForm');
+                var modal = $('#modalDeleteProcesso');
+
+                modal.modal('show');
+
+                modal.find('#confirmDeleteBtn').click(function() {
+                    form.submit();
+                });
+            });
+
+            $('.btn-close').on('click', function() {
+                var modal = $(this).closest('.modal');
+                modal.modal('hide');
+            });
+  
+            $('#tabela-listar-processos').DataTable({
+                responsive: true,
+                "searching": false,
+                "aaSorting": [],
+                "pageLength": 8,
+                "language": {
+                    "decimal": "",
+                    "emptyTable": "Nenhum processo filtrado",
+                    "info": "Filtrados: _TOTAL_ ",
+                    "infoEmpty": "Ativos: 0",
+                    "infoFiltered": "",
+                    "infoPostFix": "",
+                    "thousands": ",",
+                    "lengthMenu": "Mostrar _MENU_ processos",
+                    "loadingRecords": "A carregar dados...",
+                    "processing": "A processar...",
+                    "zeroRecords": "Nenhum processo filtrado",
+                    "paginate": {
+                        "first": "Primeiro",
+                        "last": "Último",
+                        "next": "Próximo",
+                        "previous": "Anterior"
+                    },
+                    "aria": {
+                        "sortAscending": ": ordem crescente",
+                        "sortDescending": ": ordem decrescente"
+                    }
+                }
+            });
+
+            $("#form_filtros").submit(function() {
+                $("#numproc").unmask();
+
+                return true;
+            });
+        });
+    </script>
+
+    <!-- Importação do arquivo dentro da pasta static/js para usar máscaras nos campos input -->
+    <script src="{% static 'js/jquery.mask.min.js' %}"></script>
+
+    <script>
+        function limparTexto(input){
+            var textoSemEspeciais = input.value.replace(/[^A-Za-z0-9\s@,.À-ÖØ-öø-ÿ]/g, '');
+            textoSemEspeciais = textoSemEspeciais.toUpperCase();
+            input.value = textoSemEspeciais;
+        }
+    </script>
+{% endblock %} 
+

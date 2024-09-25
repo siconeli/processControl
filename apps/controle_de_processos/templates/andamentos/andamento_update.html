@@ -1,0 +1,800 @@
+{% extends 'core/inicio.html' %}
+
+{% load static %}
+
+{% load widget_tweaks %}
+
+{% block titulo %}
+<title>Editar Andamento</title>
+{% endblock %}
+
+{% block conteudo %}
+<div class="p-4" id="style_containers">
+    <div class="card">
+        <form action="" method="post" enctype="multipart/form-data" id="meuFormulario">
+        <div class="card-header text-white" style="background-color: #5c5c5c;">
+            <div class="row">
+                <div class="col">
+                    <button type="submit" id="btn-salvar" style="border-radius: 4px; background-color: #ffb14c; color: white;"><b>Salvar</b></button>
+                    <a href="{{ cancelar }}"><button type="button" id="btn-cancelar-and" style="border-radius: 4px; background-color: #a19f9f; color: white;"><b>Cancelar</b></button></a>
+                </div>
+                <div class="col">
+                    <h4 style="text-align: right;">Editar Andamento</h4>
+                </div>
+            </div>
+        </div>
+        <div class="card-body">
+            {% for atributo in dados_processo %}
+                <span>Processo:</span>
+                <h6 id="numero_processo">{{ atributo.numero }}</h6>
+                <span hidden id="processo_id">{{ atributo.id}}</span>
+            {% endfor %}
+            <hr>
+                {% csrf_token %}
+                <div class="row">
+                    <div class="col">
+                        <label for="data_andamento">Data do Andamento</label>
+                        <input type="date" name="data_andamento" value="{{ object.data_andamento|date:'Y-m-d' }}" class="form-control" id="id_data_andamento" style="padding: 2px;">
+                    </div>
+                    <div class="col">
+                        <label for="codigo">Código</label>
+                        <input type="number" class="form-control" id="codigo" maxlength="10" style="padding: 2px;">
+                    </div>
+                    <div class="col" >
+                        <label for="tipo_andamento">Tipo de Andamento</label>
+                        {% render_field form.tipo_andamento class="andamento form-control" id="tipo_andamento" name="tipo_andamento" style="padding: 2px;"%}
+                    </div>
+                    <div class="col" style="display: none;" id="situacao_pagamento">
+                        <label for="sit">Situação do Pagamento</label>
+                        {% render_field form.situacao_pagamento class="form-control" id="sit" style="padding: 2px;"%}
+                    </div>
+                    <div class="col" style="display: none;" id="valor_pago">
+                        <label for="pag">Total do Valor Pago</label>
+                        {% render_field form.valor_pago class="mask-money form-control" type="text" maxlength="17" id="pag" placeholder="R$" style="padding: 2px;"%}
+                    </div>
+                    <div class="col" style="display: none;" id="numero_aiti_div">
+                        <label for="numero_aiti">Nº AIT</label>
+                        {% render_field form.numero_aiti class="form-control" id="num_aiti" placeholder="     /    " style="padding: 2px;"%}
+                    </div>
+                    <div class="col" style="display: none;" id="data_aiti_div">
+                        <label for="data_aiti">Data AITI</label>
+                        <input type="date" name="data_aiti" value="{{ object.data_aiti|date:'Y-m-d' }}" class="form-control" id="date_aiti" style="padding: 2px;">
+                    </div>
+                    <div class="col" style="display: none;" id="funcionario">
+                        <label for="funcionario">Responsável</label>
+                        {% render_field form.funcionario class="form-control" id="func" style="padding: 2px;"%}
+                    </div>
+                    <div class="col" style="display: none;" id="localizacao_processo">
+                        <label for="loc">Localização Processo</label>
+                        {% render_field form.localizacao_processo class="form-control" id="loc" style="padding: 2px;"%}
+                    </div>
+                </div>
+                <br style="display: none;" class="br_prazo">
+                <div class="row" style="display: none;" id="prazo_recebimento">
+                    <input type="hidden" id="data_criacao" value="{{ object.data_criacao|date:'Y-m-d' }}">
+                    <div class="col">
+                        <label for="dias_data_prazo">Dias Prazo</label>
+                        <input type="number" name="dias_data_prazo" value="{{ object.dias_data_prazo }}" class="form-control" id="dias_data_prazo" style="padding: 2px;">
+                    </div>
+                    <div class="col">
+                        <label for="data_prazo">Prazo</label>
+                        <input type="date" name="data_prazo" value="{{ object.data_prazo|date:'Y-m-d' }}" class="form-control" id="data_prazo" style="padding: 2px;">
+                    </div>
+                    <div class="col">
+                        <label for="data_recebimento">Confirmado o Recebimento em</label>
+                        <input type="date" name="data_recebimento" value="{{ object.data_recebimento|date:'Y-m-d' }}" class="form-control" id="data_recebimento" style="padding: 2px;">
+                    </div>
+                </div>
+                <br>
+                <div class="row">
+                    <div class="col">
+                        <label for="obs">Observação</label>
+                        <textarea name="obs" id="obs" class="form-control" style="height: 110px;" oninput="maiuscula(this)">{{ object.obs }}</textarea>
+                    </div>
+                </div>
+                <br>
+                <div class="row">
+                    <div class="col">
+                        <label for="arquivo">Arquivo 1</label>
+                        {% render_field form.arquivo id="arquivo" name="arquivo" class="form-control" accept=".pdf, .docx, .doc" style="padding: 2px;"%}
+                        <label for="arquivo">Formato:.pdf, .docx, .doc /</label>
+                        <label for="arquivo"> Tamanho Máximo:100MB</label>
+                    </div>
+                    <div class="col">
+                        <label for="arquivo2">Arquivo 2</label>
+                        {% render_field form.arquivo2 id="arquivo2" name="arquivo2" class="form-control" accept=".pdf, .docx, .doc" style="padding: 2px;"%} 
+                        <label for="arquivo2">Formato:.pdf, .docx, .doc /</label>
+                        <label for="arquivo2"> Tamanho Máximo:100MB</label>
+                    </div>
+                </div>
+                <br>
+                {% if avaliacao_form %}
+                    <h5 style="display: none;" id="ava">Avaliação Imobiliária</h5>
+                    <hr style="display: none;" id="linha">
+                    <div class="row">
+                        <div class="col" style="display: none;" id="matricula">
+                            <label for="matricula">Matrícula</label>
+                            {% render_field avaliacao_form.matricula name="matricula" class="form-control" id="matri" maxlength="20"%}
+                        </div>
+                        <div class="col" style="display: none;" id="finalidade"> 
+                            <label for="finalidade">Finalidade</label>
+                            {% render_field avaliacao_form.finalidade name="finalidade" class="form-control" id="fin" maxlength="12"%}
+                        </div>
+                        <div class="col" style="display: none;" id="area"> 
+                            <label for="area">Área</label>
+                            {% render_field avaliacao_form.area name="area" class="form-control" type="text" id="area_input" maxlength="12"%}
+                        </div>
+                        <div class="col" style="display: none;" id="data_pedido">
+                            <label for="data_pedido">Data Pedido</label>
+                            <input type="date" name="data_pedido" value="{{ avaliacao_object.data_pedido|date:'Y-m-d' }}" class="form-control" id="date_pedido">
+                        </div>
+                        <div class="col" style="display: none;" id="data_avaliacao">
+                            <label for="data_avaliacao">Data Avaliação</label>
+                            <input type="date" name="data_avaliacao" value="{{ avaliacao_object.data_avaliacao|date:'Y-m-d' }}" class="form-control" id="date_avaliacao">
+                        </div>
+                        <div class="col" style="display: none;" id="tipo_andamento_avaliacao"> 
+                            <label for="tipo_andamento_avaliacao">Andamento Avaliação</label>
+                            {% render_field avaliacao_form.tipo_andamento_avaliacao class="form-control" id="tip_and" name="tipo_andamento_avaliacao" %}
+                        </div>
+                        <div class="col" style="display: none;" id="responsavel"> 
+                            <label for="responsavel">Responsável</label>
+                            {% render_field avaliacao_form.responsavel class="form-control" id="resp" name="responsavel" %}
+                        </div>
+                    </div>
+                    <br style="display: none;" class="br_avaliacao">
+                    <div class="row">
+                        <div class="col" style="display: none;" id="operacao"> 
+                            <label for="operacao">Tipo Operação</label>
+                            {% render_field avaliacao_form.operacao class="form-control" id="op" name="operacao" %}
+                        </div>
+                        <div class="col" style="display: none;" id="valor_declarado"> 
+                            <label for="valor_declarado">Valor Declarado</label>
+                            {% render_field avaliacao_form.valor_declarado class="form-control" type="text" id="val_declarado" name="valor_declarado" maxlength="17" placeholder="R$" %}
+                        </div>
+                        <div class="col" style="display: none;" id="valor_avaliado"> 
+                            <label for="valor_avaliado">Valor Avaliado</label>
+                            {% render_field avaliacao_form.valor_avaliado class="form-control" type="text" id="val_avaliado" name="valor_avaliado" maxlength="17" placeholder="R$" %}
+                        </div>
+                        <div class="col" style="display: none;" id="valor_pago_avaliacao"> 
+                            <label for="valor_pago_avaliacao">ITBI - Valor Pago</label>
+                            {% render_field avaliacao_form.valor_pago_avaliacao class="form-control" type="text" id="val_pago_avaliacao" name="valor_pago_avaliacao" maxlength="17" placeholder="R$" %}
+                        </div>
+                        <div class="col" class="col" style="display: none;" id="data_valor_pago"> 
+                            <label for="data_valor_pago">Data Pagamento</label>
+                            <input type="date" name="data_valor_pago" value="{{ avaliacao_object.data_valor_pago|date:'Y-m-d' }}" class="form-control" id="data_valor_pago">
+                        </div>
+                    </div>  
+                {% endif %}
+                <br style="display: none;" class="br_avaliacao">
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="matriculaModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLongTitle"><b>Atenção</b></h5>
+                <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <h5 id="avisoMatriculaModal"></h5>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+    <!-- Importação do Jquery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <!-- Importações para utilizar maskMoney -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-maskmoney/3.0.2/jquery.maskMoney.min.js"></script>
+
+    <!-- Importação do arquivo dentro da pasta static/js para usar máscaras nos campos input -->
+    <script src="{% static 'js/jquery.mask.min.js' %}"></script>
+
+    <script>
+        $(document).ready(function() {
+            aplicarMascara();
+            buscaPrazo();
+            buscaMatricula(); 
+            buscaAndamentoPeloCodigo();  
+            buscaPagamento();
+            buscaEncaminhamento();
+            buscaNumeroAiti();
+            buscaAvaliacaoImobiliaria();
+
+            $("#numero_processo").mask("00000/0000", {reverse: true});
+            $("#num_aiti").mask("00000/0000", {reverse: true});
+            $('#fin').change(aplicarMascara);
+            $('#pag').maskMoney({
+                prefix: 'R$ ', 
+                allowNegative: false, 
+                thousands: '.', 
+                decimal: ',',
+                precision: 2, 
+                affixesStay: true 
+            });
+            $('#val_declarado').maskMoney({
+                prefix: 'R$ ', 
+                allowNegative: false, 
+                thousands: '.', 
+                decimal: ',',
+                precision: 2, 
+                affixesStay: true 
+            });
+            $('#val_avaliado').maskMoney({
+                prefix: 'R$ ', 
+                allowNegative: false, 
+                thousands: '.', 
+                decimal: ',',
+                precision: 2, 
+                affixesStay: true 
+            });
+            $('#val_pago_avaliacao').maskMoney({
+                prefix: 'R$ ', 
+                allowNegative: false, 
+                thousands: '.', 
+                decimal: ',',
+                precision: 2, 
+                affixesStay: true 
+            });
+
+            $('form').on('submit', function() {
+                var pag = $('#pag').maskMoney('unmasked')[0];
+                $('#pag').val(pag);
+                
+                $('#num_aiti').unmask();
+
+                var area_input = $('#area_input').maskMoney('unmasked')[0];
+                $('#area_input').val(area_input);
+
+                var val_declarado = $('#val_declarado').maskMoney('unmasked')[0];
+                $('#val_declarado').val(val_declarado);
+
+                var val_avaliado = $('#val_avaliado').maskMoney('unmasked')[0];
+                $('#val_avaliado').val(val_avaliado);
+
+                var val_pago_avaliacao = $('#val_pago_avaliacao').maskMoney('unmasked')[0];
+                $('#val_pago_avaliacao').val(val_pago_avaliacao);
+
+                var botao = $('#btn-salvar');
+                botao.prop('disabled', true); 
+                botao.text('Enviando... Aguarde o carregamento'); 
+                $('#btn-cancelar-and').hide(); 
+            });
+
+            
+            $('#tipo_andamento').change(function(){
+                buscaPrazo();
+                buscaPagamento();
+                buscaEncaminhamento();
+                buscaNumeroAiti();
+                buscaAvaliacaoImobiliaria();
+            });
+     
+
+            var data_prazo = $('#data_prazo');
+            data_prazo.prop('readonly', true);
+
+            document.getElementById('id_data_andamento').addEventListener('input', calcularDias);
+            document.getElementById('dias_data_prazo').addEventListener('input', calcularDias);
+        });
+    </script>
+
+    <script>
+        function aplicarMascara(){
+            var finalidade = $('#fin').val();
+            if(finalidade === '2'){ 
+                $('#area_input').maskMoney({
+                    prefix: '', 
+                    allowNegative: false, 
+                    thousands: '.', 
+                    decimal: ',', 
+                    precision: 2, 
+                    affixesStay: false 
+                });
+            } else {
+                $('#area_input').maskMoney({
+                    prefix: '', 
+                    allowNegative: false, 
+                    thousands: '.', 
+                    decimal: ',', 
+                    precision: 4, 
+                    affixesStay: false 
+                });
+            }
+        }
+
+        function calcularDias(){
+            var dias = parseInt(document.getElementById('dias_data_prazo').value);
+            var data_andamento_str = document.getElementById('id_data_andamento').value;
+            var data_andamento = new Date(data_andamento_str);
+            data_andamento.setDate(data_andamento.getDate() + dias);
+            var dataFormatada = data_andamento.toISOString().split('T')[0];
+            document.getElementById('data_prazo').value = dataFormatada;
+        };
+
+        function maiuscula(input) {
+            var text = input.value;  
+            textMaiuscula = text.toUpperCase(); 
+            input.value = textMaiuscula;  
+        }
+
+        function buscaMatricula() {
+            $('#matri').change(function(){
+                var num_matricula = $('#matri').val();
+                var processo_id = $('#processo_id').text();
+
+                $.ajax({
+                    url: "{% url 'verifica-matricula' %}",
+                    method: 'get',
+                    data: {
+                        'processo_id': processo_id,
+                        'num_matricula': num_matricula
+                    },
+
+                    dataType: 'json',
+                    success: function(data){
+                        if(data['message'] != ''){
+                            var textAviso = $('#avisoMatriculaModal');
+                            var modal = $('#matriculaModal');
+
+                            textAviso.text(data['message']);
+                            modal.modal('show');
+                            
+                            var selectField = document.getElementById("tip_and");
+                            selectField.value = 3;
+
+                            $('.btn-close').on('click', function() {
+                            var modal = $(this).closest('.modal');
+                            modal.modal('hide');
+                            });
+                        }
+                    },
+
+                    error: function(error){
+                        alert('Erro ao verificar matrícula, entre em contato com o suporte do sistema.')
+                    }
+            
+                });
+            });
+        };
+        
+        function buscaAndamentoPeloCodigo() {
+            var preenchido = $('#dias_data_prazo').val();
+            if(preenchido){
+                $('#prazo_recebimento').show();
+            }
+
+            $('#codigo').change(function(){
+                var cod_tip_and = $('#codigo').val();
+
+                $.ajax({
+                    url: "{% url 'busca-codigo' %}",
+                    method: 'get',
+                    data: {
+                        'cod_tip_and': cod_tip_and
+                    },
+
+                    dataType: 'json',
+                    success: function(data){
+                        if(data['id']){
+                            $('#tipo_andamento').val(data['id']);
+                            $('#tipo_andamento').change();
+                            $('#codigo').val("");
+                        }
+                    },
+
+                    error: function(error){
+                        alert('Código não cadastrado.')
+                        $('#codigo').val("");
+                    }
+                });
+                
+            });    
+        };
+
+        function buscaPrazo() {
+            var dias_prazo = $('#dias_data_prazo');
+            var data_prazo = $('#data_prazo');
+            var data_receb = $('#data_recebimento');
+
+            var tip_and = $('#tipo_andamento');
+            var tip_and_select = tip_and.find('option:selected').val();
+            
+            $.ajax({
+                url: "{% url 'busca-prazo' %}",
+                method: 'get',
+                data: {
+                    'tip_and_select': tip_and_select
+                },
+
+                dataType: 'json',
+                success: function(data){
+                    if(data['prazo']){
+                        $('#prazo_recebimento').show();
+                        $('.br_prazo').show();
+                        dias_prazo.prop('required', true);
+                        data_prazo.prop('required', true);
+                    }else{
+                        $('#prazo_recebimento').hide();
+                        $('.br_prazo').hide();
+                        dias_prazo.prop('required', false);
+                        dias_prazo.val("");
+                        data_prazo.prop('required', false);
+                        data_prazo.val("");
+                        data_receb.val("");
+                    }
+                },
+
+                error: function(error){
+                    console.log(error)
+                    $('#prazo_recebimento').hide();
+                    $('.br_prazo').hide();
+                    dias_prazo.prop('required', false);
+                    dias_prazo.val("");
+                    data_prazo.prop('required', false);
+                    data_prazo.val("");
+                    data_receb.val("");
+                }
+            });
+        }
+
+        function buscaPagamento() {
+            var situacao = $("#sit");
+            var pago = $("#pag");
+
+            var tip_and = $('#tipo_andamento');
+            var tip_and_select = tip_and.find('option:selected').val();
+            
+            $.ajax({
+                url: "{% url 'busca-pagamento' %}",
+                method: 'get',
+                data: {
+                    'tip_and_select': tip_and_select
+                },
+
+                dataType: 'json',
+                success: function(data){
+                    if(data['pagamento']){
+                        $("#situacao_pagamento").show();
+
+                        if (situacao.val() === 'Com Pagamento') {
+                            $("#valor_pago").show();
+                            
+                            pago.prop('required', true);
+            
+                        } else if (situacao.val() === 'Sem Pagamento') { 
+                            $("#valor_pago").hide();
+                            pago.val("");
+
+                            var valor = $('#pag').maskMoney('unmasked')[0];
+                            $('#pag').val(valor);
+                            
+                            pago.prop('required', false);
+            
+                        } else if (situacao.val() === "") {
+                            situacao.val("Sem Pagamento"); 
+                            $("#valor_pago").hide();
+                            pago.val("");
+                            pago.prop('required', false);
+
+                            var valor = $('#pag').maskMoney('unmasked')[0];
+                            $('#pag').val(valor);
+                        
+                        } else if (situacao.val() === 'Registrado no andamento "Avaliação Imobiliária"') {
+                                $("#valor_pago").hide();
+                                pago.val("");
+                                pago.prop('required', false);
+
+
+                                var valor = $('#pag').maskMoney('unmasked')[0];
+                                $('#pag').val(valor);
+                        }
+
+                        $('#situacao_pagamento').change(function(){
+                            if (situacao.val() === 'Com Pagamento') {
+                                $("#valor_pago").show();
+                                
+                                pago.prop('required', true);
+                
+                            } else if (situacao.val() === 'Sem Pagamento') { 
+                                $("#valor_pago").hide();
+                                pago.val("");
+
+
+                                var valor = $('#pag').maskMoney('unmasked')[0];
+                                $('#pag').val(valor);
+                                
+                                pago.prop('required', false);
+                
+                            } else if (situacao.val() === "") {
+                                situacao.val("Sem Pagamento"); 
+                                $("#valor_pago").hide();
+                                pago.val("");
+                                pago.prop('required', false);
+
+                                var valor = $('#pag').maskMoney('unmasked')[0];
+                                $('#pag').val(valor);
+                                
+                            } else if (situacao.val() === 'Registrado no andamento "Avaliação Imobiliária"') {
+                                $("#valor_pago").hide();
+                                pago.val("");
+                                pago.prop('required', false);
+
+                                var valor = $('#pag').maskMoney('unmasked')[0];
+                                $('#pag').val(valor);
+                        }
+                        });
+
+                    } else {
+                        $("#situacao_pagamento").hide();
+                        $("#valor_pago").hide();
+            
+                        pago.val("");
+                        situacao.val("");
+
+                        var valor = $('#pag').maskMoney('unmasked')[0];
+                        $('#pag').val(valor);
+                    }
+                },
+
+                error: function(error){
+                    console.log(error)
+
+                    $("#situacao_pagamento").hide();
+                    $("#valor_pago").hide();
+        
+                    pago.val("");
+                    situacao.val("");
+
+                    var valor = $('#pag').maskMoney('unmasked')[0];
+                    $('#pag').val(valor);
+                }
+            });
+        }
+
+        function buscaEncaminhamento() {
+            var fun = $("#func");
+            var loc = $("#loc");
+
+            var tip_and = $('#tipo_andamento');
+            var tip_and_select = tip_and.find('option:selected').val();
+            
+            $.ajax({
+                url: "{% url 'busca-encaminhamento' %}",
+                method: 'get',
+                data: {
+                    'tip_and_select': tip_and_select
+                },
+
+                dataType: 'json',
+                success: function(data){
+                    if(data['encaminhamento']){
+                        $("#funcionario").show();
+                        $("#localizacao_processo").show();
+                        fun.prop('required', true);
+                        loc.prop('required', true);                  
+                    } else {
+                        $("#funcionario").hide();
+                        $("#localizacao_processo").hide();
+                        fun.val("");
+                        loc.val("");
+                        fun.prop('required', false);
+                        loc.prop('required', false);
+                    }
+                },
+
+                error: function(error){
+                    console.log(error)
+
+                    $("#funcionario").hide();
+                    $("#localizacao_processo").hide();
+                    fun.val("");
+                    loc.val("");
+                    fun.prop('required', false);
+                    loc.prop('required', false);
+                }
+            });
+        }
+
+        function buscaNumeroAiti() {
+            var num_aiti = $('#num_aiti');
+            var date_aiti = $('#date_aiti');
+
+            var tip_and = $('#tipo_andamento');
+            var tip_and_select = tip_and.find('option:selected').val();
+            
+            $.ajax({
+                url: "{% url 'busca-numero_aiti' %}",
+                method: 'get',
+                data: {
+                    'tip_and_select': tip_and_select
+                },
+
+                dataType: 'json',
+                success: function(data){
+                    if(data['numero_aiti']){
+                        $("#numero_aiti_div").show();
+                        $("#data_aiti_div").show();
+                        num_aiti.prop('required', true);
+                        date_aiti.prop('required', true);        
+                    } else {
+                        $("#numero_aiti_div").hide();
+                        $("#data_aiti_div").hide();
+                        num_aiti.val("");
+                        date_aiti.val("");
+                        num_aiti.prop('required', false);
+                        date_aiti.prop('required', false);
+                    }
+                },
+
+                error: function(error){
+                    console.log(error)
+
+                    $("#numero_aiti_div").hide();
+                    $("#data_aiti_div").hide();
+                    num_aiti.val("");
+                    date_aiti.val("");
+                    num_aiti.prop('required', false);
+                    date_aiti.prop('required', false);
+                }
+            });
+        }
+        
+        function buscaAvaliacaoImobiliaria() {
+            var matri = $("#matri");
+            var area_input = $('#area_input');
+            var finalidade = $('#fin');
+            var data_pedido = $('#date_pedido');
+            var data_avaliacao = $('#date_avaliacao');
+            var tipo_andamento = $('#tip_and');
+            var operacao = $('#op');
+            var responsavel = $('#resp');
+            var valor_declarado = $('#val_declarado');
+            var valor_avaliado = $('#val_avaliado');
+
+            var tip_and = $('#tipo_andamento');
+            var tip_and_select = tip_and.find('option:selected').val();
+            
+            $.ajax({
+                url: "{% url 'busca-avaliacao_imobiliaria' %}",
+                method: 'get',
+                data: {
+                    'tip_and_select': tip_and_select
+                },
+
+                dataType: 'json',
+                success: function(data){
+                    if(data['avaliacao_imobiliaria']){
+                        $('#ava').show();
+                        $('#linha').show();
+                        $('.br_avaliacao').show();
+
+                        $('#matricula').show();
+                        matri.prop('required', true);
+
+                        $('#area').show();
+                        area_input.prop('required', true);
+
+                        $('#finalidade').show();
+                        finalidade.prop('required', true);
+
+                        $('#data_pedido').show();
+                        data_pedido.prop('required', true);
+
+                        $('#data_avaliacao').show();
+                        data_avaliacao.prop('required', true);
+
+                        $('#tipo_andamento_avaliacao').show();
+                        tipo_andamento.prop('required', true);
+
+                        $('#operacao').show();
+                        operacao.prop('required', true);
+
+                        $('#responsavel').show();
+                        responsavel.prop('required', true);
+
+                        $('#valor_declarado').show();
+                        valor_declarado.prop('required', true);
+
+                        $('#valor_avaliado').show();
+                        valor_avaliado.prop('required', true);
+
+                        $('#valor_pago_avaliacao').show();
+                        $('#data_valor_pago').show();        
+                    } else {
+                        $('#ava').hide();
+                        $('#linha').hide();
+                        $('.br_avaliacao').hide();
+
+                        $('#matricula').hide();
+                        matri.val('');
+                        matri.prop('required', false);
+
+                        $('#area').hide();
+                        area_input.prop('required', false);
+
+                        $('#finalidade').hide();
+                        finalidade.prop('required', false);
+
+                        $('#data_pedido').hide();
+                        data_pedido.prop('required', false);
+
+                        $('#data_avaliacao').hide();
+                        data_avaliacao.prop('required', false);
+
+                        $('#tipo_andamento_avaliacao').hide();
+                        tipo_andamento.prop('required', false);
+
+                        $('#operacao').hide();
+                        operacao.prop('required', false);
+
+                        $('#responsavel').hide();
+                        responsavel.prop('required', false);
+
+                        $('#valor_declarado').hide();
+                        valor_declarado.prop('required', false);
+
+                        $('#valor_avaliado').hide();
+                        valor_avaliado.prop('required', false);
+
+                        $('#valor_pago_avaliacao').hide();
+                        $('#data_valor_pago').hide();
+                    }
+                },
+
+                error: function(error){
+                    console.log(error)
+
+                    $('#ava').hide();
+                    $('#linha').hide();
+                    $('.br_avaliacao').hide();
+
+                    $('#matricula').hide();
+                    matri.val('');
+                    matri.prop('required', false);
+
+                    $('#area').hide();
+                    area_input.prop('required', false);
+
+                    $('#finalidade').hide();
+                    finalidade.prop('required', false);
+
+                    $('#data_pedido').hide();
+                    data_pedido.prop('required', false);
+
+                    $('#data_avaliacao').hide();
+                    data_avaliacao.prop('required', false);
+
+                    $('#tipo_andamento_avaliacao').hide();
+                    tipo_andamento.prop('required', false);
+
+                    $('#operacao').hide();
+                    operacao.prop('required', false);
+
+                    $('#responsavel').hide();
+                    responsavel.prop('required', false);
+
+                    $('#valor_declarado').hide();
+                    valor_declarado.prop('required', false);
+
+                    $('#valor_avaliado').hide();
+                    valor_avaliado.prop('required', false);
+
+                    $('#valor_pago_avaliacao').hide();
+                    $('#data_valor_pago').hide();
+                }
+            });
+        }
+    </script>
+{% endblock %}
+
+

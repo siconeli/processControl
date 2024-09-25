@@ -1,0 +1,226 @@
+{% extends 'core/inicio.html' %}
+
+{% load static %}
+
+{% load widget_tweaks %} 
+
+{% block titulo %}
+    <title>Visualizar Processo</title>
+{% endblock %}
+
+{% block conteudo %} 
+    <div class="p-4" id="style_containers">
+        <div class="card" id="card-processos">
+            <div class="card-header text-white" style="background-color: #5c5c5c;">
+                <div class="row">
+                    <div class="col">
+                        <a href="{% url 'processo-list' %}"><button type="button"  style="border-radius: 4px; background-color: #a19f9f; color: white;"><b>Voltar</b></button></a>
+                    </div>
+                    <div class="col">
+                        <h4 style="text-align: right;">Visualizar Processo</h4>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                <h5>Processo</h5>
+                <hr>
+                <div class="row"> 
+                    {% if object.numero %}
+                        <div class="col">
+                            <label for="numero">Processo N°</label>
+                            <input type="text" class="form-control" value="{{ object.numero}}" id="numero" readonly style="padding: 2px;">
+                        </div>
+                    {% endif %}
+                    {% if object.uf %}
+                        <div class="col">
+                            <label for="uf">UF</label>
+                            <input type="text" class="form-control" value="{{ object.uf }}" readonly style="padding: 2px;">
+                        </div>
+                    {% endif %}
+                    {% if object.municipio %}
+                        <div class="col">
+                            <label for="municipio">Município</label>
+                            <input type="text" class="form-control" value="{{ object.municipio }}" readonly style="padding: 2px;">
+                        </div>
+                    {% endif %}
+                    {% if object.exercicio %}
+                        <div class="col">
+                            <label for="exercicio">Exercício</label>
+                            <input type="text" class="form-control" value="{{ object.exercicio  }}" readonly style="padding: 2px;">
+                        </div>
+                    {% endif %}
+                    {% if object.data_div_ativa %}
+                        <div class="col">
+                            <label for="data_div_ativa">D.A</label>
+                            <input type="text" class="form-control" value="{{ object.data_div_ativa|date:"d/m/Y" }}" readonly style="padding: 2px;">
+                        </div>
+                    {% endif %}
+                </div>
+                <br>
+                <div class="row">
+                    {% if object.valor_tributo %}
+                        <div class="col">
+                            <label for="valor_tributo">Valor do Tributo</label>
+                            <input type="text" class="form-control" value="R$ {{ valor_tributo }}" readonly style="padding: 2px;">
+                        </div>
+                    {% endif %}
+                    {% if object.valor_multa %}
+                        <div class="col">
+                            <label for="valor_multa">Valor da Multa</label>
+                            <input type="text" class="form-control" value="R$ {{ valor_multa }}" readonly style="padding: 2px;">
+                        </div>
+                    {% endif %}
+                    {% if object.valor_credito %}
+                        <div class="col">
+                            <label for="valor_credito">Valor do Crédito</label>
+                            <input type="text" class="form-control" value="R$ {{ valor_credito }}" readonly style="padding: 2px;">
+                        </div>
+                    {% endif %}
+                    {% if object.valor_atualizado %}
+                        <div class="col">
+                            <label for="valor_atualizado">Valor do Atualizado</label>
+                            <input type="text" class="form-control" value="R$ {{ valor_atualizado }}" readonly style="padding: 2px;">
+                        </div>  
+                    {% endif %}
+                    {% if object.data_valor_atualizado %}
+                        <div class="col">
+                            <label for="data_valor_atualizado">Data Valor Atualizado</label>
+                            <input type="text" class="form-control" value="{{ object.data_valor_atualizado|date:"d/m/Y" }}" readonly style="padding: 2px;">
+                        </div> 
+                    {% endif %}
+                    {% if object.tipo %}
+                        <div class="col">
+                            <label for="tipo">Tipo</label>
+                            <input type="text" class="form-control" value="{{ object.tipo }}" readonly style="padding: 2px;">
+                        </div> 
+                    {% endif %}
+
+                </div>    
+                <br>
+                <h5>Contribuinte</h5>
+                <hr>
+                <div class="row" >
+                    {% if object.contribuinte.nome_contribuinte %}
+                        <div class="col">
+                            <label for="nome_contribuinte">Nome / Razão Social</label>
+                            <input type="text" class="form-control" value="{{ object.contribuinte.nome_contribuinte }}" readonly style="padding: 2px;">
+                        </div> 
+                    {% endif %}
+                    {% if object.contribuinte.tipo_pessoa %}
+                        <div class="col">
+                            <label for="tipo_pessoa">Pessoa</label>
+                            <input type="text" class="form-control" value="{{ object.contribuinte.tipo_pessoa }}" id="tipo_pessoa" readonly style="padding: 2px;">
+                        </div> 
+                    {% endif %}
+                    {% if object.contribuinte.documento %}
+                        <div class="col">
+                            <label for="documento">CPF / CNPJ</label>
+                            <input type="text" class="form-control" value="{{ object.contribuinte.documento }}" id="documento" readonly style="padding: 2px;">
+                        </div> 
+                    {% endif %}
+                    {% if object.contribuinte.nome_fantasia %}
+                        <div class="col">
+                            <label for="nome_fantasia">Nome Fantasia</label>
+                            <input type="text" class="form-control" value="{{ object.contribuinte.nome_fantasia }}" readonly style="padding: 2px;">
+                        </div> 
+                    {% endif %}
+                </div>
+                <br>
+                <div class="row">
+                    {% if object.contribuinte.cep %}
+                        <div class="col">
+                            <label for="cep">CEP</label>
+                            <input type="text" class="form-control" value="{{ object.contribuinte.cep }}" id="cep" readonly style="padding: 2px;">
+                        </div> 
+                    {% endif %}
+                    {% if object.contribuinte.logradouro %}
+                        <div class="col">
+                            <label for="logradouro">Logradouro</label>
+                            <input type="text" class="form-control" value="{{ object.contribuinte.logradouro }}" id="logradouro" readonly style="padding: 2px;">
+                        </div> 
+                    {% endif %}
+                    {% if object.contribuinte.numero_casa %}
+                        <div class="col">
+                            <label for="numero_casa">N°</label>
+                            <input type="text" class="form-control" value="{{ object.contribuinte.numero_casa }}" readonly style="padding: 2px;">
+                        </div> 
+                    {% endif %}
+                    {% if object.contribuinte.bairro %}
+                        <div class="col">
+                            <label for="bairro">Bairro</label>
+                            <input type="text" class="form-control" value="{{ object.contribuinte.bairro }}" readonly style="padding: 2px;">
+                        </div> 
+                    {% endif %}
+                    {% if object.contribuinte.uf_contri %}
+                        <div class="col">
+                            <label for="uf_contri">UF</label>
+                            <input type="text" class="form-control" value="{{ object.contribuinte.uf_contri }}" readonly style="padding: 2px;">
+                        </div> 
+                    {% endif %}
+                    {% if object.contribuinte.localidade %}
+                        <div class="col">
+                            <label for="localidade">Cidade</label>
+                            <input type="text" class="form-control" value="{{ object.contribuinte.localidade }}" readonly style="padding: 2px;">
+                        </div> 
+                    {% endif %}
+                </div>
+                <br>
+                {% if object.contribuinte.complemento %}
+                    <div class="row">
+                        <div class="col">
+                            <label for="complemento">Complemento</label>
+                            <input type="text" class="form-control" value="{{ object.contribuinte.complemento }}" readonly style="padding: 2px;">
+                        </div> 
+                    </div>
+                    <br>
+                {% endif %}
+                <div class="row">
+                    {% if object.contribuinte.email %}
+                    <div class="col">
+                            <label for="email">E-mail</label>
+                            <input type="text" class="form-control" value="{{ object.contribuinte.email }}" readonly style="padding: 2px;">
+                        </div> 
+                    {% endif %}
+                    {% if object.contribuinte.celular %}
+                        <div class="col">
+                            <label for="celular">Celular</label>
+                            <input type="text" class="form-control" value="{{ object.contribuinte.celular }}" readonly style="padding: 2px;">
+                        </div> 
+                    {% endif %}
+                    {% if object.contribuinte.telefone %}
+                        <div class="col">
+                            <label for="telefone">Telefone</label>
+                            <input type="text" class="form-control" value="{{ object.contribuinte.telefone }}" readonly style="padding: 2px;">
+                        </div> 
+                    {% endif %}
+                </div>
+                <br>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block scripts %}
+    <!-- Importação do Jquery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <!-- Importações para utilizar maskMoney -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-maskmoney/3.0.2/jquery.maskMoney.min.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            $("#numero").mask("00000/0000", {reverse: true});
+            
+            var tipo_pessoa = $('#tipo_pessoa').val();
+            var documento = $('#documento');
+
+            if(tipo_pessoa === 'Física'){
+                documento.mask('000.000.000-00', {reverse: true});
+            } else {
+                documento.mask('00.000.000/0000-00', {reverse: true});
+            }
+        });
+    </script>
+{% endblock %}

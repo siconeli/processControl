@@ -1,0 +1,287 @@
+{% extends 'core/inicio.html' %} 
+
+{% load static %}
+
+{% block titulo %}
+    <title>Listar Andamentos</title>
+{% endblock %}
+
+{% block conteudo %}  
+    <div class="p-4" id="style_containers">
+        <div class="card">
+            <div class="card-header text-white" style="background-color: #5c5c5c;">
+                <div class="row">
+                    <div class="col">
+                        <a href="{% url 'processo-list' %}"><button type="button" style="border-radius: 4px; background-color: #0098DB; color: white;"><b>Voltar</b></button></a>
+                        <a href="{% url 'andamento-create' processo_id %}"><button type="button" style="border-radius: 4px; background-color: #ffb14c; color: white;"><b>Cadastrar</b></button></a> 
+                    </div>
+                    <div class="col">
+                        <h4 style="text-align: right;">Listar Andamentos</h4>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    {% for atributo in dados_processo %}
+                        <div class="col">
+                            <span>Processo:</span>
+                            <h6 id="n-mask"><b>{{ atributo.numero }}</b></h6>
+                        </div>
+                        <div class="col" >
+                            <span>Contribuinte:</span>
+                            <h6>{{ atributo.contribuinte.nome_contribuinte }}</h6>
+                        </div>
+                        <div class="col">
+                            <span>Município:</span>
+                            <h6>{{ atributo.municipio}}</h6>
+                        </div>
+                        <div class="col">
+                            <span>Andamento Atual:</span>
+                            <h6>{{ andamento_atual }}</h6>
+                        </div>
+                        <div class="col">
+                            <span>Responsável:</span>
+                            <h6>{{ responsavel }}</h6>
+                        </div>
+                    {% endfor %}
+                </div>
+                <br>
+                <div class="table-responsive">
+                    <table class="table table-hover" id="tabela-listar-andamento">
+                        <thead>
+                            <tr class="table-secondary" style="height: 20px;">
+                                <th id="cabecalho-list-andamentos">Ordem</th>
+                                <th id="cabecalho-list-andamentos">Data</th>
+                                <th id="cabecalho-list-andamentos">Tipo</th>
+                                <th id="cabecalho-list-andamentos">Responsável</th>
+                                <th id="cabecalho-list-andamentos">Localização</th>
+                                <th id="cabecalho-list-andamentos">Criado por</th>
+                                <th id="cabecalho-list-andamentos">Criado em</th>
+                                <th id="cabecalho-list-andamentos"></th> 
+                                {% if acesso_interno %}
+                                    <th id="cabecalho-list-andamentos"></th>
+                                {% endif %}
+                                <th id="cabecalho-list-andamentos"></th>
+                                {% if user.is_superuser %}
+                                    <th id="cabecalho-list-andamentos">Upload</th>
+                                {% endif %}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for andamento in object_list %}
+                            <tr style="height: 25px;">
+                                <td id="linha-list-andamentos">{{ andamento.ordem }}</td>
+                                <td id="linha-list-andamentos">{{ andamento.data_andamento|date:"d/m/Y" }}</td>
+                                <td id="linha-list-andamentos">{{ andamento.tipo_andamento }}</b></td>
+
+                                {% if andamento.funcionario == Null %}
+                                    <td id="linha-list-andamentos"></td>
+                                {% else %}
+                                    <td id="linha-list-andamentos">{{ andamento.funcionario }}</td>
+                                {% endif %}
+                                {% if andamento.localizacao_processo == Null %}
+                                    <td id="linha-list-andamentos"></td>
+                                {% else %}
+                                    <td id="linha-list-andamentos">{{ andamento.localizacao_processo }}</td>
+                                {% endif %}
+
+                                <td id="linha-list-andamentos">{{ andamento.usuario_criador }}</td>
+                                <td id="linha-list-andamentos">{{ andamento.data_criacao|date:"d/m/Y" }}</td>
+
+                                <td id="linha-list-andamentos">
+                                    <a href="{% url 'andamento-detail-view' andamento.id %}"><button type="button" style="border-radius: 4px; background-color: #ffffff;">Visualizar</button></a>
+                                    
+                                    {% if acesso_interno %}
+                                        <a href="{% url 'andamento-update' andamento.id %}"><button type="button" style="border-radius: 4px; background-color: #ffffff;">Editar</button></a>
+                                    {% endif %}
+                                </td>
+                                <td id="linha-list-andamentos">
+                                    
+                                    {% if andamento.arquivo %}
+                                        <a href="{{ andamento.arquivo.url }}" target="arquivo_andamento"><button type="button" style="border-radius: 4px; background-color: #ffffff;">PDF 1</button></a> 
+                                    {% endif %}
+
+                                    {% if andamento.arquivo2 %}
+                                        <a href="{{ andamento.arquivo2.url }}" target="arquivo_andamento"><button type="button" style="border-radius: 4px; background-color: #ffffff;">PDF 2</b></button></a>
+                                    {% endif %}
+                                </td>
+
+                                {% if user.is_superuser %}
+                                    <td id="linha-list-andamentos">
+                                        <form method="post" enctype="multipart/form-data" action="{% url 'andamento-upload' andamento.id %}">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="andamento_id" value="{{ andamento.id }}">
+                                            <button type="button" class="uploadButton" data-toggle="modal" data-target="#modalUploadArquivo_{{ andamento.id }}" style="border: none; box-shadow: none; background-color: transparent;">Upload</button>
+                                            
+                                            <div class="modal fade" id="modalUploadArquivo_{{ andamento.id }}" tabindex="-1" role="dialog">
+                                                <div class="modal-dialog modal-dialog-centered" role="document">
+                                                    <div class="modal-content">
+                                                        <div class="modal-header">
+                                                            <h5 class="modal-title" id="modalUploadArquivoLabel_{{ andamento.id }}">Upload de arquivo</h5>
+                                                            <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close"></button>
+                                                        </div>
+                                                        <div class="modal-body">
+                                                            <div class="form-group">
+                                                                <input type="file" class="form-control" id="arquivo" name="arquivo">
+                                                            </div>
+                                                        </div>
+                                                        <div class="modal-footer">
+                                                            <button type="submit" class="btn btn-primary" id="btn-andamentos">Enviar</button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </form>
+                                    </td>
+                                {% endif %}
+
+                                <td id="linha-list-andamentos">
+                                    <div class="modal fade" id="modalDeleteAndamento" tabindex="-1" role="dialog" aria-labelledby="confirmDeleteModalLabel" aria-hidden="true">
+                                        <div class="modal-dialog modal-dialog-centered" role="document">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title" id="confirmDeleteModalLabel"><b>Confirmar Exclusão</b></h5>
+                                                    <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close"></button>                                                               
+                                                </div>
+                                                <div class="modal-body" style="text-align: center;">
+                                                    <div class="col">
+                                                        <h5>Tem certeza que deseja excluir o andamento?</h5>
+                                                    </div>
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <div class="col">
+
+                                                    </div>
+                                                    <button type="button" id="confirmDeleteBtn" style="border-radius: 4px; background-color: #ff0000; color: white;"><b>Excluir</b></button>
+                                                    <div class="col">
+
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <form class="deleteForm" method="post" action="{% url 'andamento-delete' andamento.id %}">
+                                        {% csrf_token %}
+                                        <button type="button" class="deleteButton" style="border-radius: 4px; background-color: #ffffff;">Excluir</button> 
+                                    </form>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    <br>
+                    </div>           
+                </div>
+            </div>
+        </div>
+    </div>
+    <iframe name="arquivo_andamento" id="arquivo_andamento" frameborder="0"></iframe>
+    <br>
+
+{% endblock %}
+<!--  -->
+{% block scripts %}
+    <!-- Importação do Jquery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <!-- Importações para utilizar maskMoney -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-maskmoney/3.0.2/jquery.maskMoney.min.js"></script>
+
+    <script>
+    $(document).ready(function() {
+        $("#n-mask").mask("00000/0000", {reverse: true});
+
+    });
+    </script>
+
+
+    <!-- Importação JS da minha 'datatable' -->
+    <script src="https://cdn.datatables.net/v/bs5/dt-1.13.6/datatables.min.js"></script>
+
+    <script>
+        $(document).ready(function(){
+            $('.deleteButton').click(function() { 
+                var form = $(this).closest('.deleteForm');
+                var modal = $('#modalDeleteAndamento');
+
+                modal.modal('show');
+
+                modal.find('#confirmDeleteBtn').click(function() {
+                    form.submit();
+                });
+            });
+
+            $('.btn-close').on('click', function() {
+                var modal = $(this).closest('.modal');
+                modal.modal('hide');
+            });
+
+            $('#tabela-listar-andamento').DataTable({
+                responsive: true,
+                "ordering": false, 
+                "searching": false, 
+                "aaSorting": [],
+                "pageLength": 50,
+                "language": {
+                    "decimal": "",
+                    "emptyTable": "Nenhum andamento registrado",
+                    "info": "Andamentos Registrados: _TOTAL_",
+                    "infoEmpty": "Andamentos Registrados: 0",
+                    "infoFiltered": "",
+                    "infoPostFix": "",
+                    "thousands": ",",
+                    "lengthMenu": "Mostrar _MENU_ andamentos",
+                    "loadingRecords": "A carregar dados...",
+                    "processing": "A processar...",
+                    "search": "Buscar:",
+                    "zeroRecords": "Nenhum andamento encontrado",
+                    "paginate": {
+                        "first": "Primeiro",
+                        "last": "Último",
+                        "next": "Próximo",
+                        "previous": "Anterior"
+                    },
+                    "aria": {
+                        "sortAscending": ": ordem crescente",
+                        "sortDescending": ": ordem decrescente"
+                    }
+                }
+            });
+
+        });
+    </script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            var uploadButtons = document.querySelectorAll('.uploadButton');
+
+            uploadButtons.forEach(function (button) {
+                button.addEventListener('click', function () {
+                    var modalId = this.getAttribute('data-target');
+                    var modal = document.querySelector(modalId);
+                    if (modal) {
+                        var bsModal = new bootstrap.Modal(modal);
+                        bsModal.show();
+
+                        var arquivoInput = modal.querySelector('input[name="arquivo"]');
+                        var enviarButton = modal.querySelector('button[type="submit"]');
+
+                        arquivoInput.addEventListener('change', function () {
+                            if (arquivoInput.files.length > 0) {
+                                enviarButton.removeAttribute('disabled');
+                            } else {
+                                enviarButton.setAttribute('disabled', 'disabled');
+                            }
+                        });
+
+                        arquivoInput.dispatchEvent(new Event('change'));
+                    }
+                });
+            });
+        });
+    </script>
+{% endblock %}
+

@@ -1,0 +1,150 @@
+{% extends 'core/inicio.html' %}
+
+{% load static %}
+
+{% load widget_tweaks %}  
+
+{% block titulo %}
+    <title>Editar Avaliação</title>
+{% endblock %}
+
+{% block conteudo %}
+    <div class="p-4" id="style_containers">
+        <div class="card">
+            <div class="card-header text-white" style="background-color: #5c5c5c;">
+                    <h5 style="text-align: center;">Editar Avaliação</h5>
+            </div>
+            <div class="card-body">
+                {% for atributo in dados_processo %}
+                    <h5>Processo: {{ atributo.numero }}</h5>
+                {% endfor %}
+                <hr>
+                <form action="" method="post" enctype="multipart/form-data" id="meuFormulario">
+                    {% csrf_token %}
+                    <div class="row">
+                        <div class="col" >
+                            <label for="matricula">Matrícula</label>
+                            {% render_field form.matricula class="form-control" id="matricula" name="matricula" %}
+                        </div>
+                        <div class="col"> 
+                            <label for="area">Área</label>
+                            <input type="text" value="{{ object.area }}" name="area" class="form-control" id="area" maxlength="11" required>
+                        </div>
+                        <div class="col"> 
+                            <label for="finalidade">Finalidade</label>
+                            <select name="finalidade" id="finalidade" class="form-control" required>
+                                <option value="{{ object.finalidade }}">{{ object.finalidade }}</option>
+                                {% if object.finalidade == "Rural" %}
+                                    <option value="Urbano">Urbano</option>
+                                {% else %}
+                                    <option value="Rural">Rural</option>
+                                {% endif %}
+                            </select>
+                        </div>
+                        <div class="col"> 
+                            <label for="data_pedido">Pedido</label>
+                            <input type="date" value="{{ object.data_pedido|date:'Y-m-d' }}" name="data_pedido" class="form-control" id="data_pedido" required>
+                        </div>
+                        <div class="col"> 
+                            <label for="data_avaliacao">Avaliação</label>
+                            <input type="date" value="{{ object.data_avaliacao|date:'Y-m-d' }}" name="data_avaliacao" class="form-control" id="data_avaliacao">
+                        </div>
+                    </div>
+                    <br>
+                    <div class="row">
+                        <div class="col"> 
+                            <label for="operacao">Tipo Operação</label>
+                            {% render_field form.operacao class="form-control" id="operacao" name="operacao" %}
+                        </div>
+                        <div class="col"> 
+                            <label for="andamento">Andamento</label>
+                            {% render_field form.andamento class="form-control" id="andamento" name="andamento" %}
+                        </div>
+                        <div class="col"> 
+                            <label for="responsavel">Responsável</label>
+                            {% render_field form.responsavel class="form-control" id="responsavel" name="responsavel" %}
+                        </div>
+                        <div class="col"> 
+                            <label for="valor_declarado">Valor Declarado</label>
+                            <input type="text" value="{{ object.valor_declarado }}" name="valor_declarado" class="form-control" id="valor_declarado" maxlength="17" required>
+                        </div>
+                        <div class="col"> 
+                            <label for="valor_avaliado">Valor Avaliado</label>
+                            <input type="text" value="{{ object.valor_avaliado }}" name="valor_avaliado" class="form-control" id="valor_avaliado" maxlength="17">
+                        </div>
+                    </div>
+                    <br>
+                    <div>
+                        <button type="submit" class="btn btn-success btn-sm" id="btn-avaliacoes">Salvar</button> 
+                        <a href="{{ cancelar }}" class="btn btn-sm" id="btn-cancelar">Cancelar</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block scripts %}
+    <!-- Importação do arquivo dentro da pasta static/js para usar máscaras nos campos input -->
+    <script src="{% static 'js/jquery.mask.min.js' %}"></script>
+
+    <!-- Importações para utilizar maskMoney -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-maskmoney/3.0.2/jquery.maskMoney.min.js"></script>
+
+    <script>
+        $(document).ready(function(){
+            $('#area').maskMoney({
+                prefix: '', 
+                allowNegative: false, 
+                thousands: '.', 
+                decimal: ',', 
+                precision: 4, 
+                affixesStay: false 
+            });
+
+            $('#valor_declarado').maskMoney({
+                prefix: 'R$ ', 
+                allowNegative: false, 
+                thousands: '.', 
+                decimal: ',', 
+                precision: 2, 
+                affixesStay: true 
+            });
+
+            $('#valor_avaliado').maskMoney({
+                prefix: 'R$ ', 
+                allowNegative: false, 
+                thousands: '.', 
+                decimal: ',', 
+                precision: 2, 
+                affixesStay: true 
+            });
+
+
+            $('form').on('submit', function() {
+                var area = $('#area').maskMoney('unmasked')[0];
+                $('#area').val(area);
+
+                var valor_declarado = $('#valor_declarado').maskMoney('unmasked')[0];
+                $('#valor_declarado').val(valor_declarado);
+
+                var valor_avaliado = $('#valor_avaliado').maskMoney('unmasked')[0];
+                $('#valor_avaliado').val(valor_avaliado);
+
+            });
+        });
+    </script>
+{% endblock %}
+
+
+
+
+
+
+
+
+
+
+

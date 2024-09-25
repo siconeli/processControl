@@ -1,0 +1,207 @@
+{% extends 'core/inicio.html' %}
+
+{% load static %}
+
+{% block titulo %}
+    <title>Avaliações do Processo</title>
+{% endblock %}
+
+{% block conteudo %}  
+    <div class="p-4" id="style_containers">
+        <div class="card">
+            <div class="card-header text-white" style="background-color: #5c5c5c;">
+                    <h4 style="text-align: center;">Avaliações</h4>
+            </div>
+            <div class="card-body">
+                <h5 style="text-align: center; background-color: #5c5c5c; color: white;">Dados</h5>
+                <hr>
+
+                <div class="row">
+                    <div class="col">
+                        
+                    </div>
+                    <div class="col">
+                        
+                    </div>
+                    <div class="col">
+                        <h5>Nova Avaliação</h5>
+                        <a href="{% url 'avaliacao-create' processo_id %}"><img src="{% static 'img/adicionar-avaliacao.png' %}" width="35"></a>
+                    </div>
+                    {% for atributo in dados_processo %}
+                        <div class="col">
+                            <h5>Processo: </h5>
+                            <h6 id="n-mask">{{ atributo.numero }}</h6>
+                        </div>
+                        <div class="col">
+                            <h5>Nome / Razão Social:</h5>
+                            <h6>{{ atributo.contribuinte.nome_contribuinte}}</h6>
+                        </div>
+                        <div class="col">
+                            <h5>Município: </h5>
+                            <h6>{{ atributo.municipio}}</h6>
+                        </div>
+                    {% endfor %}
+                    <div class="col">
+                        
+                    </div>
+                    <div class="col">
+                        
+                    </div>
+                </div>
+                <br>
+                <div class="table-responsive">
+                    <table class="table table-hover" id="tabela-listar-avaliacoes">
+                        <thead>
+                            <tr class="table-secondary">
+                                <th id="cabecalho-list-avaliacoes">Ordem</th>
+                                <th id="cabecalho-list-avaliacoes">Matrícula</th>
+                                <th id="cabecalho-list-avaliacoes">Área</th>         
+                                <th id="cabecalho-list-avaliacoes">Finalidade</th>
+                                <th id="cabecalho-list-avaliacoes">Pedido</th>
+                                <th id="cabecalho-list-avaliacoes">Avaliação</th>   
+                                <th id="cabecalho-list-avaliacoes">Operação</th>   
+                                <th id="cabecalho-list-avaliacoes">Andamento</th>         
+                                <th id="cabecalho-list-avaliacoes">Responsável</th>         
+                                <th id="cabecalho-list-avaliacoes">Declarado</th>         
+                                <th id="cabecalho-list-avaliacoes">Avaliado</th>         
+                                <th id="cabecalho-list-avaliacoes">Diferença ITBI</th>  
+                                <th id="cabecalho-list-avaliacoes">Criado por</th>
+                                <th id="cabecalho-list-avaliacoes">Criado em</th>       
+                                <th id="cabecalho-list-avaliacoes">Ações</th> 
+                                <th id="cabecalho-list-avaliacoes">Excluir</th>      
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for avaliacao in object_list %}
+                            <tr>
+                                <td id="linha-list-avaliacoes">{{ avaliacao.ordem }}</td>
+                                <td id="linha-list-avaliacoes">{{ avaliacao.matricula }}</td>
+                                <td id="linha-list-avaliacoes">{{ avaliacao.area }}</td>
+                                <td id="linha-list-avaliacoes">{{ avaliacao.finalidade }}</td>
+                                <td id="linha-list-avaliacoes">{{ avaliacao.data_pedido|date:"d/m/Y" }}</td>
+                                <td id="linha-list-avaliacoes">{{ avaliacao.data_avaliacao|date:"d/m/Y" }}</td>
+                                <td id="linha-list-avaliacoes">{{ avaliacao.operacao }}</td>
+                                <td id="linha-list-avaliacoes">{{ avaliacao.andamento }}</td>
+                                <td id="linha-list-avaliacoes">{{ avaliacao.responsavel }}</td>
+                                <td id="linha-list-avaliacoes">R$ {{ avaliacao.valor_declarado }}</td>
+                                <td id="linha-list-avaliacoes">R$ {{ avaliacao.valor_avaliado }}</td>
+                                <td id="linha-list-avaliacoes">R$ {{ avaliacao.valor_itbi_diferenca }}</td>
+                                <td id="linha-list-avaliacoes">{{ avaliacao.usuario_criador }}</td>
+                                <td id="linha-list-avaliacoes">{{ avaliacao.data_criacao|date:"d/m/Y" }}</td>
+                                <td id="linha-list-avaliacoes">
+                                    <a href="{% url 'avaliacao-update' avaliacao.id %}"><img src="{% static 'img/editar-avaliacao.png' %}" width="30"></a>
+                                </td>
+                                <td id="linha-list-avaliacoes">
+                                    <div class="modal fade" id="modalDeleteProcesso" tabindex="-1" role="dialog" aria-labelledby="confirmDeleteModalLabel" aria-hidden="true">
+                                        <div class="modal-dialog modal-dialog-centered" role="document">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title" id="confirmDeleteModalLabel">Confirmar Exclusão</h5>
+                                                    <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close"></button>                                                               
+                                                </div>
+                                                <div class="modal-body" style="text-align: center;">
+                                                    <div class="col">
+                                                        <h6>Tem certeza de que deseja excluir a avaliação?</h6>
+                                                    </div>
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <div class="col">
+
+                                                    </div>
+                                                    <button type="button" id="confirmDeleteBtn" class="btn btn-danger btn-sm text-center">Confirmar Exclusão</button>
+                                                    <div class="col">
+
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <form class="deleteForm" method="post" action="{% url 'avaliacao-delete' avaliacao.id %}">
+                                        {% csrf_token %}
+                                        <button type="button" class="deleteButton" style="border: none; box-shadow: none; background-color: transparent;"><img src="{% static 'img/excluir.png' %}" width="25"></button>
+                                    </form>
+                                </td>
+                            {% endfor %}
+                        </tbody>
+                        
+                    </table>
+                    <br>
+                        <a href="{% url 'processo-list' %}" class="btn btn-secondary btn-sm" id="btn-avaliacoes">Voltar</a>
+                    </div>           
+                </div>
+            </div>
+            <br>
+            <div>
+                <iframe name="arquivo_andamento" frameborder="0" height="900" width="1280" style="padding: 10px;"></iframe>
+            </div>
+        </div>
+    </div>   
+
+{% endblock %}
+
+{% block scripts %}
+    <!-- Importação do Jquery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <!-- Importações para utilizar maskMoney -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-maskmoney/3.0.2/jquery.maskMoney.min.js"></script>
+
+    <!-- Importação JS da minha 'datatable' -->
+    <script src="https://cdn.datatables.net/v/bs5/dt-1.13.6/datatables.min.js"></script>
+
+    <script>
+        $(document).ready(function(){
+            $("#n-mask").mask("00000/0000", {reverse: true});
+
+            $('.deleteButton').click(function() { 
+                var form = $(this).closest('.deleteForm');
+                var modal = $('#modalDeleteProcesso');
+
+                modal.modal('show');
+
+                modal.find('#confirmDeleteBtn').click(function() {
+                    form.submit();
+                });
+            });
+
+            $('.btn-close').on('click', function() {
+                var modal = $(this).closest('.modal');
+                modal.modal('hide');
+            });
+
+            $('#tabela-listar-avaliacoes').DataTable({
+                responsive: true,
+                "ordering": false,
+                "aaSorting": [],
+                "pageLength": 25,
+                "language": {
+                    "decimal": "",
+                    "emptyTable": "Nenhuma avaliação registrada",
+                    "info": "Avaliações Registradas: _TOTAL_",
+                    "infoEmpty": "Avaliações Registradas: 0",
+                    "infoFiltered": "",
+                    "infoPostFix": "",
+                    "thousands": ",",
+                    "lengthMenu": "Mostrar _MENU_ avaliação",
+                    "loadingRecords": "A carregar dados...",
+                    "processing": "A processar...",
+                    "search": "Buscar:",
+                    "zeroRecords": "Nenhuma avaliação encontrada",
+                    "paginate": {
+                        "first": "Primeiro",
+                        "last": "Último",
+                        "next": "Próximo",
+                        "previous": "Anterior"
+                    },
+                    "aria": {
+                        "sortAscending": ": ordem crescente",
+                        "sortDescending": ": ordem decrescente"
+                    }
+                }
+            });
+        });
+    </script>
+{% endblock %}

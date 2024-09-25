@@ -1,0 +1,152 @@
+{% extends 'core/inicio.html' %}
+
+{% load static %}
+
+{% block titulo %}
+    <title>Lançamentos por Funcionário</title>
+{% endblock %}
+
+{% block conteudo %}  
+    <div class="p-4" id="style_containers">
+        <div class="card">
+            <div class="card-header text-white" style="background-color: #5c5c5c;">
+                <div class="row">
+                    <div class="col">
+                        <a href="{% url 'processo-list' %}"><button type="button"  style="border-radius: 4px; background-color: #a19f9f; color: white;"><b>Voltar</b></button></a>
+                    </div>
+                    <div class="col">
+                        <h4 style="text-align: right;">Lançamentos por Funcionário</h4>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                <form method="get" action="{% url 'lancamento-por-usuario' %}">
+                    <div class="row">
+                        <div class="col-auto">
+                            <label for="data_inicial">Data</label>
+                            <input type="date" class="form-control" name="data_inicial" id="data_inicial" value="{{ request.GET.data_inicial }}" style="padding: 2px;">
+                        </div>
+                        <div class="col-auto">
+                            <label for="data_final">Até</label>
+                            <input type="date" class="form-control" name="data_final" id="data_final" value="{{ request.GET.data_final }}" style="padding: 2px;">
+                        </div>
+                        <div class="col"></div>
+                        <div class="col"></div>
+                        <div class="col"></div>
+                        <div class="col"></div>
+                        <div class="col"></div>
+                        <div class="col"></div>
+                    </div>
+                    <br>
+                    <div class="row">
+                        <div class="col">
+                            <button type="submit"  style="border-radius: 4px;">Pesquisar</button>
+                        </div>
+                        <div class="col">
+                            <a href="{% url 'lancamento-por-usuario'  %}"><button type="button" style="border-radius: 4px;">Limpar</button></a>
+                        </div>
+                        <div class="col"></div>
+                        <div class="col"></div>
+                        <div class="col"></div>
+                        <div class="col"></div>
+                        <div class="col"></div>
+                        <div class="col"></div>
+                        <div class="col"></div>
+                        <div class="col"></div>
+                        <div class="col"></div>
+                        <div class="col"></div>
+                        <div class="col"></div>
+                        <div class="col"></div>
+                        <div class="col"></div>
+                        <div class="col"></div>
+                        <div class="col"></div>
+                        <div class="col"></div>
+                        <div class="col"></div>
+                        <div class="col"></div>
+                        <div class="col"></div>
+                        <div class="col"></div>
+                        <div class="col"></div>
+                        <div class="col"></div>
+                        <div class="col"></div>
+                        <div class="col"></div>
+                    </div>
+                    <br>
+                </form>
+                <div class="table-responsive">
+                    <table class="table table-hover" id="tabela-listar-avaliacoes">
+                        <thead>
+                            <tr class="table-secondary">
+                                <th id="cabecalho-list-processos">ID</th>
+                                <th id="cabecalho-list-processos">Nome</th>
+                                <th id="cabecalho-list-processos">Processos</th>
+                                <th id="cabecalho-list-processos">Andamentos</th>
+                                <th id="cabecalho-list-processos">Uploads</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for funcionario in funcionarios %}
+                                <tr>
+                                    <td id="linhas-list-processos">{{ funcionario.user_id }}</td>
+                                    <td id="linhas-list-processos">{{ funcionario.nome }}</td>
+                                    <td id="linhas-list-processos">{{ funcionario.total_processos }}</td>
+                                    <td id="linhas-list-processos">{{ funcionario.total_andamentos }}</td>
+                                    <td id="linhas-list-processos">{{ funcionario.total_uploads }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>         
+                </div>
+            </div>
+        </div>
+    </div>  
+    <br><br>
+{% endblock %}
+
+{% block scripts %}
+    <!-- Importação do Jquery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <!-- Importações para utilizar maskMoney -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-maskmoney/3.0.2/jquery.maskMoney.min.js"></script>
+
+    <!-- Importação JS da minha 'datatable' -->
+    <script src="https://cdn.datatables.net/v/bs5/dt-1.13.6/datatables.min.js"></script>
+
+    <script>
+        $(document).ready(function(){
+            $('#tabela-listar-avaliacoes').DataTable({
+                responsive: true,
+                "ordering": false,
+                "searching": false,
+                "aaSorting": [],
+                "pageLength": 25,
+                "language": {
+                    "decimal": "",
+                    "emptyTable": "Nenhuma Funcionário registrado",
+                    "info": "Funcionários: _TOTAL_",
+                    "infoEmpty": "Funcionários Registrados: 0",
+                    "infoFiltered": "",
+                    "infoPostFix": "",
+                    "thousands": ",",
+                    "lengthMenu": "Mostrar _MENU_ funcionários",
+                    "loadingRecords": "A carregar dados...",
+                    "processing": "A processar...",
+                    "search": "Buscar:",
+                    "zeroRecords": "Nenhuma funcionário encontrado",
+                    "paginate": {
+                        "first": "Primeiro",
+                        "last": "Último",
+                        "next": "Próximo",
+                        "previous": "Anterior"
+                    },
+                    "aria": {
+                        "sortAscending": ": ordem crescente",
+                        "sortDescending": ": ordem decrescente"
+                    }
+                }
+            });
+        });
+    </script>
+{% endblock %}

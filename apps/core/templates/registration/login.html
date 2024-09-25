@@ -1,0 +1,46 @@
+{% extends 'core/inicio.html' %}
+
+{% load static %}
+
+{% block titulo %}
+<title>Login</title>
+{% endblock %}
+
+{% block conteudo %}
+    <br><br>
+    <section class="vh-50 gradient-custom">
+        <div class="container py-5 h-100">
+            <div class="row d-flex justify-content-center align-items-center h-100">
+                <div class="col-12 col-md-8 col-lg-6 col-xl-4">
+                    <div class="card text-black" style="border-radius: 1rem; background-color: rgb(68, 68, 68);">
+                        <div class="card-body p-5 text-center">
+                            <div class="mb-md-1 mt-md-1 pb-1">
+                                <img src="{% static 'img/aeg15.png' %}" alt="" width="200">
+                                <div class="container ">
+                                    <form action="" method="post">
+                                        {% csrf_token %}
+                                        <br>
+                                        {% if form.errors %}
+                                            <h6 style="color: #0098DB;">Usuário ou Senha incorreto</h6>
+                                            <br>
+                                        {% endif %}
+                                        
+                                        <label for="username" class="sr-only" style="color:#0098DB;"><b>Usuário</b></label>
+                                        <input type="username" id="username" name="username" class="form-control" placeholder="Nome de usuário" autocomplete="off" required autofocus>
+                                        <br>
+
+                                        <label for="password" class="sr-only" style="color: #0098DB;"><b>Senha</b></label>
+                                        <input  type="password" id="password" name="password" class="form-control" placeholder="Senha" autocomplete="off" required autofocus>
+                                        <br><br>
+                                        
+                                        <button class="btn" type="submit" style="background-color: #0098DB; color: white;"><b>Entrar</b></button>
+                                    </form>             
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+{% endblock %}

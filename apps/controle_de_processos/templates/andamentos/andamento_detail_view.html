@@ -1,0 +1,225 @@
+{% extends 'core/inicio.html' %}
+
+{% load static %}
+
+{% load widget_tweaks %}  
+
+{% block titulo %}
+    <title>Visualizar Andamento</title>
+{% endblock %}
+
+{% block conteudo %}
+    <div class="p-4" id="style_containers">
+        <div class="card">
+            <div class="card-header text-white" style="background-color: #5c5c5c;">
+                <div class="row">
+                    <div class="col">                    
+                        <a href="{{ voltar }}"><button type="button" style="border-radius: 4px; background-color: #a19f9f; color: white;"><b>Voltar</b></button></a>
+                    </div>
+                    <div class="col">
+                        <h4 style="text-align: right;">Visualizar Andamento</h4>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                {% for atributo in dados_processo %}
+                    <span>Processo:</span>
+                    <h6 id="numero_processo">{{ atributo.numero }}</h6>
+                {% endfor %}
+                <hr>
+                <div class="row">
+                    {% if object.data_andamento %}
+                        <div class="col">
+                            <label for="data_andamento">Data do Andamento</label>
+                            <input type="text" class="form-control" value="{{ object.data_andamento|date:"d/m/Y" }}"  id="data_andamento" readonly style="padding: 2px;">
+                        </div>
+                    {% endif %}      
+
+                    {% if object.tipo_andamento %}
+                        <div class="col">
+                            <label for="tipo_andamento">Tipo de Andamento</label>
+                            <input type="text" class="form-control" value="{{ object.tipo_andamento }}" id="tipo_andamento" readonly style="padding: 2px;">
+                        </div>
+                    {% endif %}
+
+                    {% if object.situacao_pagamento %}
+                        <div class="col">
+                            <label for="situacao_pagamento">Situação do Pagamento</label>
+                            <input type="text" class="form-control" value="{{ object.situacao_pagamento }}" id="situacao_pagamento" readonly style="padding: 2px;">
+                        </div>
+                    {% endif %}
+
+                    {% if object.valor_pago %}
+                        <div class="col">
+                            <label for="valor_pago">Total do Valor Pago</label>
+                            <input type="text" class="form-control" value="R$ {{ valor_pago }}" id="valor_pago" readonly style="padding: 2px;">
+                        </div>
+                    {% endif %}
+
+                    {% if object.funcionario %}
+                        <div class="col">
+                            <label for="funcionario">Responsável</label>
+                            <input type="text" class="form-control" value="{{ object.funcionario }}" id="funcionario" readonly style="padding: 2px;">
+                        </div>
+                    {% endif %}
+
+                    {% if object.localizacao_processo %}
+                        <div class="col">
+                            <label for="localizacao_processo">Localização do Processo</label>
+                            <input type="text" class="form-control" value="{{ object.localizacao_processo }}" id="localizacao_processo" readonly style="padding: 2px;">
+                        </div>
+                    {% endif %}
+
+                    {% if object.numero_aiti %}
+                        <div class="col">
+                            <label for="numero_aiti">Nº AITI</label>
+                            <input type="text" class="form-control" value="{{ object.numero_aiti }}" id="numero_aiti" readonly style="padding: 2px;">
+                        </div>
+                    {% endif %}
+
+                    {% if object.data_aiti %}
+                        <div class="col">
+                            <label for="data_aiti">Data AITI</label>
+                            <input type="text" class="form-control" value="{{ object.data_aiti|date:"d/m/Y" }}" id="data_aiti" readonly style="padding: 2px;">
+                        </div>
+                    {% endif %}
+                </div>
+                <div class="row">
+                    {% if object.dias_data_prazo %}
+                        <div class="col">
+                            <label for="dias_data_prazo">Dias Prazo</label>
+                            <input type="text" class="form-control" value="{{ object.dias_data_prazo }}" id="dias_data_prazo" readonly style="padding: 2px;">
+                        </div>
+                    {% endif %}
+                    {% if object.data_prazo %}
+                        <div class="col">
+                            <label for="data_prazo">Prazo</label>
+                            <input type="text" class="form-control" value="{{ object.data_prazo|date:"d/m/Y" }}" id="data_prazo" readonly style="padding: 2px;">
+                        </div>
+                    {% endif %}
+                    {% if object.data_recebimento %}
+                        <div class="col">
+                            <label for="data_recebimento">Confirmado o Recebimento em</label>
+                            <input type="text" class="form-control" value="{{ object.data_recebimento|date:"d/m/Y" }}" id="data_recebimento" readonly style="padding: 2px;">
+                        </div>
+                    {% endif %}
+                </div>  
+                <div class="row">
+                    {% if object.obs %}
+                        <div class="col">
+                            <label for="obs">Observação</label>
+                            <textarea class="form-control" name="obs" id="obs" style="height: 110px;">{{ object.obs }}</textarea>
+                        </div>
+                    {% endif %}
+                </div>
+                {% if avaliacao_object %}
+                    <br>
+                    <h5>Avaliação Imobiliária</h5>
+                    <hr>
+                {% endif %}
+                <div class="row">
+                    {% if avaliacao_object.matricula %}
+                        <div class="col">
+                            <label for="matricula">Matrícula</label>
+                            <input type="textarea" class="form-control" value="{{ avaliacao_object.matricula }}" id="matricula" readonly style="padding: 2px;">
+                        </div>
+                    {% endif %}
+                    {% if avaliacao_object.finalidade %}
+                        <div class="col"> 
+                            <label for="finalidade">Finalidade</label>
+                            <input type="textarea" class="form-control" value="{{ avaliacao_object.finalidade }}" id="finalidade" readonly style="padding: 2px;">
+                        </div>
+                    {% endif %}
+                    {% if avaliacao_object.area %}
+                        <div class="col"> 
+                            <label for="area">Área</label>
+                            <input type="textarea" class="form-control" value="{{ avaliacao_object.area }}" id="area" readonly style="padding: 2px;">
+                        </div>
+                    {% endif %}
+                    {% if avaliacao_object.data_pedido %}
+                        <div class="col"> 
+                            <label for="data_pedido">Data Pedido</label>
+                            <input type="textarea" class="form-control" value="{{ avaliacao_object.data_pedido|date:"d/m/Y" }}" id="data_pedido" readonly style="padding: 2px;">
+                        </div>
+                    {% endif %}
+                    {% if avaliacao_object.data_avaliacao %}
+                        <div class="col"> 
+                            <label for="data_avaliacao">Data Avaliação</label>
+                            <input type="textarea" class="form-control" value="{{ avaliacao_object.data_avaliacao|date:"d/m/Y" }}" id="data_avaliacao" readonly style="padding: 2px;">
+                        </div>
+                    {% endif %}
+                    {% if avaliacao_object.tipo_andamento_avaliacao %}
+                    <div class="col"> 
+                        <label for="tipo_andamento_avaliacao">Andamento Avaliação</label>
+                        <input type="textarea" class="form-control" value="{{ avaliacao_object.tipo_andamento_avaliacao }}" id="tipo_andamento_avaliacao" readonly style="padding: 2px;">
+                    </div>
+                    {% endif %}
+                    {% if avaliacao_object.responsavel %}
+                        <div class="col"> 
+                            <label for="responsavel">Responsável</label>
+                            <input type="textarea" class="form-control" value="{{ avaliacao_object.responsavel }}" id="responsavel" readonly style="padding: 2px;">
+                        </div>
+                    {% endif %}
+                </div>
+                <br>
+                <div class="row">
+                    {% if avaliacao_object.operacao %}
+                        <div class="col"> 
+                            <label for="operacao">Tipo Operação</label>
+                            <input type="textarea" class="form-control" value="{{ avaliacao_object.operacao }}" id="operacao" readonly style="padding: 2px;">
+                        </div>
+                    {% endif %}
+                    {% if valor_declarado %}
+                        <div class="col"> 
+                            <label for="valor_declarado">Valor Declarado</label>
+                            <input type="textarea" class="form-control" value="R$ {{ valor_declarado }}" id="valor_declarado" readonly style="padding: 2px;">
+                        </div>
+                    {% endif %}
+                    {% if valor_avaliado %}
+                        <div class="col"> 
+                            <label for="valor_avaliado">Valor Avaliado</label>
+                            <input type="textarea" class="form-control" value="R$ {{ valor_avaliado }}" id="valor_avaliado" readonly style="padding: 2px;">
+                        </div>
+                    {% endif %}
+                    {% if valor_itbi_diferenca %}
+                        <div class="col"> 
+                            <label for="valor_itbi_diferenca">Valor Apurado</label>
+                            <input type="textarea" class="form-control" value="R$ {{ valor_itbi_diferenca }}" id="valor_itbi_diferenca" readonly style="padding: 2px;">
+                        </div>
+                    {% endif %}
+                    {% if valor_pago_avaliacao %}
+                        <div class="col"> 
+                            <label for="valor_pago_avaliacao">Valor Pago</label>
+                            <input type="textarea" class="form-control" value="R$ {{ valor_pago_avaliacao }}" id="valor_pago_avaliacao" readonly style="padding: 2px;">
+                        </div>
+                    {% endif %}
+                    {% if avaliacao_object.data_valor_pago %}
+                        <div class="col"> 
+                            <label for="data_valor_pago">Data Pagamento</label>
+                            <input type="textarea" class="form-control" value="{{ avaliacao_object.data_valor_pago|date:"d/m/Y" }}" id="data_valor_pago" readonly style="padding: 2px;">
+                        </div>
+                    {% endif %}
+                </div> 
+                <br>   
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block scripts %}
+
+    <!-- Importação do Jquery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <!-- Importações para utilizar maskMoney -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-maskmoney/3.0.2/jquery.maskMoney.min.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            $("#numero_processo").mask("00000/0000", {reverse: true});
+            $("#numero_aiti").mask("00000/0000", {reverse: true});
+        });
+    </script>
+{% endblock %}

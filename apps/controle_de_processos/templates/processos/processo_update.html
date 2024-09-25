@@ -1,0 +1,417 @@
+{% extends 'core/inicio.html' %}
+
+{% load static %}
+
+{% load widget_tweaks %} 
+
+{% block titulo %}
+    <title>Editar Processo</title>
+{% endblock %}
+
+{% block conteudo %} 
+    <div class="p-4" id="style_containers">
+        <div class="card">
+            <form action="" method="post" enctype="multipart/form-data">
+            <div class="card-header text-white" style="background-color: #5c5c5c;">
+                <div class="row">
+                    <div class="col">
+                        <button type="submit" style="border-radius: 4px; background-color: #0098DB; color: white;"><b>Salvar</b></button>
+                        <a href="{% url 'processo-list' %}"><button type="button" style="border-radius: 4px; background-color: #a19f9f; color: white;"><b>Cancelar</b></button></a>
+                    </div>
+                    <div class="col">
+                        <h4 style="text-align: right;">Editar Processo</h4>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                    {% csrf_token %}
+                    <h5>Processo</h5>      
+                    <hr>
+                    <div class="row">
+                        <div class="col">
+                            <label for="numero">Processo N°</label>
+                            {% render_field form.numero class="form-control" placeholder="     /    " id="numero" autocomplete="off" style="padding: 2px;"%}
+                        </div>
+                        <div class="col">
+                            <label for="uf">UF</label>
+                            {% render_field form.uf class="form-control" id="uf" style="padding: 2px;"%}
+                        </div>
+                        <div class="col">
+                            <label for="municipio">Município</label>
+                            {% render_field form.municipio class="form-control" id="municipio" style="padding: 2px;"%}
+                        </div>
+                        <div class="col">
+                            <label for="exercicio">Exercício</label>
+                            {% render_field form.exercicio class="form-control" id="exercicio"   style="padding: 2px;"%}
+                        </div>
+                        <div class="col">
+                            <label for="data_div_ativa">D.A</label>
+                            <input type="date" name="data_div_ativa" value="{{ object.data_div_ativa|date:'Y-m-d' }}" class="form-control" id="data_div_ativa" style="padding: 2px;">
+                        </div>
+                    </div>
+                    <br>
+                    <div class="row">
+                        <div class="col">
+                            <label for="valor_tributo">Valor do Tributo</label>
+                            <input name="valor_tributo" value="{{ object.valor_tributo }}" type="text" maxlength="17" class="mask-money form-control" id="valor_tributo" style="padding: 2px;">
+                        </div>
+                        <div class="col">
+                            <label for="valor_multa">Valor da Multa</label>
+                            <input name="valor_multa" value="{{ object.valor_multa }}" type="text" maxlength="17" class="mask-money form-control" id="valor_multa" style="padding: 2px;">
+                        </div>
+                        <div class="col">
+                            <label for="valor_credito">Valor do Crédito</label>
+                            <input name="valor_credito" value="{{ object.valor_credito }}" type="text" maxlength="17" class="mask-money form-control" id="valor_credito" style="padding: 2px;">
+                        </div>
+                        <div class="col">
+                            <label for="valor_atualizado">Valor do Atualizado</label>
+                            <input name="valor_atualizado" value="{{ object.valor_atualizado }}" type="text" maxlength="17" class="mask-money form-control" id="valor_atualizado" style="padding: 2px;">
+                        </div>  
+                        <div class="col">
+                            <label for="data_valor_atualizado">Data Valor Atualizado</label>
+                            <input type="date" name="data_valor_atualizado" value="{{ object.data_valor_atualizado|date:'Y-m-d' }}" class="form-control" id="data_valor_atualizado" style="padding: 2px;">
+                        </div>
+                        <div class="col">
+                            <label for="tipo">Tipo</label>
+                            {% render_field form.tipo class="form-control" id="tipo" style="padding: 2px;"%}
+                        </div> 
+                    </div>    
+                    <br>
+                    <h5>Contribuinte</h5>
+                    <hr>
+                    <div class="row">
+                        <div class="col">
+                            <label for="tipo_pessoa">Tipo de Pessoa</label>
+                            <select id="tipo_pessoa" name="tipo_pessoa" class="form-control" style="padding: 2px;">
+                                {% for valor, descricao in contribuinte.tipo_pessoas %}
+                                    <option value="{{ valor }}" {% if contribuinte.tipo_pessoa == valor %}selected{% endif %}>{{ descricao }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>                   
+                        <div class="col">
+                            <label for="documento">CPF / CNPJ</label>
+                            <input type="text" class="form-control" value="{{ contribuinte.documento }}" id="documento" name="documento" style="padding: 2px;">
+                        </div>               
+                        <div class="col">
+                            <label for="nome_contribuinte">Nome / Razão Social</label>
+                            <input type="text" class="form-control" value="{{ contribuinte.nome_contribuinte }}" id="nome_contribuinte" name="nome_contribuinte" oninput="limparTexto(this)" style="padding: 2px;">
+                        </div> 
+                        <div class="col">
+                            <label for="nome_fantasia">Nome Fantasia</label>
+                            <input type="text" class="form-control" value="{{ contribuinte.nome_fantasia }}" id="nome_fantasia" name="nome_fantasia" oninput="limparTexto(this)" style="padding: 2px;">
+                        </div>              
+                    </div>
+                    <br>
+                    <div class="row">
+                        <div class="col">
+                            <label for="cep">CEP</label>
+                            <input type="text" class="form-control" value="{{ contribuinte.cep }}" id="cep" id="cep" name="cep" style="padding: 2px;">
+                        </div> 
+                        <div class="col">
+                            <label for="logradouro">Logradouro</label>
+                            <input type="text" class="form-control" value="{{ contribuinte.logradouro }}" id="logradouro" id="logradouro" name="logradouro" oninput="limparTexto(this)" style="padding: 2px;">
+                        </div>                    
+                        <div class="col">
+                            <label for="numero_casa">N°</label>
+                            <input type="text" class="form-control" value="{{ contribuinte.numero_casa }}" id="numero_casa" name="numero_casa" oninput="limparTexto(this)" style="padding: 2px;">
+                        </div> 
+                        <div class="col">
+                            <label for="bairro">Bairro</label>
+                            <input type="text" class="form-control" value="{{ contribuinte.bairro }}" id="bairro" name="bairro" oninput="limparTexto(this)" style="padding: 2px;">
+                        </div> 
+                        <div class="col">
+                            <label for="uf_contri">UF</label>
+                            <input type="text" class="form-control" value="{{ contribuinte.uf_contri }}" id="uf_contri" name="uf_contri" oninput="limparTexto(this)" maxlength="2" style="padding: 2px;">
+                        </div> 
+                        <div class="col">
+                            <label for="localidade">Cidade</label>
+                            <input type="text" class="form-control" value="{{ contribuinte.localidade }}" id="localidade" name="localidade" oninput="limparTexto(this)" style="padding: 2px;">
+                        </div> 
+                    </div>
+                    <br>
+                    <div class="row">
+                        <div class="col">
+                            <label for="complemento">Complemento</label>
+                            <input type="text" class="form-control" value="{{ contribuinte.complemento }}" id="complemento" name="complemento" oninput="limparTexto(this)" style="padding: 2px;">
+                        </div> 
+                    </div>
+                    <br>
+                    <div class="row">
+                        <div class="col">
+                            <label for="email">E-mail</label>
+                            <input type="text" class="form-control" value="{{ contribuinte.email }}" id="email" name="email" oninput="limparTexto(this)" style="padding: 2px;">
+                        </div> 
+                        <div class="col">
+                            <label for="celular">Celular</label>
+                            <input type="text" class="form-control" value="{{ contribuinte.celular }}" id="celular" name="celular" style="padding: 2px;">
+                        </div> 
+                        <div class="col">
+                            <label for="telefone">Telefone</label>
+                            <input type="text" class="form-control" value="{{ contribuinte.telefone }}" id="telefone" name="telefone" style="padding: 2px;">
+                        </div> 
+                    </div>
+                    <br> 
+                </form>
+            </div>
+        </div>
+    </div>
+    <br><br>
+
+    <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLongTitle">Atenção</h5>
+                    <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        {{ form.non_field_errors }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% if form.non_field_errors %} 
+        <!-- Importação JS do Jquery -->
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+        
+        <!-- Importação JS do Bootstrap JS  -->
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-HwwvtgBNo3bZJJLYd8oVXjrBZt8cqVSpeBNS5n7C8IVInixGAoxmnlMuBnhbgrkm" crossorigin="anonymous"></script>
+
+        <script>
+            $(document).ready(function(){
+                $('#myModal').modal('show');
+            });
+
+            $('.btn-close').on('click', function() {
+            var modal = $(this).closest('.modal');
+            modal.modal('hide');
+            });
+        </script>
+    {% endif %}
+{% endblock %}
+
+{% block scripts %}
+    <!-- Importação do arquivo dentro da pasta static/js para usar máscaras nos campos input -->
+    <script src="{% static 'js/jquery.mask.min.js' %}"></script>
+
+    <!-- Importações para utilizar maskMoney -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-maskmoney/3.0.2/jquery.maskMoney.min.js"></script>
+
+    <script>
+        $(document).ready(function(){   
+            $("#numero").mask("00000/0000", {reverse: true});
+            $('#n-mask').mask("00000/0000", {reverse: true});
+            $("#cep").mask('00000-000');
+            $("#telefone").mask('(00) 0000-0000');
+            $("#celular").mask('(00) 00000-0000');
+
+            $('#valor_tributo').maskMoney({
+                prefix: 'R$ ', 
+                allowNegative: false, 
+                thousands: '.', 
+                decimal: ',', 
+                precision: 2, 
+                affixesStay: true 
+            });
+
+            $('#valor_multa').maskMoney({
+                prefix: 'R$ ', 
+                allowNegative: false, 
+                thousands: '.', 
+                decimal: ',', 
+                precision: 2, 
+                affixesStay: true 
+            });
+
+            $('#valor_credito').maskMoney({
+                prefix: 'R$ ', 
+                allowNegative: false, 
+                thousands: '.', 
+                decimal: ',', 
+                precision: 2, 
+                affixesStay: true 
+            });
+
+            $('#valor_atualizado').maskMoney({
+                prefix: 'R$ ', 
+                allowNegative: false, 
+                thousands: '.', 
+                decimal: ',', 
+                precision: 2, 
+                affixesStay: true 
+            });
+            
+            function aplicarMascara(){
+                var opcaoSelecionada = $('#tipo_pessoa').val();
+                var campoDoc = $('#documento');
+
+                if(opcaoSelecionada === 'Física'){
+                    campoDoc.mask('000.000.000-00', {reverse: true});
+                } else {
+                    campoDoc.mask('00.000.000/0000-00', {reverse: true});
+                }
+            }
+
+            aplicarMascara();
+            $('#tipo_pessoa').change(aplicarMascara);
+
+            $('form').on('submit', function() {
+                var valor_tributo = $('#valor_tributo').maskMoney('unmasked')[0];
+                $('#valor_tributo').val(valor_tributo);
+
+                var valor_multa = $('#valor_multa').maskMoney('unmasked')[0];
+                $('#valor_multa').val(valor_multa);
+
+                var valor_credito = $('#valor_credito').maskMoney('unmasked')[0];
+                $('#valor_credito').val(valor_credito);
+
+                var valor_atualizado = $('#valor_atualizado').maskMoney('unmasked')[0];
+                $('#valor_atualizado').val(valor_atualizado);
+                
+                $("#numero").unmask();
+
+                $("#documento").unmask();
+            });
+        })
+    </script>
+
+    <script>
+        function limparTexto(input){
+            var textoSemEspeciais = input.value.replace(/[^A-Za-z0-9\s@,.À-ÖØ-öø-ÿ]/g, '');
+            textoSemEspeciais = textoSemEspeciais.toUpperCase();
+            input.value = textoSemEspeciais;
+        }
+    </script>
+
+    <script>
+        $(document).ready(function(){
+            $('#documento').change(function(){
+                var documento = $(this).val();
+                $.ajax({
+                    url: "{% url 'busca-documento' %}",
+                    data: {
+                        'documento': documento
+                    },
+
+                    dataType: 'json',
+                    success: function(data){
+                        $('#nome_contribuinte').val(data.k_nome_contribuinte); 
+                        $('#nome_fantasia').val(data.k_nome_fantasia);
+                        $('#cep').val(data.k_cep);
+                        $('#logradouro').val(data.k_logradouro);
+                        $('#numero_casa').val(data.k_numero_casa);
+                        $('#bairro').val(data.k_bairro);
+                        $('#uf_contri').val(data.k_uf_contri);
+                        $('#localidade').val(data.k_localidade);
+                        $('#complemento').val(data.k_complemento);
+                        $('#email').val(data.k_email);
+                        $('#celular').val(data.k_celular);
+                        $('#telefone').val(data.k_telefone);
+                    },
+
+                    error: function(xhr, status, error){
+                        
+                        var cnpj = documento.replace(/[^\w\s]/gi, '');
+                        
+                        if(cnpj.length == 14){ 
+                            fetch("https://api-publica.speedio.com.br/buscarcnpj?cnpj=" + cnpj)
+                            .then(response => response.json())
+                            .then(data => {
+                                if(data.error){
+                                    alert('CNPJ inválido ou não encontrado. Por favor, verifique o CNPJ informado.')
+                                }else{
+                                    console.log(data)
+                                    $('#nome_contribuinte').val(data['RAZAO SOCIAL'].toUpperCase()); 
+                                    $('#nome_fantasia').val(data['NOME FANTASIA'].toUpperCase());
+                                    $('#cep').val(data['CEP'].toUpperCase());
+                                    $('#logradouro').val(data['LOGRADOURO'].toUpperCase());
+                                    $('#numero_casa').val(data['NUMERO'].toUpperCase());
+                                    $('#bairro').val(data['BAIRRO'].toUpperCase());
+                                    $('#uf_contri').val(data['UF'].toUpperCase());
+                                    $('#localidade').val(data['MUNICIPIO'].toUpperCase());
+                                    $('#email').val(data['EMAIL'].toUpperCase());
+                                    $('#telefone').val("(" + data['DDD'] + ") " + data['TELEFONE'].toUpperCase());
+                                }
+                            })
+
+                            .catch(error => {
+                                alert("Problemas com a API.");
+                            });
+                        }else{
+                            alert("O CPF não consta em nossa base de dados. Preencha o cadastro manualmente.")
+                        };
+                    }
+                });
+                
+            });
+        });
+    </script>
+
+    <script>
+        $(document).ready(function(){
+            $('#cep').change(function(){
+
+                var cep = $(this).val();
+
+                fetch("https://viacep.com.br/ws/" + cep + "/json/")
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        alert("CEP inválido ou não encontrado. Por favor, verifique o CEP informado.");
+                    } else {
+                        document.getElementById("logradouro").value = data.logradouro.toUpperCase();
+                        document.getElementById("bairro").value = data.bairro.toUpperCase();
+                        document.getElementById("uf_contri").value = data.uf.toUpperCase();
+                        document.getElementById("localidade").value = data.localidade.toUpperCase();
+                    }
+                })
+
+                .catch(error => {
+                    console.error("Erro ao acessar API de CEP:", error);
+                    alert("Erro ao preencher endereço. Por favor, verifique o CEP informado.");
+                });
+            });
+        });
+    </script>
+
+    <script>
+        function preencherZeros(){
+            var num = document.getElementById('numero').value;
+            var numero = num.padStart(10, '0');
+            document.getElementById('numero').value = numero;
+        }
+
+        $(document).ready(function(){
+            $("#numero").change(function(){
+                preencherZeros()
+            });
+        });
+    </script>
+
+    <script>
+        document.getElementById('numero').addEventListener('change', function() {
+            var numeroCompleto = this.value;
+
+            var ultimosQuatro = numeroCompleto.slice(-4);
+            
+            document.getElementById('exercicio').value = ultimosQuatro;
+        });
+    </script>
+
+    <script>
+        document.getElementById('exercicio').addEventListener('input', function() {
+            var valor = this.value.trim(); 
+            
+            var maxCaracteres = 4;
+
+            if (valor.length > maxCaracteres) {
+                this.value = valor.slice(0, maxCaracteres);
+            }
+        });
+    </script>
+{% endblock %}
+

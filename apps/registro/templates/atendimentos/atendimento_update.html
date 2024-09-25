@@ -1,0 +1,355 @@
+{% extends 'core/inicio.html' %}
+
+{% load static %}06
+
+{% load widget_tweaks %}
+
+{% block titulo %}
+    <title>Editar Atendimento</title>
+{% endblock %}
+
+{% block conteudo %}
+    <div class="p-4" id="style_containers">
+        <div class="card">
+            <form action="" method="post">
+                <div class="card-header text-white" style="background-color: #5c5c5c;">
+                    <div class="row">
+                        <div class="col">
+                            <button type="submit" style="border-radius: 4px; background-color: #e06e6e; color: white;" onclick="habilitarMunicipio(); preencherTempo()"><b>Salvar</b></button>
+                            <a href="{% url 'atendimento-list' %}"><button type="button" style="border-radius: 4px; background-color: #a19f9f; color: white;"><b>Cancelar</b></button></a>
+                        </div>
+                        <div class="col">
+                            <h4 style="text-align: right;">Editar Atendimento</h4>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <form action="" method="post">
+                        {% csrf_token %}
+                        <h5>Ticket: {{ object.ticket }}</h5>
+                        <hr>
+                        <div class="row">
+                            <div class="col">
+                                <label for="tempo">Tempo</label>
+                                {% if object.tempo %}
+                                    <input type="text" name="tempo" id="tempo" class="form-control" value="{{ object.tempo }}" readonly style="padding: 2px;">
+                                {% else %}
+                                    <input type="text" name="tempo" id="tempo" class="form-control" value="00:00:00" readonly style="padding: 2px;">
+                                {% endif %}
+                            </div>
+                            <div class="col">
+                                <label for="status">Status</label>
+                                {% render_field form.status name="status" id="status" class="form-control" style="padding: 2px;" %}
+                            </div>
+                        </div>
+                        <br>
+                        <div class="row">  
+                            <div class="col">
+                                <label for="municipio_atendimento">Município</label>
+                                {% render_field form.municipio_atendimento name="municipio_atendimento" id="select_municipio_atendimento" class="form-control" style="padding: 2px;"%}
+                            </div>
+                            <div class="col" >
+                                <label for="numero_processo">Nº Processo</label>
+                                <input type="text" name="atendimento_processo" id="numero_processo" value="{{ object.atendimento_processo }}" class="form-control" style="height: auto; padding: 2px;" maxlength="10" autocomplete="off" placeholder="     /    " readonly>
+                            </div>
+                            <div class="col">
+                                <button type="button" class="buscaProcessoButton" style="border-radius: 4px; height: 29px; margin-top: 26px;">Pesquisar</button>
+                                <button type="button" onclick="limparProcesso(); habilitarMunicipio()" style="border-radius: 4px; height: 29px;">Limpar</button>
+                            </div>                           
+                            <div class="col"></div>                        
+                            <div class="col">
+                                <label for="data_atendimento">Data</label>
+                                <input type="date" class="form-control" name="data_atendimento" id="data_atendimento" value="{{ object.data_atendimento|date:'Y-m-d' }}" style="padding: 2px;">
+                            </div>
+                        </div>
+                        <br>
+                        <div class="row">
+                            <div class="col">
+                                <label for="contato">Meio de Contato</label>
+                                {% render_field form.contato name="contato" id="contato" class="form-control" style="padding: 2px;"%}
+                            </div>
+                            <div class="col">
+                                <label for="cliente_atendimento">Cliente</label>
+                                {% render_field form.cliente_atendimento name="cliente_atendimento" id="cliente_atendimento" class="form-control" style="padding: 2px;"%}
+                            </div>
+                        </div>
+                        <br>
+                        <div class="row">
+                            <div class="col">
+                                <label for="atendimento">Tipo de Atendimento</label>
+                                {% render_field form.atendimento name="atendimento" id="atendimento" class="form-control" style="padding: 2px;"%}
+                            </div>
+                        </div>
+                        <br>
+                        <div class="row">
+                            <div class="colw">
+                                <label for="descricao_atendimento">Descrição</label>
+                                <textarea class="form-control" rows="12" cols="50" name="descricao_atendimento" id="descricao_atendimento" oninput="maiuscula(this)" maxlength="2000" required style="height: 200px;">{{ object.descricao_atendimento }}</textarea>
+                            </div>
+                        </div>
+                        <br>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <div class="modal fade bd-example-modal-lg" id="modalbuscaprocesso" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered modal-xl">
+                <div class="modal-content">
+                    <div class="modal-header">                                              
+                        <div class="col-auto">
+                            <button type="button" id="pesquisa_processo" style="border-radius: 4px;">Pesquisar</button>
+                        </div>
+                        <div class="col"></div>
+                        <div class="col-auto">
+                            <h4 class="modal-title" id="confirmDeleteModalLabel">Pesquisar Processo</h4>
+                        </div>
+                        <div class="col"></div>
+                        <div class="col-auto">
+                            <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                    </div>
+                    <div class="modal-body" style="text-align: center;">
+                        <div class="row">
+                            <div class="col">
+                                <label for="municipio_filter">Município</label>
+                                {% render_field form.municipio_atendimento name="municipio_filter" id="municipio_filter" class="form-control" style="padding: 2px;" %}
+                            </div>
+                            <div class="col">
+                                <label for="num_proc">Nº Processo</label>
+                                <input type="text" name="num_proc" id="num_proc" class="form-control" maxlength="9" autocomplete="off" placeholder="     /    " style="padding: 2px;">
+                            </div>
+                            <div class="col">
+                                <label for="contribuinte">Contribuinte</label>
+                                <input type="text" class="form-control" name="contribuinte" id="contribuinte" oninput="maiuscula(this)" style="padding: 2px;">
+                            </div>
+                        </div>
+                        <br>
+                        <div class="row">
+                            <div class="col">
+                                <div class="table-responsive">
+                                    <table class="table table-hover" id="listar_processos">
+                                        <thead>
+                                            <tr>
+                                                <th></th>
+                                                <th>Número</th>
+                                                <th>Contribuinte</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+{% endblock %}
+
+{% block scripts %}
+    <!-- Importação do Jquery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <!-- Importações para utilizar maskMoney -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-maskmoney/3.0.2/jquery.maskMoney.min.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            $("#num_proc").mask("00000/0000", {reverse: true});
+            $("#numero_processo").mask("00000/0000", {reverse: true});
+
+            var municipio_atendimento = document.getElementById('select_municipio_atendimento');
+            municipio_atendimento.disabled = true;
+
+            $('#modalbuscaprocesso').modal({
+                backdrop: 'static',  
+                keyboard: false     
+            });
+
+            $('.buscaProcessoButton').click(function() {
+                var modal = $('#modalbuscaprocesso');
+                modal.modal('show');
+
+                modal.find('#pesquisa_processo').off().click(function() {
+                    var selectMunicipio = document.getElementById('municipio_filter');
+                    var municipio_filter = selectMunicipio.value;
+
+                    var inputContribuinte = document.getElementById('contribuinte');
+                    var contribuinte = inputContribuinte.value;
+
+                    var inputProcesso = document.getElementById('num_proc');
+                    var num_processo = inputProcesso.value;
+
+
+                    $.ajax({
+                        url: "{% url 'filtrar-processos' %}",
+                        method: 'GET',
+                        data: {
+                            'municipio_filter': municipio_filter,
+                            'contribuinte': contribuinte,
+                            'processo': num_processo
+                        },
+
+                        dataType: 'json',
+                        success: function(data){
+                            console.log(data)
+                            var tableBody = $('#listar_processos tbody');
+                            tableBody.empty();
+                            $.each(data, function(index, processo){
+                                var row = $('<tr></tr>');
+                                var img = $('<img>').attr('src', '{% static "img/escolhido.png" %}').css({'cursor':'pointer', 'width': '35px', 'height':'35px'});
+
+                                var imgCell = $('<td></td>').append(img)
+                                var documentoCell = $('<td></td>').text(processo.numero);
+                                var nomeContribuinteCell = $('<td></td>').text(processo.contribuinte);
+
+                                img.click(function(){
+                                    $('#numero_processo').val(processo.numero);
+                                    modal.modal('hide');
+                                    var get_municipio_filter = document.getElementById('municipio_filter');
+                                    var municipio_filter = get_municipio_filter.value;
+
+                                    var municipio_atendimento = document.getElementById('select_municipio_atendimento');
+                                    municipio_atendimento.value = municipio_filter;
+                                    municipio_atendimento.disabled = true;
+
+                                });
+                                
+                                row.append(imgCell)
+                                row.append(documentoCell);
+                                row.append(nomeContribuinteCell);
+                                tableBody.append(row);
+                              
+                            });
+                        
+                        },
+
+                        error: function(xhr, status, error){
+                            var errorMessage = JSON.parse(xhr.responseText).error;
+                            alert(errorMessage);
+                        }
+                    });
+                });
+            });
+
+            $('.btn-close').on('click', function() {
+                var modal = $(this).closest('.modal');
+                $('#municipio_filter').val('');
+                $('#num_proc').val('');
+                $('#contribuinte').val('');
+                var tableBody = $('#listar_processos tbody');
+                tableBody.empty();
+                modal.modal('hide');
+            });
+
+        });
+    </script>
+
+    <script>
+        function maiuscula(input){
+            var start = input.selectionStart; 
+            var end = input.selectionEnd;     
+            
+            input.value = input.value.toUpperCase();
+            
+            input.setSelectionRange(start, end);
+        }
+    </script>
+
+    <script>
+        setTimeout(function() {
+            $('#message_success').fadeOut('fast');
+        }, 4000);
+    </script>
+
+    <script>
+        function limparProcesso(){
+            $('#numero_processo').val('');
+        };
+    </script>
+
+    <script>
+        var hh = 0;
+        var mm = 0;
+        var ss = 0;
+
+        var tempo = 1000;
+        var cron;
+
+        function travarBotao(){
+            var botao = document.getElementById("start_button");
+            botao.disabled = true; 
+        };
+
+        function liberarBotao(){
+            var botao = document.getElementById("start_button");
+            botao.disabled = false;
+        }
+
+        function start() {
+            cron = setInterval(() => { timer(); }, tempo);
+
+            travarBotao();
+        }
+
+        function pause() {
+            clearInterval(cron);
+
+            liberarBotao();
+        }
+
+        function stop() {
+            clearInterval(cron);
+            var tempo = document.getElementById('counter').innerText;
+            document.getElementById('tempo').value = tempo; 
+            hh = 0;
+            mm = 0;
+            ss = 0;
+
+            document.getElementById('counter').innerText = '00:00:00';
+
+            liberarBotao();
+        }
+
+        function preencherTempo(){
+            var tempo = document.getElementById('counter').innerText;
+            if(tempo != '00:00:00'){
+                document.getElementById('tempo').value = tempo;
+            }
+        };
+
+        function timer() {
+            ss++;
+
+            if (ss == 60) { 
+                ss = 0;
+                mm++; 
+
+                if (mm == 60) {
+                    mm = 0;
+                    hh++;
+                }
+            }
+
+            var format = (hh < 10 ? '0' + hh : hh) + ':' + (mm < 10 ? '0' + mm : mm) + ':' + (ss < 10 ? '0' + ss : ss);
+
+            document.getElementById('counter').innerText = format;
+
+            return format;
+        }
+    </script>
+
+    <script>
+        function habilitarMunicipio(){
+            var municipio_atendimento = document.getElementById('select_municipio_atendimento');
+            municipio_atendimento.disabled = false;
+        };
+    </script>
+{% endblock %}
+
+
