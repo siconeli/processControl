@@ -74,11 +74,11 @@ WSGI_APPLICATION = 'portal.wsgi.application'
 DATABASES = {
     'default': {  
         'ENGINE': 'django.db.backends.postgresql', 
-        'NAME': 'db_portal',
+        'NAME': 'postgres',
         'USER': 'postgres',
         'PASSWORD': 'Clodomir753$',
         'HOST': 'localhost',
-        'PORT': '5432',
+        'PORT': '5431',
     }
 }
 
