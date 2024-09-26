@@ -1365,7 +1365,7 @@ class RelatorioProcessosPorStatus(LoginRequiredMixin, View):
                 pdf.ln(10)
 
                 pdf.set_font('Arial', 'B', size=10)
-                pdf.set_draw_color(0, 152, 215) 
+                pdf.set_draw_color(0, 0, 0) 
                 pdf.set_line_width(0.3) 
 
                 pdf.set_fill_color(211,211,211) 
@@ -1465,7 +1465,7 @@ class RelatorioProcessosPorStatus(LoginRequiredMixin, View):
                     pdf.ln(10)
 
                     pdf.set_font('Arial', 'B', size=10)
-                    pdf.set_draw_color(0, 152, 215) 
+                    pdf.set_draw_color(0, 0, 0) 
                     pdf.set_line_width(0.3)   
 
                     pdf.set_fill_color(211,211,211) 
@@ -1609,7 +1609,7 @@ class RelatorioProcessosPorStatus(LoginRequiredMixin, View):
                     pdf.ln(10)
 
                     pdf.set_font('Arial', 'B', size=10) 
-                    pdf.set_draw_color(0, 152, 215) 
+                    pdf.set_draw_color(0, 0, 0) 
                     pdf.set_line_width(0.3) 
 
                     if filtro_colunas:
@@ -1704,7 +1704,7 @@ class RelatorioProcessosPorStatus(LoginRequiredMixin, View):
                     pdf.ln(10)
 
                     pdf.set_font('Arial', 'B', size=10) 
-                    pdf.set_draw_color(0, 152, 215) 
+                    pdf.set_draw_color(0, 0, 0) 
                     pdf.set_line_width(0.3)    
 
                     pdf.set_fill_color(211, 211, 211) 
@@ -1866,7 +1866,7 @@ class RelatorioAvaliacoes(LoginRequiredMixin, View):
             pdf.add_page(orientation='L')  
 
             pdf.set_font('Arial', 'B', size=7) 
-            pdf.set_draw_color(0, 152, 215) 
+            pdf.set_draw_color(0, 0, 0) 
             pdf.set_line_width(0.3)  
             
             if filtro_modelo == '': 

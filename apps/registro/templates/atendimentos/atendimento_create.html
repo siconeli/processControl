@@ -15,10 +15,10 @@
             <div class="card-header text-white" style="background-color: #5c5c5c;">
                 <div class="row">
                     <div class="col">
-                        <button type="submit" style="border-radius: 4px; background-color: #e06e6e; color: white;" onclick="habilitarMunicipio(); preencherTempo()"><b>Salvar</b></button>
+                        <button type="submit" style="border-radius: 4px; background-color: #5ce1e6; color: white;" onclick="habilitarMunicipio(); preencherTempo()"><b>Salvar</b></button>
                     </div>
                     <div class="col">
-                        <a href="{% url 'atendimento-list' %}"><button type="button" style="border-radius: 4px; background-color: #e06e6e; color: white;"><b>Listar Atendimentos</b></button></a>   
+                        <a href="{% url 'atendimento-list' %}"><button type="button" style="border-radius: 4px; background-color: #5ce1e6; color: white;"><b>Listar Atendimentos</b></button></a>   
                     </div>
                     <div class="col"></div>
                     <div class="col"></div>
@@ -83,7 +83,7 @@
                             </select>
                         </div>
                         <div class="col-auto">
-                            <button type="button" class="cadastrarClienteButton" id="cadastrar_cliente" style="border-radius: 4px; height: 29px; margin-top: 26px;background-color: #e06e6e; color: white;">Cadastrar</button>
+                            <button type="button" class="cadastrarClienteButton" id="cadastrar_cliente" style="border-radius: 4px; height: 29px; margin-top: 26px;background-color: #5ce1e6; color: white;">Cadastrar</button>
                         </div>                                                 
                     </div>
                     <br>
@@ -171,12 +171,12 @@
             <div class="modal-dialog modal-dialog-centered" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <button type="submit" id="enviarCliente" style="border-radius: 4px; background-color: #e06e6e; color: white;" disabled>Salvar</button>
+                        <button type="submit" id="enviarCliente" style="border-radius: 4px; background-color: #5ce1e6; color: white;" disabled>Salvar</button>
                         <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close"></button>                                                               
                     </div>
                     <div class="modal-body">
                         <div class="col">
-                            <div class="alert" style="background-color: #e06e6e; color: white; display: none;" role="alert" id="resultado"><b></b></div>
+                            <div class="alert" style="background-color: #5ce1e6; color: white; display: none;" role="alert" id="resultado"><b></b></div>
                             <label for="nome_cliente">Nome</label>
                             <input type="text" id="nome_cliente" name="nome_cliente" class="form-control" style="padding: 2px;" maxlength="50" oninput="maiuscula(this)">
                         </div>

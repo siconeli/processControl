@@ -17,8 +17,7 @@ urlpatterns = [
     path('delete/<int:id>/', ProcessoDelete.as_view(), name='processo-delete'),
     path('', ProcessoList.as_view(), name='processo-list'),
     path('limpar-cache/', LimparCacheProcessoView.as_view(), name='limpar-cache-processos'),
-    path('atendimentos/<int:id>/', views.AtendimentoList, name='proc-atendimento-list'),
-    
+        
     # ANDAMENTO
     path('andamento/create/<int:id>/', AndamentoCreate.as_view(), name='andamento-create'),
     path('andamento/busca-codigo/', BuscaAndamentoPeloCodigo.as_view(), name='busca-codigo'),

@@ -44,9 +44,6 @@
         </button>
         <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasNavbar" aria-labelledby="offcanvasNavbarLabel">
           <div class="offcanvas-header" id="cor-menu-lateral">
-          <dt class="nav-item">
-            <a class="nav-link active" id="texto-inicio-navbar-menu" aria-current="page" href="{% url 'inicio' %}"> Início </a>
-          </dt>
           {% if user.is_authenticated %}
             <dt class="nav-item dropdown">
               <a class="nav-link dropdown-toggle" id="texto-inicio-navbar-menu" role="button" data-bs-toggle="dropdown" aria-expanded="false" >{{ user }}</a>
@@ -60,9 +57,13 @@
           {% else %}
             <a class="nav-link active" id="texto-inicio-navbar-menu" aria-current="page" href="{% url 'login' %}"><img src="{% static 'img/entrar.png' %}" width="30"><b> Entrar </b></a>
           {% endif %} 
-            
           <dt class="nav-item">
             {% if user.is_superuser %} 
+              <dt class="nav-item"></dt>
+              <dt class="nav-item"></dt>
+              <dt class="nav-item"></dt>
+              <dt class="nav-item"></dt>
+              <dt class="nav-item"></dt>
               <a class="nav-link" id="texto-navbar-menu" href="{% url 'admin:index' %}" role="button" aria-expanded="false"><img src="{% static 'img/central-adm.png' %}" width="30"></a>
             {% endif %}
           </dt>
@@ -76,7 +77,7 @@
                 <p><b>Funcionário:</b>{% if user.funcionario_user %} {{ user.funcionario_user.nome }} {% endif%}</p>   
               </li>
               <hr>
-              <h4 style="background-color: #0098DB; color: white; height: 35px; text-align: center;"> Processos</h4>
+              <h4 style="background-color: #c59f46; color: white; height: 35px; text-align: center;"> Processos</h4>
               <div>
                 <a class="nav-link" id="texto-navbar-menu" href="{% url 'processo-create' %}" role="button" aria-expanded="false">Cadastrar</a>
               </div>
@@ -90,7 +91,7 @@
                 <a class="nav-link" id="texto-navbar-menu" href="{% url 'lancamento-por-usuario' %}" role="button" aria-expanded="false">Lançamentos por Funcionário</a>
               </div>
               <hr>
-              <h4 style="background-color: #e06e6e; color: white; height: 35px; text-align: center;"> Atendimentos</h4> 
+              <h4 style="background-color: #5ce1e6; color: white; height: 35px; text-align: center;"> Atendimentos</h4> 
               <div>
                 <a class="nav-link" id="texto-navbar-menu" href="{% url 'atendimento-create' %}" role="button" aria-expanded="false">Cadastrar</a>
               </div>

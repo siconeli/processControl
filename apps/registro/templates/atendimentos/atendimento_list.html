@@ -12,7 +12,7 @@
             <div class="card-header text-white" style="background-color: #5c5c5c;">
                 <div class="row">
                     <div class="col">
-                        <a href="{% url 'atendimento-create' %}"><button type="button"  style="border-radius: 4px; background-color: #e06e6e; color: white;"><b>Cadastrar</b></button></a>
+                        <a href="{% url 'atendimento-create' %}"><button type="button"  style="border-radius: 4px; background-color: #5ce1e6; color: white;"><b>Cadastrar</b></button></a>
                     </div>
                     <div class="col">
                         <h4 style="text-align: right;">Listar Atendimentos</h4>
@@ -83,7 +83,7 @@
 
                         </div>
                         <div class="col">
-                            <a href="{% url 'relatorio-atendimentos' %}" target="_blank"><button type="button" style="border-radius: 4px; background-color: #e06e6e; color: white;"><b>Imprimir</b></button></a>
+                            <a href="{% url 'relatorio-atendimentos' %}" target="_blank"><button type="button" style="border-radius: 4px; background-color: #5ce1e6; color: white;"><b>Imprimir</b></button></a>
                         </div>
                         <div class="col"></div>
                         <div class="col"></div>
@@ -127,9 +127,9 @@
                                     {% if atendimento.status_id == 1 %}
                                         <td style="background-color: rgb(255, 231, 47); width: 13%;"><b>{{ atendimento.status }}</b></td>
                                     {% elif atendimento.status_id == 2 %}
-                                        <td style="background-color: rgb(15, 216, 65); width: 13%"><b>{{ atendimento.status }}</b></td>
+                                        <td style="background-color: rgb(88, 248, 128); width: 13%"><b>{{ atendimento.status }}</b></td>
                                     {% else %}
-                                        <td style="background-color: rgb(255, 130, 47); width: 13%"><b>{{ atendimento.status }}</b></td>
+                                        <td style="background-color: #a9b1a8; width: 13%"><b>{{ atendimento.status }}</b></td>
                                     {% endif %}
                                     <td id="linhas-list-processos">{{ atendimento.municipio_atendimento }}</td>
                                     <td id="linhas-list-processos">{{ atendimento.data_atendimento|date:'d/m/Y' }}</td>

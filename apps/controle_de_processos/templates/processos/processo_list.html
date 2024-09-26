@@ -12,9 +12,9 @@
             <div class="card-header text-white" style="background-color: #5c5c5c;">
                 <div class="row">
                     <div class="col">
-                        <a href="{% url 'processo-create' %}"><button type="button"  style="border-radius: 4px; background-color: #0098DB; color: white;"><b>Cadastrar</b></button></a>
-                        <a href="{% url 'relatorios-processo' %}"><button type="button" style="border-radius: 4px; background-color: #0098DB; color: white;"><b>Relatórios</b></button></a>
-                        <a href="{% url 'lancamento-por-usuario' %}"><button type="button" style="border-radius: 4px; background-color: #0098DB; color: white;"><b>Lançamentos</b></button></a>
+                        <a href="{% url 'processo-create' %}"><button type="button"  style="border-radius: 4px; background-color: #c59f46; color: white;"><b>Cadastrar</b></button></a>
+                        <a href="{% url 'relatorios-processo' %}"><button type="button" style="border-radius: 4px; background-color: #c59f46; color: white;"><b>Relatórios</b></button></a>
+                        <a href="{% url 'lancamento-por-usuario' %}"><button type="button" style="border-radius: 4px; background-color: #c59f46; color: white;"><b>Lançamentos</b></button></a>
                     </div>
                     <div class="col">
                         <h4 style="text-align: right;">Listar Processos</h4>
@@ -168,7 +168,7 @@
                                         </form>
                                     </td>
                                     <td id="linhas-list-processos">                                 
-                                        <a href="{% url 'andamento-list' processo.id %}"><button type="button" style="border-radius: 4px; background-color: #ffb14c;color: white;"><b>Andamentos</b></button></a>
+                                        <a href="{% url 'andamento-list' processo.id %}"><button type="button" style="border-radius: 4px; background-color: #24744d;color: white;"><b>Andamentos</b></button></a>
                                     </td>
                                 </tr>
                             {% endfor %}

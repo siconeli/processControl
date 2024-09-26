@@ -386,7 +386,7 @@ class Estrutura_Pdf(FPDF):
 
         self.add_font('Calibri', 'B', fname='fonts/Calibri.ttf', uni=True)
         self.set_font('Calibri', 'B', size=12)
-        self.cell(self.x_nome_empresa, self.y_nome_empresa, txt='Assessoria e Consultoria Tributária', ln=True, align='C')
+        self.cell(self.x_nome_empresa, self.y_nome_empresa, txt='Empresa Teste - Assessoria e Consultoria', ln=True, align='C')
 
         self.add_font('Calibri', 'B', fname='fonts/Calibri.ttf', uni=True)
         self.set_font('Calibri', 'B', size=12)
@@ -504,7 +504,7 @@ def relatorioAtendimentos(request):
             y_nome_empresa = -5
             x_titulo_rel = 270
             y_titulo_rel = 15
-            titulo_relatorio = 'Tecnologia em Gestão Tributária'
+            titulo_relatorio = 'Gestão Tributária'
 
             pdf = Estrutura_Pdf(titulo_relatorio, x_nome_empresa, y_nome_empresa, x_titulo_rel, y_titulo_rel, usuario_gerou, data_gerou, nome_municipio, contrato_municipio, periodo, x_municipio, y_municipio, x_periodo, y_periodo, x_contrato, y_contrato)
             pdf.add_page(orientation='L')
