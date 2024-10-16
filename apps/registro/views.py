@@ -414,38 +414,6 @@ class Estrutura_Pdf(FPDF):
         self.cell(0, 10, f'Página {self.page_no()}', align="C")
         self.cell(0, 10, f'Usuário: {self.usuario_gerou}  {self.data_gerou}  -  Empresa Teste ', 0, 0, 'R')
 
-# def download_image(url):
-#     try:
-#         response = requests.get(url)
-#         response.raise_for_status()
-#         return response
-#     except requests.RequestException as e:
-#         print(f"Erro ao baixar a imagem: {e}")
-#         return None
-    
-# def save_image_to_temp_file(image_response):
-#     content_type = image_response.headers.get('Content-Type')
-    
-#     if 'image/jpeg' in content_type:
-#         suffix = '.jpg'
-#     elif 'image/png' in content_type:
-#         suffix = '.png'
-#     else:
-#         print("Formato de imagem não suportado.")
-#         return None
-
-    # Cria um arquivo temporário
-    # temp_file = tempfile.NamedTemporaryFile(delete=False, suffix=suffix)
-    # try:
-    #     with open(temp_file.name, 'wb') as f:
-    #         f.write(image_response.content)
-    #     return temp_file.name
-    # except IOError as e:
-    #     print(f"Erro ao salvar a imagem temporária: {e}")
-    #     return None
-    # finally:
-    #     temp_file.close()
-    
 def relatorioAtendimentos(request):
     """
         Na class AtendimentoList eu salvei a Queryset 'atendimentos_filtrados' no Cache de memória, para poder fazer um get no cache e ter acesso aqui na função de gerar o relatório.
@@ -587,25 +555,6 @@ def relatorioAtendimentos(request):
             if filtro_funcionario:
                 funcionario = Funcionario.objects.get(user_id=filtro_funcionario)
                 if funcionario.assinatura:
-                    assinatura_path = funcionario.assinatura.url
-
-                    image_response = download_image(assinatura_path)
-        
-                    if image_response:
-                        temp_image_path = save_image_to_temp_file(image_response)
-
-                        if temp_image_path:
-                            try:
-                                pdf.image(temp_image_path, x=215, y=155, w=60, h=20)
-                            except Exception as e:
-                                print(f"Erro ao adicionar a imagem ao PDF: {e}")
-
-                            os.remove(temp_image_path)
-                        else:
-                            print("Não foi possível salvar a imagem temporária.")
-                    else:
-                        print("Não foi possível adicionar a imagem ao PDF.")
-                else:
                     pdf.image("static/img/assinatura.png", x=215, y=155, w=60, h=20)
 
                 x_position_linha = 200
