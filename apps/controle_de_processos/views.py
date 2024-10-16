@@ -533,7 +533,7 @@ class ProcessoList(LoginRequiredMixin, ListView):
                     context[key_cache] = cache.get(key_cache_id)
 
 
-            usuarios = User.objects.filter(is_superuser=False).exclude(username='migracao').order_by('username')
+            usuarios = User.objects.filter(is_superuser=False, is_active=True).exclude(username='migracao').order_by('username')
             for usuario in usuarios:
                 usuario.username = usuario.username.upper() 
 
@@ -642,7 +642,7 @@ class AndamentoCreate(LoginRequiredMixin, CreateView):
                     municipio_atendimento = processo.municipio,
                     processo_atendimento = processo, 
                     usuario_criador = self.request.user,
-                    cliente_atendimento_id = 11,
+                    cliente_atendimento_id = 5,
                     atendimento = tipo_atendimento_r,
                     andamento_atendimento = andamento,
                     status_id = 3
@@ -2455,7 +2455,7 @@ class LancamentoUsuario(LoginRequiredMixin, ListView):
         try:
             filtro_data_inicial = self.request.GET.get('data_inicial')
             filtro_data_final = self.request.GET.get('data_final')
-            funcionarios = self.model.objects.all().exclude(id=15).order_by('nome')
+            funcionarios = self.model.objects.filter(ativo=True).exclude(id=15).order_by('nome')
         
             for funcionario in funcionarios:
                 total_uploads = 0
