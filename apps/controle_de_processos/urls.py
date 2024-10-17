@@ -3,7 +3,7 @@ from .views import ProcessoCreate, ProcessoUpdate, ProcessoDelete, ProcessoList,
 from .views import AndamentoCreate, AndamentoUpdate, AndamentoDelete, AndamentoList, AndamentoDetailView
 from .views import RelatoriosProcesso, RelatorioProcessosPorStatus, RelatorioAvaliacoes
 from .views import LancamentoUsuario
-from .views import BuscaDocumento, BuscaAndamentoPeloCodigo, BuscaPrazo, BuscaPagamento, BuscaEncaminhamento, BuscaNumeroAiti, BuscaAvaliacaoImobiliaria, VerificaMatricula, RelatorioGrafico
+from .views import BuscaDocumento, BuscaAndamentoPeloCodigo, BuscaPrazo, BuscaPagamento, BuscaEncaminhamento, BuscaNumeroAiti, BuscaAvaliacaoImobiliaria, VerificaMatricula
 from . import views
 
 
@@ -36,7 +36,6 @@ urlpatterns = [
     path('relatorios/', RelatoriosProcesso.as_view(), name='relatorios-processo' ),
     path('relatorio-processos-por-status/', RelatorioProcessosPorStatus.as_view(), name='processos-por-status'),
     path('relatorio-avaliacoes/', RelatorioAvaliacoes.as_view(), name='avaliacoes'),
-    path('relatorio-grafico', RelatorioGrafico.as_view(), name='grafico'),
 
     # LANCAMENTOS POR USUARIO
     path('lancamentos-por-usuario/', LancamentoUsuario.as_view(), name='lancamento-por-usuario'),

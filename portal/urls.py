@@ -11,6 +11,7 @@ urlpatterns = [
     path('', include('apps.controle_de_processos.urls')),
     path('municipio/', include('apps.municipios.urls')),
     path('registro/', include('apps.registro.urls')),
+    path('grafico/', include('apps.grafico.urls')),
     path('accounts/', include('django.contrib.auth.urls')), 
 ] 
 

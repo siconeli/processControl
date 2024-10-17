@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'apps.controle_de_processos',
     'apps.municipios',
     'apps.registro',
+    'apps.grafico'
 ]
 
 MIDDLEWARE = [
