@@ -232,7 +232,7 @@ class AtendimentoList(LoginRequiredMixin, ListView):
 
         context = super().get_context_data(**kwargs)
 
-        usuarios = User.objects.filter(is_superuser=False).exclude(username='migracao').order_by('username')
+        usuarios = User.objects.filter(is_superuser=False, is_active=True).exclude(username='migracao').order_by('username')
         for usuario in usuarios:
             usuario.username = usuario.username.upper()
 
