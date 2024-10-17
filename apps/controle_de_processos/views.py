@@ -1305,22 +1305,24 @@ class RelatorioGrafico(LoginRequiredMixin, View):
 
         pdf.image('static/img/layout.png', 0, 0, 210, 297)
 
-        
-        categorias = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro']
-        valores = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10 , 11, 0]
-        
-        largura_colunas = 0.8
+        # Criar uma condição de acordo com o tipo de relatório selecionado, "mensa ou anual"
 
+        # Dados
+        categorias = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro']
+        valores = [100.00, 535.000, 250.000, 300.000, 150.000, 375.000, 175.000, 589.000, 456.000, 753.000, 963.000, 159.000]
+
+        # # Configurações do gráfico
         plt.figure(figsize=(20,10))
 
-        plt.bar(categorias, valores, width=largura_colunas)
-        
+        # Gráfico de linhas ao invés de barras
+        plt.plot(categorias, valores, marker='o', linestyle='-', color='b')
+
+        # Título e rótulos
         plt.title('Gráfico de arrecadação de tributos')
-        
         plt.ylabel('Valores')
-        
         plt.xlabel('Meses')
-        
+
+       # Verificar como criar o gráfico como uma imagem temporária apenas para ser incluida no relatório, depois excluir.
         plt.savefig('static/img/grafico.png')
         
         plt.close()

@@ -1,48 +1,96 @@
+# import matplotlib
 # import matplotlib.pyplot as plt
-# import tempfile
-# import os
+# matplotlib.use('Agg') 
 
-# categorias = ['A', 'B', 'C', 'D', 'E']
-# valores = [10, 23, 17, 12, 15]
+# class RelatorioGrafico(LoginRequiredMixin, View):
+#     def get(self, request):
+#         pdf = FPDF()
+#         pdf.add_page()
 
-# plt.bar(categorias, valores)
-# plt.xlabel('Categorias')
+#         pdf.image('static/img/layout.png', 0, 0, 210, 297)
+
+        
+#         categorias = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro']
+#         valores = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10 , 11, 0]
+        
+#         largura_colunas = 0.8
+
+#         plt.figure(figsize=(20,10))
+
+#         plt.bar(categorias, valores, width=largura_colunas)
+        
+#         plt.title('Gráfico de arrecadação de tributos')
+        
+#         plt.ylabel('Valores')
+        
+#         plt.xlabel('Meses')
+        
+#         # Verificar como criar o gráfico como uma imagem temporária apenas para ser incluida no relatório, depois excluir.
+#         plt.savefig('static/img/grafico.png')
+        
+#         plt.close()
+
+#         pdf.image('static/img/grafico.png', -10, 40, 230) #x=30, y=40, tamanho imagem=200
+
+#         pdf.set_font("Arial", size=12)  # Defina a fonte e o tamanho
+
+#         # Adicione uma célula com o texto
+#         pdf.cell(200, 10, txt="Relatório de arrecadação de tributos", ln=True, align='C')
+
+#         # Crie um arquivo temporário
+#         temp_file = tempfile.NamedTemporaryFile(delete=False, suffix='.pdf')
+#         pdf.output(temp_file.name)
+
+#         temp_file.close()
+        
+#         with open(temp_file.name, 'rb') as file:
+#             pdf_content = file.read()
+        
+#         os.unlink(temp_file.name)  # Exclua o arquivo temporário
+
+#         response = HttpResponse(pdf_content, content_type='application/pdf')
+#         response['Content-Disposition'] = 'inline; filename="grafico.pdf"'
+
+#         return response
+
+# import matplotlib
+# import matplotlib.pyplot as plt
+# # matplotlib.use('Agg')
+
+categorias = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro']
+valores = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10 , 11, 0]
+
+# # plt.bar(categorias, valores) Em barras
+
+
+# plt.plot(categorias, valores) # Em linha
+
 # plt.ylabel('Valores')
-# plt.title('Gráfico de Barras')
-# # plt.show()
-# plt.savefig('grafico.png')
-# plt.close()
 
-# criar o arquivo temporário, em seguida excluílo
+# plt.xlabel('Meses')
 
-# Pegar o layout do canva e preencher a página do pdf com o layout
+# plt.show()
 
-# 
 
-# from fpdf import FPDF
-# import tempfile
-# import os
-# from django.http import HttpResponse
+import matplotlib.pyplot as plt
 
-# def GerarPdf():
-#     pdf = FPDF()
+# Dados
+categorias = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro']
+valores = [100.00, 535.000, 250.000, 300.000, 150.000, 375.000, 175.000, 589.000, 456.000, 753.000, 963.000, 159.000]
 
-#     pdf.add_page()
+# # Configurações do gráfico
+plt.figure(figsize=(20,10))
 
-#     pdf.cell("teste")
+# Gráfico de linhas ao invés de barras
+plt.plot(categorias, valores, marker='o', linestyle='-', color='b')
 
-#     temp_file = tempfile.NamedTemporaryFile(delete=False)
-#     pdf.output(temp_file.name)
-#     temp_file.close()
+# Título e rótulos
+plt.title('Gráfico de arrecadação de tributos')
+plt.ylabel('Valores')
+plt.xlabel('Meses')
 
-#     with open(temp_file.name, 'rb') as file:
-#         pdf_content = file.read()
+# Salvando o gráfico
+plt.show()
 
-#     os.unlink(temp_file.name)
 
-#     response = HttpResponse(pdf_content, content_type='application/pdf')
-#     response['Content-Disposition'] = 'inline; filename="teste.pdf"'
 
-#     return response
-
-# GerarPdf()
