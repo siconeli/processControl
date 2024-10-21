@@ -2,6 +2,7 @@ from django.views.generic.edit import CreateView
 from django.views.generic.list import ListView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from .models import Ficha
+from apps.municipios.models import Municipio
 from django.urls import reverse
 from .forms import FichaForm, ValorMesForm
 
@@ -67,9 +68,23 @@ class FichaList(LoginRequiredMixin, ListView):
     model = Ficha
     template_name = 'grafico/ficha_list.html'
 
-    # def get_queryset(self):
-    #     return super().get_queryset()
+    def get_queryset(self):
+        municipio_input = self.request.GET.get('municipio')
+        receita_input = self.request.GET.get('receita')
+        ano_input = self.request.GET.get('ano')
 
+        fichas_filtradas = self.model.objects.none()
+
+        if municipio_input:
+            fichas_filtradas = self.model.objects.filter(municipio_id=municipio_input).order_by('-ano')
+
+        return fichas_filtradas
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        context['municipios'] = Municipio.objects.filter(tipo_contrato='Assessoria', ativo=True).order_by('nome')
+        return context
 
 
 # class Grafico(LoginRequiredMixin, View):

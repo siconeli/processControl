@@ -12,6 +12,7 @@
             {% csrf_token %}
 
             <h1>Ficha</h1>
+            
             <label for="municipio">Município</label>
             {% render_field form.municipio id="municipio" name="municipio" %}
 
@@ -21,8 +22,44 @@
             <label for="ano">Ano</label>
             {% render_field form.ano id="ano" name="ano" %}
 
+
             <h1>Valor Mês</h1>
-            {{ valor_mes_form.as_p }}
+
+            <label for="janeiro">Janeiro</label>
+            {% render_field valor_mes_form.janeiro id="janeiro" name="janeiro" %}
+
+            <label for="fevereiro">Fevereiro</label>
+            {% render_field valor_mes_form.fevereiro id="fevereiro" name="fevereiro" %}
+
+            <label for="marco">Março</label>
+            {% render_field valor_mes_form.marco id="marco" name="marco" %}
+
+            <label for="abril">Abril</label>
+            {% render_field valor_mes_form.abril id="abril" name="abril" %}
+
+            <label for="maio">Maio</label>
+            {% render_field valor_mes_form.maio id="maio" name="maio" %}
+
+            <label for="junho">Junho</label>
+            {% render_field valor_mes_form.junho id="junho" name="junho" %}
+
+            <label for="julho">Julho</label>
+            {% render_field valor_mes_form.julho id="julho" name="julho" %}
+
+            <label for="agosto">Agosto</label>
+            {% render_field valor_mes_form.agosto id="agosto" name="agosto" %}
+
+            <label for="setembro">Setembro</label>
+            {% render_field valor_mes_form.setembro id="setembro" name="setembro" %}
+
+            <label for="outubro">Outubro</label>
+            {% render_field valor_mes_form.outubro id="outubro" name="outubro" %}
+
+            <label for="novembro">Novembro</label>
+            {% render_field valor_mes_form.novembro id="novembro" name="novembro" %}
+
+            <label for="dezembro">Dezembro</label>
+            {% render_field valor_mes_form.dezembro id="dezembro" name="dezembro" %}
 
             <button type="submit">Enviar</button>
         </form>

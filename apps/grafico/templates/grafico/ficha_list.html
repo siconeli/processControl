@@ -7,6 +7,19 @@
 {% endblock %}
 
 {% block conteudo %}
+
+    <form method="get" action="{% url 'ficha-list' %}">
+        <label for="municipio">Município</label>
+        <select name="municipio" id="municipio">
+            <option value="">--------</option>
+            {% for m in municipios %}
+                <option value="{{ m.id }}">{{ m.nome }}</option>
+            {% endfor %}
+        </select>
+
+        <button type="submit">Pesquisar</button>
+    </form>
+
     <table>
         <thead>
             <tr>
