@@ -21,17 +21,15 @@ class FichaCreate(LoginRequiredMixin, CreateView):
 
     def form_valid(self, form):
         try:
-
-            # MUDAR ISSO, FAZER A VERIFICAÇÃO SE EXISTE A FICHA COM HTMX
             municipio_input = form.cleaned_data['municipio']
             receita_input = form.cleaned_data['receita']
             ano_input = form.cleaned_data['ano']
 
+            valor_mes_form = ValorMesForm(self.request.POST)
+
             if self.model.objects.filter(municipio=municipio_input, receita=receita_input, ano=ano_input).exists():
                 form.add_error(None, f'Já existe uma ficha cadastrada para: {municipio_input}, {receita_input}, {ano_input}')
-                return self.form_invalid(form)
-
-            valor_mes_form = ValorMesForm(self.request.POST)
+                return self.form_invalid(form, valor_mes_form=valor_mes_form)
 
             if valor_mes_form.is_valid():
                 ficha = form.save()
@@ -42,16 +40,20 @@ class FichaCreate(LoginRequiredMixin, CreateView):
             
             else:
                 valor_mes_form.add_error(None, 'Erro no formulário de valor mês')
-                return self.form_invalid(valor_mes_form)
+                return self.form_invalid(form, valor_mes_form=valor_mes_form)
             
         except Exception as e:
             print(e)
-
+            return self.render_to_response(self.get_context_data(form=form, valor_mes_form=valor_mes_form))
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        
+        if 'valor_mes_form' not in kwargs:
+            context['valor_mes_form'] = ValorMesForm()
+        else:
+            context['valor_mes_form'] = kwargs['valor_mes_form']
 
-        context['valor_mes_form'] = ValorMesForm()
         return context
     
 
