@@ -19,9 +19,9 @@ class Ficha(models.Model):
     ano = models.ForeignKey(Ano, on_delete=models.CASCADE)
 
     def __str__(self):
-        return self.municipio
+        return f'{self.municipio}, {self.receita}, {self.ano}'
     
-class Meses(models.Model):
+class ValorMes(models.Model):
     ficha = models.ForeignKey(Ficha, on_delete=models.CASCADE)
     janeiro = models.DecimalField(decimal_places=2, max_digits=11)
     fevereiro = models.DecimalField(decimal_places=2, max_digits=11, blank=True, null=True)

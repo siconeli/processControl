@@ -1,11 +1,9 @@
 from django.views.generic.edit import CreateView
-from django.views.generic import View
-from apps.municipios.models import Municipio
+from django.views.generic.list import ListView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from .models import Ficha
-from django.http import HttpResponse
-import os
 from django.urls import reverse
+from .forms import FichaForm, ValorMesForm
 
 # Imports para gerar gráfico
 import matplotlib
@@ -18,24 +16,59 @@ import tempfile
 
 class FichaCreate(LoginRequiredMixin, CreateView):
     model = Ficha
-    template_name = 'fichas/ficha_create.html'
+    template_name = 'grafico/ficha_create.html'
+    form_class = FichaForm
 
-    def get_form(self, form_class=None):
+    def form_valid(self, form):
         try:
-            form = super().get_form(form_class)
-            form.fields['municipio'].queryset = Municipio.objects.filter(tipo_contrato='Assessoria', origem='usuario', ativo=True).order_by('nome')
 
-            return form
+            # MUDAR ISSO, FAZER A VERIFICAÇÃO SE EXISTE A FICHA COM HTMX
+            municipio_input = form.cleaned_data['municipio']
+            receita_input = form.cleaned_data['receita']
+            ano_input = form.cleaned_data['ano']
 
+            if self.model.objects.filter(municipio=municipio_input, receita=receita_input, ano=ano_input).exists():
+                form.add_error(None, f'Já existe uma ficha cadastrada para: {municipio_input}, {receita_input}, {ano_input}')
+                return self.form_invalid(form)
+
+            valor_mes_form = ValorMesForm(self.request.POST)
+
+            if valor_mes_form.is_valid():
+                ficha = form.save()
+                valor_mes = valor_mes_form.save(commit=False)
+                valor_mes.ficha = ficha
+                valor_mes.save()
+                return super().form_valid(form)
+            
+            else:
+                valor_mes_form.add_error(None, 'Erro no formulário de valor mês')
+                return self.form_invalid(valor_mes_form)
+            
         except Exception as e:
-            print(f'Error na função (get_form) - views: (FichaCreate) - error: {e}')
+            print(e)
+
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        context['valor_mes_form'] = ValorMesForm()
+        return context
+    
 
     def get_success_url(self):
         try:
-            return reverse('ficha-create')
-    
-        except Exception as e:  
-            print(f'Error na função (get_success_url) - views: (FichaCreate) - error: {e}')
+            return reverse('ficha-list') 
+        except Exception as e:
+            print(e)
+
+class FichaList(LoginRequiredMixin, ListView):
+    model = Ficha
+    template_name = 'grafico/ficha_list.html'
+
+    # def get_queryset(self):
+    #     return super().get_queryset()
+
+
 
 # class Grafico(LoginRequiredMixin, View):
 #     def get(self, request):

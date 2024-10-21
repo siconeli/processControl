@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Receita, Ano, Ficha, Meses
+from .models import Receita, Ano, Ficha, ValorMes
 
 @admin.register(Receita)
 class ReceitaAdmin(admin.ModelAdmin):
@@ -13,6 +13,6 @@ class AnoAdmin(admin.ModelAdmin):
 class FichaAdmin(admin.ModelAdmin):
     list_display = ("municipio", "receita", "ano")
 
-@admin.register(Meses)
-class FichaAdmin(admin.ModelAdmin):
+@admin.register(ValorMes)
+class ValorMesAdmin(admin.ModelAdmin):
     list_display = ("ficha", "janeiro", "fevereiro", "marco", "abril", "maio", "junho", "julho", "agosto", "setembro", "outubro", "novembro", "dezembro")

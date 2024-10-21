@@ -1,0 +1,28 @@
+{% extends 'core/inicio.html' %}
+
+{% load widget_tweaks %} 
+
+{% block titulo %}
+    <title>Listar Fichas</title>
+{% endblock %}
+
+{% block conteudo %}
+    <table>
+        <thead>
+            <tr>
+                <th>Município</th>
+                <th>Receita</th>
+                <th>Ano</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for ficha in object_list %}
+            <tr>
+                <td>{{ ficha.municipio }}</td>
+                <td>{{ ficha.receita }}</td>
+                <td>{{ficha.ano }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}
