@@ -73,103 +73,112 @@ class FichaList(LoginRequiredMixin, ListView):
     template_name = 'grafico/ficha_list.html'
 
     def get_queryset(self):
-        usuario_id = self.request.user.id
+        try:
+            usuario_id = self.request.user.id
 
-        filtros = {
-            'municipio': 'cache_key_municipio',
-            'receita': 'cache_key_receita',
-            'ano': 'cache_key_ano'
-        }
+            filtros = {
+                'municipio': 'cache_key_municipio',
+                'receita': 'cache_key_receita',
+                'ano': 'cache_key_ano'
+            }
 
-        for filtro, cache_key in filtros.items():
-            valor_filtro = self.request.GET.get(filtro)
-            cache_key_usuario = f'{cache_key}_{usuario_id}'
-            
-            if valor_filtro == '':
-                cache.delete(cache_key_usuario)
-            elif valor_filtro:
-                cache.set(cache_key_usuario, valor_filtro)
+            for filtro, cache_key in filtros.items():
+                valor_filtro = self.request.GET.get(filtro)
+                cache_key_usuario = f'{cache_key}_{usuario_id}'
+                
+                if valor_filtro == '':
+                    cache.delete(cache_key_usuario)
+                elif valor_filtro:
+                    cache.set(cache_key_usuario, valor_filtro)
 
-        municipio_input = self.request.GET.get('municipio')
-        receita_input = self.request.GET.get('receita')
-        ano_input = self.request.GET.get('ano')
+            municipio_input = self.request.GET.get('municipio')
+            receita_input = self.request.GET.get('receita')
+            ano_input = self.request.GET.get('ano')
 
-        cache_key_usuario_fichas_filtradas = f'fichas_filtradas_{usuario_id}'
-        cache_fichas_filtradas = cache.get(cache_key_usuario_fichas_filtradas)
+            cache_key_usuario_fichas_filtradas = f'fichas_filtradas_{usuario_id}'
+            cache_fichas_filtradas = cache.get(cache_key_usuario_fichas_filtradas)
 
-        fichas_filtradas = self.model.objects.none()
-
-        if municipio_input or municipio_input and receita_input or municipio_input and ano_input:
-            fichas_filtradas = self.model.objects.all().order_by('-ano')
-
-            if municipio_input:
-                fichas_filtradas = fichas_filtradas.filter(municipio_id=municipio_input)
-            if receita_input:
-                fichas_filtradas = fichas_filtradas.filter(receita=receita_input)
-            if ano_input:
-                fichas_filtradas = fichas_filtradas.filter(ano=ano_input)
-        
-        elif cache_fichas_filtradas is not None:
-            fichas_filtradas = cache_fichas_filtradas
-
-        elif cache.get(f'cache_key_municipio_{usuario_id}') or cache.get(f'cache_key_receita_{usuario_id}') or cache.get(f'cache_key_ano_{usuario_id}'):        
-            fichas_filtradas = self.model.objects.all().order_by('-ano')
-
-            cache_municipio = cache.get(f'cache_key_municipio_{usuario_id}')
-            cache_receita = cache.get(f'cache_key_receita_{usuario_id}')
-            cache_ano = cache.get(f'cache_key_ano_{usuario_id}')
-
-            if cache_municipio:
-                fichas_filtradas = fichas_filtradas.filter(municipio_id=cache_municipio)
-
-            if cache_receita:
-                fichas_filtradas = fichas_filtradas.filter(receita=cache_receita)
-
-            if cache_ano: 
-                fichas_filtradas = fichas_filtradas.filter(ano=cache_ano)
-        
-        else:
             fichas_filtradas = self.model.objects.none()
-        
-        cache.set(cache_key_usuario_fichas_filtradas, fichas_filtradas)
 
-        return fichas_filtradas
+            if municipio_input or municipio_input and receita_input or municipio_input and ano_input:
+                fichas_filtradas = self.model.objects.all().order_by('-ano')
+
+                if municipio_input:
+                    fichas_filtradas = fichas_filtradas.filter(municipio_id=municipio_input)
+                if receita_input:
+                    fichas_filtradas = fichas_filtradas.filter(receita=receita_input)
+                if ano_input:
+                    fichas_filtradas = fichas_filtradas.filter(ano=ano_input)
+            
+            elif cache_fichas_filtradas is not None:
+                fichas_filtradas = cache_fichas_filtradas
+
+            elif cache.get(f'cache_key_municipio_{usuario_id}') or cache.get(f'cache_key_receita_{usuario_id}') or cache.get(f'cache_key_ano_{usuario_id}'):        
+                fichas_filtradas = self.model.objects.all().order_by('-ano')
+
+                cache_municipio = cache.get(f'cache_key_municipio_{usuario_id}')
+                cache_receita = cache.get(f'cache_key_receita_{usuario_id}')
+                cache_ano = cache.get(f'cache_key_ano_{usuario_id}')
+
+                if cache_municipio:
+                    fichas_filtradas = fichas_filtradas.filter(municipio_id=cache_municipio)
+
+                if cache_receita:
+                    fichas_filtradas = fichas_filtradas.filter(receita=cache_receita)
+
+                if cache_ano: 
+                    fichas_filtradas = fichas_filtradas.filter(ano=cache_ano)
+            
+            else:
+                fichas_filtradas = self.model.objects.none()
+            
+            cache.set(cache_key_usuario_fichas_filtradas, fichas_filtradas)
+
+            return fichas_filtradas
+        except Exception as e:
+            print(e)
 
     def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
+        try:
+            context = super().get_context_data(**kwargs)
 
-        filtros = {
-            'municipio': 'cache_key_municipio',
-            'receita': 'cache_key_receita',
-            'ano': 'cache_key_ano'
-        }
+            filtros = {
+                'municipio': 'cache_key_municipio',
+                'receita': 'cache_key_receita',
+                'ano': 'cache_key_ano'
+            }
 
-        for cache_key in filtros.values():
-            cache_key_usuario = f'{cache_key}_{self.request.user.id}'
-            if cache.get(cache_key_usuario):
-                context[cache_key] = cache.get(cache_key_usuario)
+            for cache_key in filtros.values():
+                cache_key_usuario = f'{cache_key}_{self.request.user.id}'
+                if cache.get(cache_key_usuario):
+                    context[cache_key] = cache.get(cache_key_usuario)
 
-        context['municipios'] = Municipio.objects.filter(tipo_contrato='Assessoria', ativo=True).order_by('nome')
-        context['receitas'] = Receita.objects.all().order_by('nome')
-        context['anos'] = Ano.objects.all().order_by('nome')
-        return context
+            context['municipios'] = Municipio.objects.filter(tipo_contrato='Assessoria', ativo=True).order_by('nome')
+            context['receitas'] = Receita.objects.all().order_by('nome')
+            context['anos'] = Ano.objects.all().order_by('nome')
+            return context
+        except Exception as e:
+            print(e)
 
 class LimpaCacheFichas(LoginRequiredMixin, View):
     def get(self, request):
-        usuario_id = self.request.user.id
+        try:
+            usuario_id = self.request.user.id
 
-        filtros = {
-            'municipio': 'cache_key_municipio',
-            'receita': 'cache_key_receita',
-            'ano': 'cache_key_ano'
-        }
+            filtros = {
+                'municipio': 'cache_key_municipio',
+                'receita': 'cache_key_receita',
+                'ano': 'cache_key_ano'
+            }
 
-        for cache_key in filtros.values():
-            cache.delete(f'{cache_key}_{usuario_id}')
-        
-        cache.delete(f'fichas_filtradas_{usuario_id}')
+            for cache_key in filtros.values():
+                cache.delete(f'{cache_key}_{usuario_id}')
+            
+            cache.delete(f'fichas_filtradas_{usuario_id}')
 
-        return redirect(reverse('ficha-list'))
+            return redirect(reverse('ficha-list'))
+        except Exception as e:
+            print(e)
     
 class FichaUpdate(LoginRequiredMixin, UpdateView):
     model = Ficha
@@ -177,19 +186,56 @@ class FichaUpdate(LoginRequiredMixin, UpdateView):
     form_class = FichaForm
     success_url = reverse_lazy('ficha-list')
 
+    def form_valid(self, form):
+        try:
+            ficha = get_object_or_404(self.model, id=self.kwargs.get('id'))
+        except Exception as e:
+            print(e)
+        return super().form_valid(form)
+
     def get_object(self, queryset = ...):
         try:
-            # ficha_id = self.kwargs.get('id')
             return get_object_or_404(self.model, id=self.kwargs.get('id'))
         except Exception as e:
             print(e)
 
     def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        ficha = get_object_or_404(self.model, id=self.kwargs.get('id'))
-        context['valor_mes'] = get_object_or_404(ValorMes, ficha_id=ficha.id)
+        try:
+            context = super().get_context_data(**kwargs)
+            ficha = get_object_or_404(self.model, id=self.kwargs.get('id'))
 
-        return context
+            valo_mes = get_object_or_404(ValorMes, ficha_id=ficha.id)
+
+            if valo_mes.janeiro is None:
+                valo_mes.janeiro = ""
+            if valo_mes.fevereiro is None:
+                valo_mes.fevereiro = ""
+            if valo_mes.marco is None:
+                valo_mes.marco = ""
+            if valo_mes.abril is None:
+                valo_mes.abril = ""
+            if valo_mes.maio is None:
+                valo_mes.maio = ""
+            if valo_mes.junho is None:
+                valo_mes.junho = ""
+            if valo_mes.julho is None:
+                valo_mes.julho = ""
+            if valo_mes.agosto is None:
+                valo_mes.agosto = ""
+            if valo_mes.setembro is None:
+                valo_mes.setembro = ""
+            if valo_mes.outubro is None:
+                valo_mes.outubro = ""
+            if valo_mes.novembro is None:
+                valo_mes.novembro = ""
+            if valo_mes.dezembro is None:
+                valo_mes.dezembro = ""
+                
+            context['valor_mes'] = valo_mes
+
+            return context
+        except Exception as e:
+            print(e)
 
 # class Grafico(LoginRequiredMixin, View):
 #     def get(self, request):
