@@ -8,14 +8,14 @@
 
 {% block conteudo %}
 
-    <h1>Ficha List</h1>
+ 
 
     <form method="get" action="{% url 'ficha-list' %}">
         <label for="municipio">Município</label>
         <select name="municipio" id="municipio">
             <option value="">--------</option>
             {% for m in municipios %}
-                <option value="{{ m.id }}">{{ m.nome }}</option>
+                <option value="{{ m.id }}" {% if m.id|stringformat:"s" == cache_key_municipio|stringformat:"s" %} selected {% endif %}>{{ m.nome }}</option>
             {% endfor %}
         </select>
 
@@ -23,7 +23,7 @@
         <select name="receita" id="receita">
             <option value="">--------</option>
             {% for r in receitas %}
-                <option value="{{ r.id }}">{{ r.nome }}</option>
+                <option value="{{ r.id }}" {% if r.id|stringformat:"s" == cache_key_receita|stringformat:"s" %} selected {% endif %}>{{ r.nome }}</option>
             {% endfor %}
         </select>
 
@@ -31,13 +31,19 @@
         <select name="ano" id="ano">
             <option value="">--------</option>
             {% for a in anos %}
-                <option value="{{ a.id }}">{{ a.nome }}</option>
+                <option value="{{ a.id }}" {% if a.id|stringformat:"s" == cache_key_ano|stringformat:"s" %} selected {% endif %}>{{ a.nome }}</option>
             {% endfor %}
         </select>
 
         <button type="submit">Pesquisar</button>
     </form>
 
+    <div>
+        <a href="{% url 'ficha-clean' %}"><button type="button">Limpar</button></a>
+    </div>
+
+    <br>
+    <h1>Ficha List</h1>
     <table>
         <thead>
             <tr>

@@ -1,5 +1,7 @@
+from django.shortcuts import redirect
 from django.views.generic.edit import CreateView
 from django.views.generic.list import ListView
+from django.views import View
 from django.contrib.auth.mixins import LoginRequiredMixin
 from .models import Ficha
 from apps.municipios.models import Municipio
@@ -136,11 +138,38 @@ class FichaList(LoginRequiredMixin, ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
+        filtros = {
+            'municipio': 'cache_key_municipio',
+            'receita': 'cache_key_receita',
+            'ano': 'cache_key_ano'
+        }
+
+        for cache_key in filtros.values():
+            cache_key_usuario = f'{cache_key}_{self.request.user.id}'
+            if cache.get(cache_key_usuario):
+                context[cache_key] = cache.get(cache_key_usuario)
+
         context['municipios'] = Municipio.objects.filter(tipo_contrato='Assessoria', ativo=True).order_by('nome')
         context['receitas'] = Receita.objects.all().order_by('nome')
         context['anos'] = Ano.objects.all().order_by('nome')
         return context
 
+class LimpaCacheFichas(LoginRequiredMixin, View):
+    def get(self, request):
+        usuario_id = self.request.user.id
+
+        filtros = {
+            'municipio': 'cache_key_municipio',
+            'receita': 'cache_key_receita',
+            'ano': 'cache_key_ano'
+        }
+
+        for cache_key in filtros.values():
+            cache.delete(f'{cache_key}_{usuario_id}')
+        
+        cache.delete(f'fichas_filtradas_{usuario_id}')
+
+        return redirect(reverse('ficha-list'))
 
 # class Grafico(LoginRequiredMixin, View):
 #     def get(self, request):
