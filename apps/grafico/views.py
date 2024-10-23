@@ -3,8 +3,10 @@ from django.views.generic.list import ListView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from .models import Ficha
 from apps.municipios.models import Municipio
+from .models import Receita, Ano
 from django.urls import reverse
 from .forms import FichaForm, ValorMesForm
+from django.core.cache import cache
 
 # Imports para gerar gráfico
 import matplotlib
@@ -69,14 +71,65 @@ class FichaList(LoginRequiredMixin, ListView):
     template_name = 'grafico/ficha_list.html'
 
     def get_queryset(self):
+        usuario_id = self.request.user.id
+
+        filtros = {
+            'municipio': 'cache_key_municipio',
+            'receita': 'cache_key_receita',
+            'ano': 'cache_key_ano'
+        }
+
+        for filtro, cache_key in filtros.items():
+            valor_filtro = self.request.GET.get(filtro)
+            cache_key_usuario = f'{cache_key}_{usuario_id}'
+            
+            if valor_filtro == '':
+                cache.delete(cache_key_usuario)
+            elif valor_filtro:
+                cache.set(cache_key_usuario, valor_filtro)
+
         municipio_input = self.request.GET.get('municipio')
         receita_input = self.request.GET.get('receita')
         ano_input = self.request.GET.get('ano')
 
+        cache_key_usuario_fichas_filtradas = f'fichas_filtradas_{usuario_id}'
+        cache_fichas_filtradas = cache.get(cache_key_usuario_fichas_filtradas)
+
         fichas_filtradas = self.model.objects.none()
 
-        if municipio_input:
-            fichas_filtradas = self.model.objects.filter(municipio_id=municipio_input).order_by('-ano')
+        if municipio_input or municipio_input and receita_input or municipio_input and ano_input:
+            fichas_filtradas = self.model.objects.all().order_by('-ano')
+
+            if municipio_input:
+                fichas_filtradas = fichas_filtradas.filter(municipio_id=municipio_input)
+            if receita_input:
+                fichas_filtradas = fichas_filtradas.filter(receita=receita_input)
+            if ano_input:
+                fichas_filtradas = fichas_filtradas.filter(ano=ano_input)
+        
+        elif cache_fichas_filtradas is not None:
+            fichas_filtradas = cache_fichas_filtradas
+
+        elif cache.get(f'cache_key_municipio_{usuario_id}') or cache.get(f'cache_key_receita_{usuario_id}') or cache.get(f'cache_key_ano_{usuario_id}'):        
+            fichas_filtradas = self.model.objects.all().order_by('-ano')
+
+            cache_municipio = cache.get(f'cache_key_municipio_{usuario_id}')
+            cache_receita = cache.get(f'cache_key_receita_{usuario_id}')
+            cache_ano = cache.get(f'cache_key_ano_{usuario_id}')
+
+            if cache_municipio:
+                fichas_filtradas = fichas_filtradas.filter(municipio_id=cache_municipio)
+
+            if cache_receita:
+                fichas_filtradas = fichas_filtradas.filter(receita=cache_receita)
+
+            if cache_ano: 
+                fichas_filtradas = fichas_filtradas.filter(ano=cache_ano)
+        
+        else:
+            fichas_filtradas = self.model.objects.none()
+        
+        cache.set(cache_key_usuario_fichas_filtradas, fichas_filtradas)
 
         return fichas_filtradas
 
@@ -84,6 +137,8 @@ class FichaList(LoginRequiredMixin, ListView):
         context = super().get_context_data(**kwargs)
 
         context['municipios'] = Municipio.objects.filter(tipo_contrato='Assessoria', ativo=True).order_by('nome')
+        context['receitas'] = Receita.objects.all().order_by('nome')
+        context['anos'] = Ano.objects.all().order_by('nome')
         return context
 
 
