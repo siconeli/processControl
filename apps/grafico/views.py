@@ -1,12 +1,12 @@
-from django.shortcuts import redirect
-from django.views.generic.edit import CreateView
-from django.views.generic.list import ListView
+from django.shortcuts import get_object_or_404, redirect
 from django.views import View
+from django.views.generic.edit import CreateView, UpdateView
+from django.views.generic.list import ListView
 from django.contrib.auth.mixins import LoginRequiredMixin
-from .models import Ficha
+from .models import Ficha, ValorMes
 from apps.municipios.models import Municipio
 from .models import Receita, Ano
-from django.urls import reverse
+from django.urls import reverse, reverse_lazy
 from .forms import FichaForm, ValorMesForm
 from django.core.cache import cache
 
@@ -170,6 +170,26 @@ class LimpaCacheFichas(LoginRequiredMixin, View):
         cache.delete(f'fichas_filtradas_{usuario_id}')
 
         return redirect(reverse('ficha-list'))
+    
+class FichaUpdate(LoginRequiredMixin, UpdateView):
+    model = Ficha
+    template_name = 'grafico/ficha_update.html'
+    form_class = FichaForm
+    success_url = reverse_lazy('ficha-list')
+
+    def get_object(self, queryset = ...):
+        try:
+            # ficha_id = self.kwargs.get('id')
+            return get_object_or_404(self.model, id=self.kwargs.get('id'))
+        except Exception as e:
+            print(e)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        ficha = get_object_or_404(self.model, id=self.kwargs.get('id'))
+        context['valor_mes'] = get_object_or_404(ValorMes, ficha_id=ficha.id)
+
+        return context
 
 # class Grafico(LoginRequiredMixin, View):
 #     def get(self, request):

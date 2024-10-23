@@ -1,0 +1,69 @@
+{% extends 'core/inicio.html' %}
+
+{% load widget_tweaks %} 
+
+{% block titulo %}
+    <title>Atualizar Ficha</title>
+{% endblock %}
+
+{% block conteudo %}
+    <div>
+        <form method="post">
+            {% csrf_token %}
+
+            <h1>Ficha</h1>
+            
+            <label for="municipio">Município</label>
+            {% render_field form.municipio id="municipio" name="municipio" %}
+
+            <label for="receita">Receita</label>
+            {% render_field form.receita id="receita" name="receita" %}
+
+            <label for="ano">Ano</label>
+            {% render_field form.ano id="ano" name="ano" %}
+
+
+            <h1>Valor Mês</h1>
+            
+            <label for="janeiro">Janeiro</label>
+            <input type="text" id="janeiro" name="janeiro" value="{{ valor_mes.janeiro }}" required>
+
+            <label for="fevereiro">Fevereiro</label>
+            <input type="text" id="fevereiro" name="fevereiro" value="{{ valor_mes.fevereiro }}">
+
+            <label for="marco">Março</label>
+            <input type="text" id="marco" name="marco" value="{{ valor_mes.marco }}">
+
+            <label for="abril">Abril</label>
+            <input type="text" id="abril" name="abril" value="{{ valor_mes.abril }}">
+
+            <label for="maio">Maio</label>
+            <input type="text" id="maio" name="maio" value="{{ valor_mes.maio }}">
+
+            <label for="junho">Junho</label>
+            <input type="text" id="junho" name="junho" value="{{ valor_mes.junho }}">
+
+            <label for="julho">Julho</label>
+            <input type="text" id="julho" name="julho" value="{{ valor_mes.julho }}">
+
+            <label for="agosto">Agosto</label>
+            <input type="text" id="agosto" name="agosto" value="{{ valor_mes.agosto }}">
+
+            <label for="setembro">Setembro</label>
+            <input type="text" id="setembro" name="setembro" value="{{ valor_mes.setembro }}">
+
+            <label for="outubro">Outubro</label>
+            <input type="text" id="outubro" name="outubro" value="{{ valor_mes.outubro }}">
+
+            <label for="novembro">Novembro</label>
+            <input type="text" id="novembro" name="novembro" value="{{ valor_mes.novembro }}">
+
+            <label for="dezembro">Dezembro</label>
+            <input type="text" id="dezembro" name="dezembro" value="{{ valor_mes.dezembro }}">
+
+            <button type="submit">Salvar</button>
+        </form>
+    </div>
+
+    {{ form.non_field_errors }}
+{% endblock %}

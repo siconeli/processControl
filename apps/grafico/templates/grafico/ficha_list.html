@@ -7,9 +7,6 @@
 {% endblock %}
 
 {% block conteudo %}
-
- 
-
     <form method="get" action="{% url 'ficha-list' %}">
         <label for="municipio">Município</label>
         <select name="municipio" id="municipio">
@@ -50,6 +47,8 @@
                 <th>Município</th>
                 <th>Receita</th>
                 <th>Ano</th>
+                <th></th>
+                <th></th>
             </tr>
         </thead>
         <tbody>
@@ -57,9 +56,76 @@
             <tr>
                 <td>{{ ficha.municipio }}</td>
                 <td>{{ ficha.receita }}</td>
-                <td>{{ficha.ano }}</td>
+                <td>{{ficha.ano }}</td> 
+                <td><a href="{% url 'ficha-update' ficha.id %}"><button type="button" class="" style="border-radius: 4px; background-color: #ffffff;">Editar</button></a></td>
+                <td>
+                    <div class="modal fade" id="modalDeleteFicha" tabindex="-1" role="dialog" aria-labelledby="confirmDeleteModalLabel" aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-centered" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="confirmDeleteModalLabel"><b>Valor Mensal</b></h5>
+                                    <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close"></button>                                                               
+                                </div>
+                                <div class="modal-body" style="text-align: center;">
+                                    <div class="col">
+                                        <h5>Tem certeza de que deseja excluir a ficha?</h5>
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <div class="col">
+
+                                    </div>
+                                    <button type="button" id="confirmDeleteBtn" style="border-radius: 4px; background-color: #ff0000; color: white;"><b>Excluir</b></button>
+                                    <div class="col">
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <form class="deleteForm" method="post" action="">
+                        {% csrf_token %}
+                        <button type="button" class="deleteButton" style="border-radius: 4px; background-color: #ffffff;">Excluir</button>
+                    </form>
+                </td>
             </tr>
             {% endfor %}
         </tbody>
     </table>
+
+
+
+
+{% endblock %}
+
+{% block scripts %}
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $('.deleteButton').click(function() { 
+            var form = $(this).closest('.deleteForm');
+            var modal = $('#modalDeleteFicha');
+
+            modal.modal('show');
+
+            modal.find('#confirmDeleteBtn').click(function() {
+                form.submit();
+            });
+        });
+
+        $('.btn-close').on('click', function() {
+            var modal = $(this).closest('.modal');
+            modal.modal('hide');
+        });
+        
+        // $('.btn-close').on('click', function() {
+        //     var modal = $(this).closest('.modal');
+        //     $('#municipio_filter').val('');
+        //     $('#num_proc').val('');
+        //     $('#contribuinte').val('');
+        //     var tableBody = $('#listar_processos tbody');
+        //     tableBody.empty();
+        //     modal.modal('hide');
+        // });
+    </script>
 {% endblock %}
