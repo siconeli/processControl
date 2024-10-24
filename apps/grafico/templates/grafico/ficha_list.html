@@ -17,7 +17,7 @@
         <select name="municipio" id="municipio">
             <option value="">--------</option>
             {% for m in municipios %}
-                <option value="{{ m.id }}" {% if m.id|stringformat:"s" == cache_key_municipio|stringformat:"s" %} selected {% endif %}>{{ m.nome }}</option>
+                <option value="{{ m.pk }}" {% if m.pk|stringformat:"s" == cache_key_municipio|stringformat:"s" %} selected {% endif %}>{{ m.nome }}</option>
             {% endfor %}
         </select>
 
@@ -25,7 +25,7 @@
         <select name="receita" id="receita">
             <option value="">--------</option>
             {% for r in receitas %}
-                <option value="{{ r.id }}" {% if r.id|stringformat:"s" == cache_key_receita|stringformat:"s" %} selected {% endif %}>{{ r.nome }}</option>
+                <option value="{{ r.pk }}" {% if r.pk|stringformat:"s" == cache_key_receita|stringformat:"s" %} selected {% endif %}>{{ r.nome }}</option>
             {% endfor %}
         </select>
 
@@ -33,7 +33,7 @@
         <select name="ano" id="ano">
             <option value="">--------</option>
             {% for a in anos %}
-                <option value="{{ a.id }}" {% if a.id|stringformat:"s" == cache_key_ano|stringformat:"s" %} selected {% endif %}>{{ a.nome }}</option>
+                <option value="{{ a.pk }}" {% if a.pk|stringformat:"s" == cache_key_ano|stringformat:"s" %} selected {% endif %}>{{ a.nome }}</option>
             {% endfor %}
         </select>
 
@@ -62,7 +62,7 @@
                 <td>{{ ficha.municipio }}</td>
                 <td>{{ ficha.receita }}</td>
                 <td>{{ficha.ano }}</td> 
-                <td><a href="{% url 'ficha-update' ficha.id %}"><button type="button" class="" style="border-radius: 4px; background-color: #ffffff;">Editar</button></a></td>
+                <td><a href="{% url 'ficha-update' ficha.pk %}"><button type="button" class="" style="border-radius: 4px; background-color: #ffffff;">Editar</button></a></td>
                 <td>
                     <div class="modal fade" id="modalDeleteFicha" tabindex="-1" role="dialog" aria-labelledby="confirmDeleteModalLabel" aria-hidden="true">
                         <div class="modal-dialog modal-dialog-centered" role="document">

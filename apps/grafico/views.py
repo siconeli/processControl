@@ -59,11 +59,10 @@ class FichaCreate(LoginRequiredMixin, CreateView):
             context['valor_mes_form'] = kwargs['valor_mes_form']
 
         return context
-    
 
     def get_success_url(self):
         try:
-            cache.delete(f'fichas_filtradas_{self.request.user.id}')
+            cache.delete(f'fichas_filtradas_{self.request.user.pk}')
             return reverse('ficha-list') 
         except Exception as e:
             print(e)
@@ -74,7 +73,7 @@ class FichaList(LoginRequiredMixin, ListView):
 
     def get_queryset(self):
         try:
-            usuario_id = self.request.user.id
+            usuario_pk = self.request.user.pk
 
             filtros = {
                 'municipio': 'cache_key_municipio',
@@ -84,7 +83,7 @@ class FichaList(LoginRequiredMixin, ListView):
 
             for filtro, cache_key in filtros.items():
                 valor_filtro = self.request.GET.get(filtro)
-                cache_key_usuario = f'{cache_key}_{usuario_id}'
+                cache_key_usuario = f'{cache_key}_{usuario_pk}'
                 
                 if valor_filtro == '':
                     cache.delete(cache_key_usuario)
@@ -95,7 +94,7 @@ class FichaList(LoginRequiredMixin, ListView):
             receita_input = self.request.GET.get('receita')
             ano_input = self.request.GET.get('ano')
 
-            cache_key_usuario_fichas_filtradas = f'fichas_filtradas_{usuario_id}'
+            cache_key_usuario_fichas_filtradas = f'fichas_filtradas_{usuario_pk}'
             cache_fichas_filtradas = cache.get(cache_key_usuario_fichas_filtradas)
 
             fichas_filtradas = self.model.objects.none()
@@ -113,12 +112,12 @@ class FichaList(LoginRequiredMixin, ListView):
             elif cache_fichas_filtradas is not None:
                 fichas_filtradas = cache_fichas_filtradas
 
-            elif cache.get(f'cache_key_municipio_{usuario_id}') or cache.get(f'cache_key_receita_{usuario_id}') or cache.get(f'cache_key_ano_{usuario_id}'):        
+            elif cache.get(f'cache_key_municipio_{usuario_pk}') or cache.get(f'cache_key_receita_{usuario_pk}') or cache.get(f'cache_key_ano_{usuario_pk}'):        
                 fichas_filtradas = self.model.objects.all().order_by('-ano')
 
-                cache_municipio = cache.get(f'cache_key_municipio_{usuario_id}')
-                cache_receita = cache.get(f'cache_key_receita_{usuario_id}')
-                cache_ano = cache.get(f'cache_key_ano_{usuario_id}')
+                cache_municipio = cache.get(f'cache_key_municipio_{usuario_pk}')
+                cache_receita = cache.get(f'cache_key_receita_{usuario_pk}')
+                cache_ano = cache.get(f'cache_key_ano_{usuario_pk}')
 
                 if cache_municipio:
                     fichas_filtradas = fichas_filtradas.filter(municipio_id=cache_municipio)
@@ -149,7 +148,7 @@ class FichaList(LoginRequiredMixin, ListView):
             }
 
             for cache_key in filtros.values():
-                cache_key_usuario = f'{cache_key}_{self.request.user.id}'
+                cache_key_usuario = f'{cache_key}_{self.request.user.pk}'
                 if cache.get(cache_key_usuario):
                     context[cache_key] = cache.get(cache_key_usuario)
 
@@ -163,7 +162,7 @@ class FichaList(LoginRequiredMixin, ListView):
 class LimpaCacheFichas(LoginRequiredMixin, View):
     def get(self, request):
         try:
-            usuario_id = self.request.user.id
+            usuario_pk = self.request.user.pk
 
             filtros = {
                 'municipio': 'cache_key_municipio',
@@ -172,9 +171,9 @@ class LimpaCacheFichas(LoginRequiredMixin, View):
             }
 
             for cache_key in filtros.values():
-                cache.delete(f'{cache_key}_{usuario_id}')
+                cache.delete(f'{cache_key}_{usuario_pk}')
             
-            cache.delete(f'fichas_filtradas_{usuario_id}')
+            cache.delete(f'fichas_filtradas_{usuario_pk}')
 
             return redirect(reverse('ficha-list'))
         except Exception as e:
@@ -188,14 +187,14 @@ class FichaUpdate(LoginRequiredMixin, UpdateView):
 
     def form_valid(self, form):
         try:
-            ficha = self.get_object()
-            valor_mes = get_object_or_404(ValorMes, ficha_id=ficha.id)
+            ficha = get_object_or_404(Ficha, id=self.kwargs.get('pk'))
+            valor_mes = get_object_or_404(ValorMes, ficha_id=ficha.pk)
 
             municipio_input = form.cleaned_data['municipio']
             receita_input = form.cleaned_data['receita']
             ano_input = form.cleaned_data['ano']
 
-            if self.model.objects.filter(municipio=municipio_input, receita=receita_input, ano=ano_input).exclude(id=ficha.id).exists():
+            if self.model.objects.filter(municipio=municipio_input, receita=receita_input, ano=ano_input).exclude(id=ficha.pk).exists():
                 form.add_error(None, f'Já existe uma ficha cadastrada para: {municipio_input}, {receita_input}, {ano_input}')
                 return self.form_invalid(form)
             
@@ -211,16 +210,10 @@ class FichaUpdate(LoginRequiredMixin, UpdateView):
         except Exception as e:
             print(e)
 
-    def get_object(self, queryset = ...):
-        try:
-            return get_object_or_404(self.model, id=self.kwargs.get('id'))
-        except Exception as e:
-            print(e)
-
     def get_context_data(self, **kwargs):
         try:
             context = super().get_context_data(**kwargs)
-            context['valor_mes'] = get_object_or_404(ValorMes, ficha_id=self.kwargs.get('id'))                
+            context['valor_mes'] = get_object_or_404(ValorMes, ficha_id=self.kwargs.get('pk'))                
 
             return context
         except Exception as e:
@@ -228,7 +221,7 @@ class FichaUpdate(LoginRequiredMixin, UpdateView):
 
     def get_success_url(self):
         try:
-            cache.delete(f'fichas_filtradas_{self.request.user.id}')
+            cache.delete(f'fichas_filtradas_{self.request.user.pk}')
             return reverse('ficha-list') 
         except Exception as e:
             print(e)
@@ -238,7 +231,7 @@ class FichaDelete(LoginRequiredMixin, DeleteView):
 
     def get_success_url(self):
         try:
-            cache.delete(f'fichas_filtradas_{self.request.user.id}')
+            cache.delete(f'fichas_filtradas_{self.request.user.pk}')
             return reverse('ficha-list')
         except Exception as e:
             print(e)
