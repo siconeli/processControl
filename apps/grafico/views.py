@@ -1,6 +1,6 @@
 from django.shortcuts import get_object_or_404, redirect
 from django.views import View
-from django.views.generic.edit import CreateView, UpdateView
+from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.views.generic.list import ListView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from .models import Ficha, ValorMes
@@ -64,6 +64,7 @@ class FichaCreate(LoginRequiredMixin, CreateView):
 
     def get_success_url(self):
         try:
+            cache.delete(f'fichas_filtradas_{self.request.user.id}')
             return reverse('ficha-list') 
         except Exception as e:
             print(e)
@@ -255,6 +256,19 @@ class FichaUpdate(LoginRequiredMixin, UpdateView):
         except Exception as e:
             print(e)
 
+    def get_success_url(self):
+        try:
+            cache.delete(f'fichas_filtradas_{self.request.user.id}')
+            return reverse('ficha-list') 
+        except Exception as e:
+            print(e)
+            
+class FichaDelete(LoginRequiredMixin, DeleteView):
+    model = Ficha
+
+    def get_success_url(self):
+        cache.delete(f'fichas_filtradas_{self.request.user.id}')
+        return reverse('ficha-list')
 
 # class Grafico(LoginRequiredMixin, View):
 #     def get(self, request):

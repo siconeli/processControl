@@ -7,6 +7,11 @@
 {% endblock %}
 
 {% block conteudo %}
+    <div>
+        <a class="nav-link" id="texto-navbar-menu" href="{% url 'ficha-create' %}" role="button"        aria-expanded="false"><Button type="button">Cadastrar</Button:button></a>
+    </div>    
+    <br>
+
     <form method="get" action="{% url 'ficha-list' %}">
         <label for="municipio">Município</label>
         <select name="municipio" id="municipio">
@@ -63,7 +68,7 @@
                         <div class="modal-dialog modal-dialog-centered" role="document">
                             <div class="modal-content">
                                 <div class="modal-header">
-                                    <h5 class="modal-title" id="confirmDeleteModalLabel"><b>Valor Mensal</b></h5>
+                                    <h5 class="modal-title" id="confirmDeleteModalLabel"><b>Confirmar Exclusão</b></h5>
                                     <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close"></button>                                                               
                                 </div>
                                 <div class="modal-body" style="text-align: center;">
@@ -84,7 +89,7 @@
                         </div>
                     </div>
 
-                    <form class="deleteForm" method="post" action="">
+                    <form class="deleteForm" method="post" action="{% url 'ficha-delete' ficha.pk %}">
                         {% csrf_token %}
                         <button type="button" class="deleteButton" style="border-radius: 4px; background-color: #ffffff;">Excluir</button>
                     </form>
@@ -93,10 +98,6 @@
             {% endfor %}
         </tbody>
     </table>
-
-
-
-
 {% endblock %}
 
 {% block scripts %}
@@ -117,15 +118,5 @@
             var modal = $(this).closest('.modal');
             modal.modal('hide');
         });
-        
-        // $('.btn-close').on('click', function() {
-        //     var modal = $(this).closest('.modal');
-        //     $('#municipio_filter').val('');
-        //     $('#num_proc').val('');
-        //     $('#contribuinte').val('');
-        //     var tableBody = $('#listar_processos tbody');
-        //     tableBody.empty();
-        //     modal.modal('hide');
-        // });
     </script>
 {% endblock %}
