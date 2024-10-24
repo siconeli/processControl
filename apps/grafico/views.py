@@ -188,10 +188,28 @@ class FichaUpdate(LoginRequiredMixin, UpdateView):
 
     def form_valid(self, form):
         try:
-            ficha = get_object_or_404(self.model, id=self.kwargs.get('id'))
+            ficha = self.get_object()
+            valor_mes = get_object_or_404(ValorMes, ficha_id=ficha.id)
+
+            municipio_input = form.cleaned_data['municipio']
+            receita_input = form.cleaned_data['receita']
+            ano_input = form.cleaned_data['ano']
+
+            if self.model.objects.filter(municipio=municipio_input, receita=receita_input, ano=ano_input).exclude(id=ficha.id).exists():
+                form.add_error(None, f'Já existe uma ficha cadastrada para: {municipio_input}, {receita_input}, {ano_input}')
+                return self.form_invalid(form)
+            
+            valor_mes_form = ValorMesForm(self.request.POST, instance=valor_mes)
+
+            if valor_mes_form.is_valid():
+                valor_mes_form.save()
+                return super().form_valid(form)
+            else:
+                form.add_error(None, 'Erro no formulário de contribuinte.')
+                return self.form_invalid(form)
+
         except Exception as e:
             print(e)
-        return super().form_valid(form)
 
     def get_object(self, queryset = ...):
         try:
@@ -236,6 +254,7 @@ class FichaUpdate(LoginRequiredMixin, UpdateView):
             return context
         except Exception as e:
             print(e)
+
 
 # class Grafico(LoginRequiredMixin, View):
 #     def get(self, request):

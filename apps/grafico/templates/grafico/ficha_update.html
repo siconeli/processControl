@@ -12,6 +12,8 @@
             {% csrf_token %}
 
             <h1>Ficha</h1>
+
+            {{ form.non_field_errors }}
             
             <label for="municipio">Município</label>
             {% render_field form.municipio id="municipio" name="municipio" %}
@@ -22,48 +24,71 @@
             <label for="ano">Ano</label>
             {% render_field form.ano id="ano" name="ano" %}
 
-
             <h1>Valor Mês</h1>
             
             <label for="janeiro">Janeiro</label>
-            <input type="text" id="janeiro" name="janeiro" value="{{ valor_mes.janeiro }}" required>
+            <input type="text" class="valor_mes" maxlength="17" id="janeiro" name="janeiro" value="{{ valor_mes.janeiro }}" required>
 
             <label for="fevereiro">Fevereiro</label>
-            <input type="text" id="fevereiro" name="fevereiro" value="{{ valor_mes.fevereiro }}">
+            <input type="text" class="valor_mes" maxlength="17" id="fevereiro" name="fevereiro" value="{{ valor_mes.fevereiro }}">
 
             <label for="marco">Março</label>
-            <input type="text" id="marco" name="marco" value="{{ valor_mes.marco }}">
+            <input type="text" class="valor_mes" maxlength="17" id="marco" name="marco" value="{{ valor_mes.marco }}">
 
             <label for="abril">Abril</label>
-            <input type="text" id="abril" name="abril" value="{{ valor_mes.abril }}">
+            <input type="text" class="valor_mes" maxlength="17" id="abril" name="abril" value="{{ valor_mes.abril }}">
 
             <label for="maio">Maio</label>
-            <input type="text" id="maio" name="maio" value="{{ valor_mes.maio }}">
+            <input type="text" class="valor_mes" maxlength="17" id="maio" name="maio" value="{{ valor_mes.maio }}">
 
             <label for="junho">Junho</label>
-            <input type="text" id="junho" name="junho" value="{{ valor_mes.junho }}">
+            <input type="text" class="valor_mes" maxlength="17" id="junho" name="junho" value="{{ valor_mes.junho }}">
 
             <label for="julho">Julho</label>
-            <input type="text" id="julho" name="julho" value="{{ valor_mes.julho }}">
+            <input type="text" class="valor_mes" maxlength="17" id="julho" name="julho" value="{{ valor_mes.julho }}">
 
             <label for="agosto">Agosto</label>
-            <input type="text" id="agosto" name="agosto" value="{{ valor_mes.agosto }}">
+            <input type="text" class="valor_mes" maxlength="17" id="agosto" name="agosto" value="{{ valor_mes.agosto }}">
 
             <label for="setembro">Setembro</label>
-            <input type="text" id="setembro" name="setembro" value="{{ valor_mes.setembro }}">
+            <input type="text" class="valor_mes" maxlength="17" id="setembro" name="setembro" value="{{ valor_mes.setembro }}">
 
             <label for="outubro">Outubro</label>
-            <input type="text" id="outubro" name="outubro" value="{{ valor_mes.outubro }}">
+            <input type="text" class="valor_mes" maxlength="17" id="outubro" name="outubro" value="{{ valor_mes.outubro }}">
 
             <label for="novembro">Novembro</label>
-            <input type="text" id="novembro" name="novembro" value="{{ valor_mes.novembro }}">
+            <input type="text" class="valor_mes" maxlength="17" id="novembro" name="novembro" value="{{ valor_mes.novembro }}">
 
             <label for="dezembro">Dezembro</label>
-            <input type="text" id="dezembro" name="dezembro" value="{{ valor_mes.dezembro }}">
+            <input type="text" class="valor_mes" maxlength="17" id="dezembro" name="dezembro" value="{{ valor_mes.dezembro }}">
 
             <button type="submit">Salvar</button>
         </form>
     </div>
+{% endblock %}
 
-    {{ form.non_field_errors }}
+{% block scripts %}
+    <!-- Importação para uso de maskMoney -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-maskmoney/3.0.2/jquery.maskMoney.min.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            // Aplicar máscara no campo de valor
+            $('.valor_mes').maskMoney({
+                prefix: 'R$ ', // Prefixo do valor
+                allowNegative: false, // Permite valores negativos ou não
+                thousands: '.', // Separador de milhares
+                decimal: ',', // Separador decimal
+                precision: 2, // Precisão (número de casas decimais)
+                affixesStay: true // Símbolos prefixo/sufixo permanecem mesmo depois de editar o campo
+            });
+        });
+
+        $('form').on('submit', function() {
+            $('.valor_mes').each(function() {
+                var unmaskedValue = $(this).maskMoney('unmasked')[0]; // Pegar o valor desmascarado (número puro)
+                $(this).val(unmaskedValue); // Definir o valor sem máscara no input
+            });
+        });
+    </script>
 {% endblock %}

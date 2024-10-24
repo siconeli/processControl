@@ -257,7 +257,6 @@ class ProcessoUpdate(LoginRequiredMixin, UpdateView):
         
             else:
                 form.add_error(None, 'Erro no formulário de contribuinte.')
-
                 return self.form_invalid(form)
             
         except Exception as error:
