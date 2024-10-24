@@ -61,7 +61,8 @@
 
             <label for="dezembro">Dezembro</label>
             <input type="text" id="dezembro" name="dezembro" class="valor_mes" maxlength="17" value="{{ valor_mes_form.dezembro.value|default:'' }}">
-
+            
+            <a href="{% url 'ficha-list' %}"><button type="button">Cancelar</button></a>
             <button type="submit">Enviar</button>
         </form>
     </div>

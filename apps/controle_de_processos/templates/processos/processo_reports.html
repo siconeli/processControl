@@ -155,16 +155,15 @@
 
 
 
-
-
                 <div class="col">
                     <div class="card" style="width: 500px; margin: 0 auto;">
                         <div class="card-header text-white" style="background-color: #5c5c5c;">
-                            <h4 style="text-align: center;">TESTE GRÁFICOS</h4>
+                            <h4 style="text-align: center;">Relatório de gráficos - Mensal</h4>
                         </div>
                         <br>
                         <div class="row" style="margin: 0cm;">
-                            <form method="get" action="{% url 'grafico' %}" target="_blank">
+                            <form method="get" action="{% url 'relatorio-grafico' %}" target="_blank">
+                                <input type="text" id="municipio" >
                                 <button type="submit"  id="btnGerarRelatorio2" style="border-radius: 4px;"><b>Gerar</b></button>
                             </form>
                             <br>
@@ -172,8 +171,6 @@
                         <br>
                     </div>
                 </div>
-
-
 
 
 

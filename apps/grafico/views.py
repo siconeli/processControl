@@ -1,14 +1,15 @@
+from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect
-from django.views import View
+from django.views.generic import View, TemplateView
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.views.generic.list import ListView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from .models import Ficha, ValorMes
 from apps.municipios.models import Municipio
 from .models import Receita, Ano
-from django.urls import reverse, reverse_lazy
 from .forms import FichaForm, ValorMesForm
 from django.core.cache import cache
+import os
 
 # Imports para gerar gráfico
 import matplotlib
@@ -236,54 +237,56 @@ class FichaDelete(LoginRequiredMixin, DeleteView):
         except Exception as e:
             print(e)
 
-# class Grafico(LoginRequiredMixin, View):
-#     def get(self, request):
-#         pdf = FPDF()
-#         pdf.add_page()
+# class Relatorios(LoginRequiredMixin, TemplateView):
 
-#         pdf.image('static/img/layout.png', 0, 0, 210, 297)
+class GerarRelatorioGrafico(LoginRequiredMixin, View):
+    def get(self, request, *args, **kwargs):
+        pdf = FPDF()
+        pdf.add_page()
 
-#         # Criar uma condição de acordo com o tipo de relatório selecionado, "mensal ou anual"
+        pdf.image('static/img/layout.png', 0, 0, 210, 297)
 
-#         # Dados
-#         categorias = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro']
-#         valores = [100.00, 535.000, 250.000, 300.000, 150.000, 375.000, 175.000, 589.000, 456.000, 753.000, 963.000, 159.000]
+        # Criar uma condição de acordo com o tipo de relatório selecionado, "mensal ou anual"
 
-#         # # Configurações do gráfico
-#         plt.figure(figsize=(20,10))
+        # Dados
+        categorias = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro']
+        valores = [100.00, 535.000, 250.000, 300.000, 150.000, 375.000, 175.000, 589.000, 456.000, 753.000, 963.000, 159.000]
 
-#         # Gráfico de linhas ao invés de barras
-#         plt.plot(categorias, valores, marker='o', linestyle='-', color='b')
+        # # Configurações do gráfico
+        plt.figure(figsize=(20,10))
 
-#         # Título e rótulos
-#         plt.title('Gráfico de arrecadação de tributos')
-#         plt.ylabel('Valores')
-#         plt.xlabel('Meses')
+        # Gráfico de linhas ao invés de barras
+        plt.plot(categorias, valores, marker='o', linestyle='-', color='b')
 
-#        # Verificar como criar o gráfico como uma imagem temporária apenas para ser incluida no relatório, depois excluir.
-#         plt.savefig('static/img/grafico.png')
+        # Título e rótulos
+        plt.title('Gráfico de arrecadação de tributos')
+        plt.ylabel('Valores')
+        plt.xlabel('Meses')
+
+       # Verificar como criar o gráfico como uma imagem temporária apenas para ser incluida no relatório, depois excluir.
+        plt.savefig('static/img/grafico.png')
         
-#         plt.close()
+        plt.close()
 
-#         pdf.image('static/img/grafico.png', -10, 40, 230) #x=30, y=40, tamanho imagem=200
+        pdf.image('static/img/grafico.png', -10, 40, 230) #x=30, y=40, tamanho imagem=200
 
-#         pdf.set_font("Arial", size=12)  # Defina a fonte e o tamanho
+        pdf.set_font("Arial", size=12)  # Defina a fonte e o tamanho
 
-#         # Adicione uma célula com o texto
-#         pdf.cell(200, 10, txt="Relatório de arrecadação de tributos", ln=True, align='C')
+        # Adicione uma célula com o texto
+        pdf.cell(200, 10, txt="Relatório de arrecadação de tributos", ln=True, align='C')
 
-#         # Crie um arquivo temporário
-#         temp_file = tempfile.NamedTemporaryFile(delete=False, suffix='.pdf')
-#         pdf.output(temp_file.name)
+        # Crie um arquivo temporário
+        temp_file = tempfile.NamedTemporaryFile(delete=False, suffix='.pdf')
+        pdf.output(temp_file.name)
 
-#         temp_file.close()
+        temp_file.close()
         
-#         with open(temp_file.name, 'rb') as file:
-#             pdf_content = file.read()
+        with open(temp_file.name, 'rb') as file:
+            pdf_content = file.read()
         
-#         os.unlink(temp_file.name)  # Exclua o arquivo temporário
+        os.unlink(temp_file.name)  # Exclua o arquivo temporário
 
-#         response = HttpResponse(pdf_content, content_type='application/pdf')
-#         response['Content-Disposition'] = 'inline; filename="grafico.pdf"'
+        response = HttpResponse(pdf_content, content_type='application/pdf')
+        response['Content-Disposition'] = 'inline; filename="grafico.pdf"'
 
-#         return response
+        return response

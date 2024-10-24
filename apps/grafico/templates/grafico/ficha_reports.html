@@ -1,0 +1,72 @@
+{% extends 'core/inicio.html' %}
+
+{% load static %}
+
+{% block titulo %}
+    <title>Relatórios</title>
+{% endblock %}
+
+{% block conteudo %}
+    <div class="p-4" id="style_containers">
+        <div class="card" id="card-processos">
+            <div class="card-header text-white" style="background-color: #5c5c5c;">
+                <div class="row">
+                    <div class="col">
+                        <a href="{% url 'processo-list' %}"><button type="button"  style="border-radius: 4px; background-color: #a19f9f; color: white;"><b>Voltar</b></button></a>
+                    </div>
+                    <div class="col">
+                        <h4 style="text-align: right;">Relatórios</h4>
+                    </div>
+                </div>
+            </div>
+            <br>
+            <div class="row">
+                <div class="col">
+                    <div class="card" style="width: 500px; margin: 0 auto;">
+                        <div class="card-header text-white" style="background-color: #5c5c5c;">
+                            <h4 style="text-align: center;">Relatório de gráficos - Mensal</h4>
+                        </div>
+                        <br>
+                        <div class="row" style="margin: 0cm;">
+                            <form method="get" action="{% url 'relatorio-grafico' %}" target="_blank">
+                                <input type="text" id="municipio" >
+                                <button type="submit"  id="btnGerarRelatorio2" style="border-radius: 4px;"><b>Gerar</b></button>
+                            </form>
+                            <br>
+                        </div>
+                        <br>
+                    </div>
+                </div>
+            </div>
+            <br>
+        </div>
+    </div>
+{% endblock %}
+
+{% block scripts %}
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            var filtro_rel_1 = document.getElementById("filtro_rel_1");
+            var btnGerarRelatorio1 = document.getElementById("btnGerarRelatorio1"); 
+
+            var filtro_rel_2 = document.getElementById("filtro_rel_2");
+            var btnGerarRelatorio2 = document.getElementById("btnGerarRelatorio2");
+
+            function verificarFiltro1() {
+                btnGerarRelatorio1.disabled = filtro_rel_1.value === "";
+            }
+
+            function verificarFiltro2() {
+                btnGerarRelatorio2.disabled = filtro_rel_2.value === "";
+            }
+
+            verificarFiltro1();
+            verificarFiltro2();
+
+            filtro_rel_1.addEventListener("change", verificarFiltro1);
+            filtro_rel_2.addEventListener("change", verificarFiltro2);
+        });
+    </script>
+{% endblock %}
+
+
