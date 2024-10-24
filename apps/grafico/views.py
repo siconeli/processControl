@@ -26,15 +26,15 @@ class FichaCreate(LoginRequiredMixin, CreateView):
 
     def form_valid(self, form):
         try:
+            valor_mes_form = ValorMesForm(self.request.POST)
+           
             municipio_input = form.cleaned_data['municipio']
             receita_input = form.cleaned_data['receita']
             ano_input = form.cleaned_data['ano']
 
-            valor_mes_form = ValorMesForm(self.request.POST)
-
             if self.model.objects.filter(municipio=municipio_input, receita=receita_input, ano=ano_input).exists():
                 form.add_error(None, f'Já existe uma ficha cadastrada para: {municipio_input}, {receita_input}, {ano_input}')
-                return self.form_invalid(form, valor_mes_form=valor_mes_form)
+                return self.render_to_response(self.get_context_data(form=form, valor_mes_form=valor_mes_form))
 
             if valor_mes_form.is_valid():
                 ficha = form.save()
@@ -42,10 +42,9 @@ class FichaCreate(LoginRequiredMixin, CreateView):
                 valor_mes.ficha = ficha
                 valor_mes.save()
                 return super().form_valid(form)
-            
             else:
-                valor_mes_form.add_error(None, 'Erro no formulário de valor mês')
-                return self.form_invalid(form, valor_mes_form=valor_mes_form)
+                form.add_error(None, 'Erro no formulário de Valor Mês')
+                return self.render_to_response(self.get_context_data(form=form, valor_mes_form=valor_mes_form))
             
         except Exception as e:
             print(e)
@@ -206,7 +205,7 @@ class FichaUpdate(LoginRequiredMixin, UpdateView):
                 valor_mes_form.save()
                 return super().form_valid(form)
             else:
-                form.add_error(None, 'Erro no formulário de contribuinte.')
+                form.add_error(None, 'Erro no formulário de Valor Mês.')
                 return self.form_invalid(form)
 
         except Exception as e:
@@ -221,36 +220,7 @@ class FichaUpdate(LoginRequiredMixin, UpdateView):
     def get_context_data(self, **kwargs):
         try:
             context = super().get_context_data(**kwargs)
-            ficha = get_object_or_404(self.model, id=self.kwargs.get('id'))
-
-            valo_mes = get_object_or_404(ValorMes, ficha_id=ficha.id)
-
-            if valo_mes.janeiro is None:
-                valo_mes.janeiro = ""
-            if valo_mes.fevereiro is None:
-                valo_mes.fevereiro = ""
-            if valo_mes.marco is None:
-                valo_mes.marco = ""
-            if valo_mes.abril is None:
-                valo_mes.abril = ""
-            if valo_mes.maio is None:
-                valo_mes.maio = ""
-            if valo_mes.junho is None:
-                valo_mes.junho = ""
-            if valo_mes.julho is None:
-                valo_mes.julho = ""
-            if valo_mes.agosto is None:
-                valo_mes.agosto = ""
-            if valo_mes.setembro is None:
-                valo_mes.setembro = ""
-            if valo_mes.outubro is None:
-                valo_mes.outubro = ""
-            if valo_mes.novembro is None:
-                valo_mes.novembro = ""
-            if valo_mes.dezembro is None:
-                valo_mes.dezembro = ""
-                
-            context['valor_mes'] = valo_mes
+            context['valor_mes'] = get_object_or_404(ValorMes, ficha_id=self.kwargs.get('id'))                
 
             return context
         except Exception as e:
@@ -262,13 +232,16 @@ class FichaUpdate(LoginRequiredMixin, UpdateView):
             return reverse('ficha-list') 
         except Exception as e:
             print(e)
-            
+
 class FichaDelete(LoginRequiredMixin, DeleteView):
     model = Ficha
 
     def get_success_url(self):
-        cache.delete(f'fichas_filtradas_{self.request.user.id}')
-        return reverse('ficha-list')
+        try:
+            cache.delete(f'fichas_filtradas_{self.request.user.id}')
+            return reverse('ficha-list')
+        except Exception as e:
+            print(e)
 
 # class Grafico(LoginRequiredMixin, View):
 #     def get(self, request):

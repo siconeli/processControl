@@ -27,7 +27,7 @@
             <h1>Valor Mês</h1>
 
             <label for="janeiro">Janeiro</label>
-            <input type="text" id="janeiro" name="janeiro" class="valor_mes" maxlength="17" required>
+            <input type="text" id="janeiro" name="janeiro" class="valor_mes" maxlength="17" required value="{{ valor_mes_form.janeiro.value|default:'' }}">
 
             <label for="fevereiro">Fevereiro</label>
             <input type="text" id="fevereiro" name="fevereiro" class="valor_mes" maxlength="17">

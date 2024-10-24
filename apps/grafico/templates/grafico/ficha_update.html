@@ -27,40 +27,40 @@
             <h1>Valor Mês</h1>
             
             <label for="janeiro">Janeiro</label>
-            <input type="text" class="valor_mes" maxlength="17" id="janeiro" name="janeiro" value="{{ valor_mes.janeiro }}" required>
+            <input type="text" class="valor_mes" maxlength="17" id="janeiro" name="janeiro" value="{{ valor_mes.janeiro|default:'' }}" required>
 
             <label for="fevereiro">Fevereiro</label>
-            <input type="text" class="valor_mes" maxlength="17" id="fevereiro" name="fevereiro" value="{{ valor_mes.fevereiro }}">
+            <input type="text" class="valor_mes" maxlength="17" id="fevereiro" name="fevereiro" value="{{ valor_mes.fevereiro|default:'' }}">
 
             <label for="marco">Março</label>
-            <input type="text" class="valor_mes" maxlength="17" id="marco" name="marco" value="{{ valor_mes.marco }}">
+            <input type="text" class="valor_mes" maxlength="17" id="marco" name="marco" value="{{ valor_mes.marco|default:'' }}">
 
             <label for="abril">Abril</label>
-            <input type="text" class="valor_mes" maxlength="17" id="abril" name="abril" value="{{ valor_mes.abril }}">
+            <input type="text" class="valor_mes" maxlength="17" id="abril" name="abril" value="{{ valor_mes.abril|default:'' }}">
 
             <label for="maio">Maio</label>
-            <input type="text" class="valor_mes" maxlength="17" id="maio" name="maio" value="{{ valor_mes.maio }}">
+            <input type="text" class="valor_mes" maxlength="17" id="maio" name="maio" value="{{ valor_mes.maio|default:'' }}">
 
             <label for="junho">Junho</label>
-            <input type="text" class="valor_mes" maxlength="17" id="junho" name="junho" value="{{ valor_mes.junho }}">
+            <input type="text" class="valor_mes" maxlength="17" id="junho" name="junho" value="{{ valor_mes.junho|default:'' }}">
 
             <label for="julho">Julho</label>
-            <input type="text" class="valor_mes" maxlength="17" id="julho" name="julho" value="{{ valor_mes.julho }}">
+            <input type="text" class="valor_mes" maxlength="17" id="julho" name="julho" value="{{ valor_mes.julho|default:'' }}">
 
             <label for="agosto">Agosto</label>
-            <input type="text" class="valor_mes" maxlength="17" id="agosto" name="agosto" value="{{ valor_mes.agosto }}">
+            <input type="text" class="valor_mes" maxlength="17" id="agosto" name="agosto" value="{{ valor_mes.agosto|default:'' }}">
 
             <label for="setembro">Setembro</label>
-            <input type="text" class="valor_mes" maxlength="17" id="setembro" name="setembro" value="{{ valor_mes.setembro }}">
+            <input type="text" class="valor_mes" maxlength="17" id="setembro" name="setembro" value="{{ valor_mes.setembro|default:'' }}">
 
             <label for="outubro">Outubro</label>
-            <input type="text" class="valor_mes" maxlength="17" id="outubro" name="outubro" value="{{ valor_mes.outubro }}">
+            <input type="text" class="valor_mes" maxlength="17" id="outubro" name="outubro" value="{{ valor_mes.outubro|default:'' }}">
 
             <label for="novembro">Novembro</label>
-            <input type="text" class="valor_mes" maxlength="17" id="novembro" name="novembro" value="{{ valor_mes.novembro }}">
+            <input type="text" class="valor_mes" maxlength="17" id="novembro" name="novembro" value="{{ valor_mes.novembro|default:'' }}">
 
             <label for="dezembro">Dezembro</label>
-            <input type="text" class="valor_mes" maxlength="17" id="dezembro" name="dezembro" value="{{ valor_mes.dezembro }}">
+            <input type="text" class="valor_mes" maxlength="17" id="dezembro" name="dezembro" value="{{ valor_mes.dezembro|default:'' }}">
 
             <button type="submit">Salvar</button>
         </form>
