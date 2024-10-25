@@ -288,17 +288,17 @@ class GerarRelatorioGrafico(LoginRequiredMixin, View):
                     valor_mes = None
 
                 if valor_mes:
-                    # valores_1 = [valor_mes.janeiro, valor_mes.fevereiro, valor_mes.marco, valor_mes.abril, valor_mes.maio, valor_mes.junho, valor_mes.julho, valor_mes.agosto, valor_mes.setembro, valor_mes.outubro, valor_mes.novembro, valor_mes.dezembro] 
+                    valores_1 = [valor_mes.janeiro, valor_mes.fevereiro, valor_mes.marco, valor_mes.abril, valor_mes.maio, valor_mes.junho, valor_mes.julho, valor_mes.agosto, valor_mes.setembro, valor_mes.outubro, valor_mes.novembro, valor_mes.dezembro] 
 
-                    meses_dict = {'janeiro':valor_mes.janeiro, 'fevereiro':valor_mes.fevereiro, 'marco':valor_mes.marco, 'abril':valor_mes.abril, 'maio':valor_mes.maio, 'junho':valor_mes.junho, 'julho':valor_mes.julho, 'agosto':valor_mes.agosto, 'setembro':valor_mes.setembro, 'outubro':valor_mes.outubro, 'novembro':valor_mes.novembro, 'dezembro':valor_mes.dezembro}
+                    objeto = {'janeiro':valor_mes.janeiro, 'fevereiro':valor_mes.fevereiro, 'marco':valor_mes.marco, 'abril':valor_mes.abril, 'maio':valor_mes.maio, 'junho':valor_mes.junho, 'julho':valor_mes.julho, 'agosto':valor_mes.agosto, 'setembro':valor_mes.setembro, 'outubro':valor_mes.outubro, 'novembro':valor_mes.novembro, 'dezembro':valor_mes.dezembro}
 
-                    meses = list(meses_dict.keys())
-                    indice_filtro_1, indice_filtro_2 = meses.index(mes_1), meses.index(mes_2)
+                    meses_list = list(objeto.keys())
 
-                    valores = {meses_dict[mes] for mes in meses[indice_filtro_1:indice_filtro_2 +1]}
+                    indice_filtro_1, indice_filtro_2 = meses_list.index(mes_1), meses_list.index(mes_2)
 
-                    meses_filtrados = meses[indice_filtro_1:indice_filtro_2 +1]
-                    valores_filtrados = list(meses_dict[mes] for mes in meses_filtrados )                                   
+                    meses_1 = meses_list[indice_filtro_1:indice_filtro_2 +1]
+
+                    valores_1 = list(objeto[mes] for mes in meses_1 )           
 
         else:
             valores_1 = valores
@@ -318,17 +318,25 @@ class GerarRelatorioGrafico(LoginRequiredMixin, View):
 
                 if valor_mes:
                     valores_2 = [valor_mes.janeiro, valor_mes.fevereiro, valor_mes.marco, valor_mes.abril, valor_mes.maio, valor_mes.junho, valor_mes.julho, valor_mes.agosto, valor_mes.setembro, valor_mes.outubro, valor_mes.novembro, valor_mes.dezembro] 
+
+                    objeto = {'janeiro':valor_mes.janeiro, 'fevereiro':valor_mes.fevereiro, 'marco':valor_mes.marco, 'abril':valor_mes.abril, 'maio':valor_mes.maio, 'junho':valor_mes.junho, 'julho':valor_mes.julho, 'agosto':valor_mes.agosto, 'setembro':valor_mes.setembro, 'outubro':valor_mes.outubro, 'novembro':valor_mes.novembro, 'dezembro':valor_mes.dezembro}
+
+                    meses_list = list(objeto.keys())
+
+                    indice_filtro_1, indice_filtro_2 = meses_list.index(mes_1), meses_list.index(mes_2)
+
+                    meses_2 = meses_list[indice_filtro_1:indice_filtro_2 +1]
+
+                    valores_2 = list(objeto[mes] for mes in meses_2 )  
         else:
             valores_2 = valores
-        
-        meses = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro']
 
         # # Configurações do gráfico
         plt.figure(figsize=(20,10))
 
         # Gráfico de linhas ao invés de barras
-        plt.plot(meses, valores_1, marker='o', linestyle='-', color='b', label=ano_1)
-        plt.plot(meses, valores_2, marker='o', linestyle='--', color='r', label=ano_2)
+        plt.plot(meses_1, valores_1, marker='o', linestyle='-', color='b', label=ano_1)
+        plt.plot(meses_2, valores_2, marker='o', linestyle='--', color='r', label=ano_2)
 
         # Título e rótulos
         plt.title('Gráfico de arrecadação de tributos')
