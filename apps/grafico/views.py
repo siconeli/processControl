@@ -266,12 +266,19 @@ class GerarRelatorioGrafico(LoginRequiredMixin, View):
         # Layout do gráfico, criado no canva
         pdf.image('static/img/layout.png', 0, 0, 210, 297)
 
+        pdf.image('static/img/logo-empresa.png', 10, 2, 22) #x=30, y=40, tamanho imagem=230
+
         municipio_id= request.GET.get('municipio') # -> Retorna o ID do município
         receita_id= request.GET.get('receita')
         ano_1_id = request.GET.get('ano_1')
         ano_2_id = request.GET.get('ano_2')
         mes_1 = request.GET.get('mes_1') # -> Retorna string com o nome do mês
         mes_2 = request.GET.get('mes_2')
+
+        try:
+            receita = Receita.objects.get(id=receita_id)
+        except:
+            receita = ''
 
         try:
             ano_1 = Ano.objects.get(id=ano_1_id)
@@ -349,21 +356,32 @@ class GerarRelatorioGrafico(LoginRequiredMixin, View):
         largura = 0.40  # Largura das barras(ajustável)
 
         # Gráfico de barras 
-        plt.bar(x - largura/2, valores_1, width=largura, color='#3c94e5', label=ano_1)   # Ajusta para a esquerda
-        plt.bar(x + largura/2, valores_2, width=largura, color='#faa460', label=ano_2)  # Ajusta para a direita
+        bars1 = plt.bar(x - largura/2, valores_1, width=largura, color='#3c94e5', label=ano_1)   # Ajusta para a esquerda
+        bars2 = plt.bar(x + largura/2, valores_2, width=largura, color='#faa460', label=ano_2)  # Ajusta para a direita
 
         # # Gráfico de linhas
         # plt.plot(meses_1, valores_1, marker='o', linestyle='-', color='b', label=ano_1)
         # plt.plot(meses_2, valores_2, marker='o', linestyle='--', color='r', label=ano_2)
 
+        # Adicionar valores em cima das barras
+        for bar in bars1:
+            yval = bar.get_height()  # Obtém a altura da barra
+            plt.text(bar.get_x() + bar.get_width() / 2, yval, int(yval), ha='center', va='bottom')  # Adiciona o texto
+
+        # Adicionar valores em cima das barras
+        for bar in bars2:
+            yval = bar.get_height()  # Obtém a altura da barra
+            plt.text(bar.get_x() + bar.get_width() / 2, yval, int(yval), ha='center', va='bottom')  # Adiciona o texto
+
         # Alterar a cor de fundo da área do gráfico
         plt.gca().set_facecolor('#eeeeee') 
 
         # Título e rótulos
-        plt.title('Gráfico de Arrecadação de Tributos')
+        # plt.title('Gráfico de Arrecadação de Tributos')
         plt.ylabel('Valores')
         plt.xlabel('Meses')
-        plt.xticks(x, meses)  # Rótulos dos meses
+        plt.xticks(x, meses, fontsize=15)  # Rótulos dos meses
+        plt.yticks(fontsize=14)  # Rótulos da média de valores
         plt.legend()  # Exibir legenda
 
         # Salvar o gráfico como imagem
@@ -371,10 +389,16 @@ class GerarRelatorioGrafico(LoginRequiredMixin, View):
         plt.close()  # Fecha a figura para liberar memória
 
         # Imagem do gráfico
-        pdf.image('static/img/grafico.png', -10, 40, 230) #x=30, y=40, tamanho imagem=200
+        pdf.image('static/img/grafico.png', -15, 25, 240) #x=-15, y=22, tamanho imagem=240
 
-        pdf.set_font("Arial", size=12)  # Defina a fonte e o tamanho
-        pdf.cell(200, 10, txt="Relatório de arrecadação de tributos", ln=True, align='C')
+        pdf.set_font("Arial", size=15)  # Defina a fonte e o tamanho
+        pdf.set_text_color(255, 255, 255)  # RGB para branco
+        pdf.cell(200, 2, txt="ARRECADAÇÃO MENSAL DE TRIBUTOS", ln=True, align='C')
+
+        # Text Receita
+        pdf.set_font("Arial", size=15)  # Defina a fonte e o tamanho
+        pdf.set_text_color(255, 255, 255)  # RGB para branco
+        pdf.cell(200, 12, txt=receita.nome, ln=True, align='C')
 
         # Crie um arquivo temporário
         temp_file = tempfile.NamedTemporaryFile(delete=False, suffix='.pdf')
