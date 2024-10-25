@@ -1,5 +1,6 @@
 from django.http import HttpResponse
-from django.shortcuts import get_object_or_404, redirect
+from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse, reverse_lazy
 from django.views.generic import View, TemplateView
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.views.generic.list import ListView
@@ -237,7 +238,15 @@ class FichaDelete(LoginRequiredMixin, DeleteView):
         except Exception as e:
             print(e)
 
-# class Relatorios(LoginRequiredMixin, TemplateView):
+class Relatorios(LoginRequiredMixin, TemplateView):
+    template_name = 'grafico/ficha_reports.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['municipios'] = Municipio.objects.filter(tipo_contrato='Assessoria', ativo=True).order_by('nome')
+        context['receitas'] = Receita.objects.all()
+        context['anos'] = Ano.objects.all()
+        return context
 
 class GerarRelatorioGrafico(LoginRequiredMixin, View):
     def get(self, request, *args, **kwargs):
@@ -246,24 +255,80 @@ class GerarRelatorioGrafico(LoginRequiredMixin, View):
 
         pdf.image('static/img/layout.png', 0, 0, 210, 297)
 
-        # Criar uma condição de acordo com o tipo de relatório selecionado, "mensal ou anual"
+        municipio_id= request.GET.get('municipio') # -> Retorna o ID do município
+        receita_id= request.GET.get('receita')
+        ano_1_id = request.GET.get('ano_1')
+        ano_2_id = request.GET.get('ano_2')
+        mes_1 = request.GET.get('mes_1')
+        mes_2 = request.GET.get('mes_2')
 
-        # Dados
-        categorias = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro']
-        valores = [100.00, 535.000, 250.000, 300.000, 150.000, 375.000, 175.000, 589.000, 456.000, 753.000, 963.000, 159.000]
+        
+
+        try:
+            ano_1 = Ano.objects.get(id=ano_1_id)
+        except:
+            ano_1 = ''
+
+        try:
+            ano_2 = Ano.objects.get(id=ano_2_id)
+        except:
+            ano_2 = ''
+
+        valores = [0] * 12
+
+        # Ficha 1
+        if municipio_id and receita_id and ano_1_id:
+            try:
+                ficha = Ficha.objects.get(municipio_id=municipio_id, receita_id=receita_id, ano_id=ano_1_id)
+            except:
+                ficha = None
+
+            if ficha:
+                try:
+                    valor_mes = get_object_or_404(ValorMes, ficha_id=ficha.id)
+                except:
+                    valor_mes = None
+
+                if valor_mes:
+                    valores_1 = [valor_mes.janeiro, valor_mes.fevereiro, valor_mes.marco, valor_mes.abril, valor_mes.maio, valor_mes.junho, valor_mes.julho, valor_mes.agosto, valor_mes.setembro, valor_mes.outubro, valor_mes.novembro, valor_mes.dezembro,] 
+        else:
+            valores
+
+        # Ficha 2
+        if municipio_id and receita_id and ano_2_id:
+            try:
+                ficha = Ficha.objects.get(municipio_id=municipio_id, receita_id=receita_id, ano_id=ano_2_id)
+            except:
+                ficha = None
+
+            if ficha:
+                try:
+                    valor_mes = get_object_or_404(ValorMes, ficha_id=ficha.id)
+                except:
+                    valor_mes = None
+
+                if valor_mes:
+                    valores_2 = [valor_mes.janeiro, valor_mes.fevereiro, valor_mes.marco, valor_mes.abril, valor_mes.maio, valor_mes.junho, valor_mes.julho, valor_mes.agosto, valor_mes.setembro, valor_mes.outubro, valor_mes.novembro, valor_mes.dezembro,] 
+        else:
+            valores
+        
+        meses = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro']
 
         # # Configurações do gráfico
         plt.figure(figsize=(20,10))
 
         # Gráfico de linhas ao invés de barras
-        plt.plot(categorias, valores, marker='o', linestyle='-', color='b')
+        plt.plot(meses, valores_1, marker='o', linestyle='-', color='b', label=ano_1)
+        plt.plot(meses, valores_2, marker='o', linestyle='--', color='r', label=ano_2)
 
         # Título e rótulos
         plt.title('Gráfico de arrecadação de tributos')
         plt.ylabel('Valores')
         plt.xlabel('Meses')
+        plt.legend()  # Exibir legenda para identificar cada ano
+        plt.grid(True)  # Adicionar grade
 
-       # Verificar como criar o gráfico como uma imagem temporária apenas para ser incluida no relatório, depois excluir.
+       # Verificar como criar o gráfico como uma imagem temporária apenas para ser incluida no relatório, depois excluir.  <<======
         plt.savefig('static/img/grafico.png')
         
         plt.close()
@@ -271,8 +336,6 @@ class GerarRelatorioGrafico(LoginRequiredMixin, View):
         pdf.image('static/img/grafico.png', -10, 40, 230) #x=30, y=40, tamanho imagem=200
 
         pdf.set_font("Arial", size=12)  # Defina a fonte e o tamanho
-
-        # Adicione uma célula com o texto
         pdf.cell(200, 10, txt="Relatório de arrecadação de tributos", ln=True, align='C')
 
         # Crie um arquivo temporário

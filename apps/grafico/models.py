@@ -35,3 +35,6 @@ class ValorMes(models.Model):
     outubro = models.DecimalField(decimal_places=2, max_digits=11, blank=True, null=True)
     novembro = models.DecimalField(decimal_places=2, max_digits=11, blank=True, null=True)
     dezembro = models.DecimalField(decimal_places=2, max_digits=11, blank=True, null=True)
+
+    def __str__(self):
+        return f'{self.janeiro}, {self.fevereiro}'

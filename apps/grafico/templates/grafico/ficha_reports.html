@@ -29,7 +29,82 @@
                         <br>
                         <div class="row" style="margin: 0cm;">
                             <form method="get" action="{% url 'relatorio-grafico' %}" target="_blank">
-                                <input type="text" id="municipio" >
+                                <label for="municipio">Município</label>
+                                <select name="municipio" id="municipio" required>
+                                    <option value="">-------------------------------</option>
+                                    {% for m in municipios %}
+                                        <option value="{{ m.pk }}" {% if m.pk|stringformat:"s" == request.GET.municipio|stringformat:"s" %} selected {% endif %}>{{ m.nome }}</option>
+                                    {% endfor %}
+                                </select>
+
+                                <br>
+
+                                <label for="receita">Receita</label>
+                                <select name="receita" id="receita" required>
+                                    <option value="">-------------------------------</option>
+                                    {% for r in receitas %}
+                                        <option value="{{ r.pk }}" {% if r.pk|stringformat:"s" == request.GET.receita|stringformat:"s" %} selected {% endif %}>{{ r.nome }}</option>
+                                    {% endfor %}
+                                </select>
+
+                                <br>
+
+                                <label for="ano_1">Primeiro Ano</label>
+                                <select name="ano_1" id="ano_1" required>
+                                    <option value="">-------------------------------</option>
+                                    {% for a in anos %}
+                                        <option value="{{ a.pk }}" {% if a.pk|stringformat:"s" == request.GET.ano|stringformat:"s" %} selected {% endif %}>{{ a.nome }}</option>
+                                    {% endfor %}
+                                </select>
+
+                                <br>
+
+                                <label for="ano">Segundo Ano</label>
+                                <select name="ano_2" id="ano_2" required>
+                                    <option value="">-------------------------------</option>
+                                    {% for a in anos %}
+                                        <option value="{{ a.pk }}" {% if a.pk|stringformat:"s" == request.GET.ano|stringformat:"s" %} selected {% endif %}>{{ a.nome }}</option>
+                                    {% endfor %}
+                                </select>
+
+                                <br>
+
+                                <label for="mes_1">Mês Inicial</label>
+                                <select name="mes_1" id="mes_1">
+                                    <option value="">-------------------------------</option>
+                                    <option value="janeiro">Janeiro</option>
+                                    <option value="fevereiro">Fevereiro</option>
+                                    <option value="marco">Março</option>
+                                    <option value="abril">Abril</option>
+                                    <option value="maio">Maio</option>
+                                    <option value="junho">Junho</option>
+                                    <option value="julho">Julho</option>
+                                    <option value="agosto">Agosto</option>
+                                    <option value="setembro">Setembro</option>
+                                    <option value="outubro">Outubro</option>
+                                    <option value="novembro">Novembro</option> 
+                                    <option value="dezembro">Dezembro</option> 
+                                </select>
+
+                                <br>
+                                
+                                <label for="mes_2">Mês Final</label>
+                                <select name="mes_2" id="mes_2">
+                                    <option value="">-------------------------------</option>
+                                    <option value="janeiro">Janeiro</option>
+                                    <option value="fevereiro">Fevereiro</option>
+                                    <option value="marco">Março</option>
+                                    <option value="abril">Abril</option>
+                                    <option value="maio">Maio</option>
+                                    <option value="junho">Junho</option>
+                                    <option value="julho">Julho</option>
+                                    <option value="agosto">Agosto</option>
+                                    <option value="setembro">Setembro</option>
+                                    <option value="outubro">Outubro</option>
+                                    <option value="novembro">Novembro</option> 
+                                    <option value="dezembro">Dezembro</option> 
+                                </select>
+
                                 <button type="submit"  id="btnGerarRelatorio2" style="border-radius: 4px;"><b>Gerar</b></button>
                             </form>
                             <br>
