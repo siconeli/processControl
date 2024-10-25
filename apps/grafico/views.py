@@ -259,10 +259,8 @@ class GerarRelatorioGrafico(LoginRequiredMixin, View):
         receita_id= request.GET.get('receita')
         ano_1_id = request.GET.get('ano_1')
         ano_2_id = request.GET.get('ano_2')
-        mes_1 = request.GET.get('mes_1')
+        mes_1 = request.GET.get('mes_1') # -> Retorna string com o nome do mês
         mes_2 = request.GET.get('mes_2')
-
-        
 
         try:
             ano_1 = Ano.objects.get(id=ano_1_id)
@@ -285,14 +283,25 @@ class GerarRelatorioGrafico(LoginRequiredMixin, View):
 
             if ficha:
                 try:
-                    valor_mes = get_object_or_404(ValorMes, ficha_id=ficha.id)
+                    valor_mes = ValorMes.objects.get(ficha_id=ficha.id)
                 except:
                     valor_mes = None
 
                 if valor_mes:
-                    valores_1 = [valor_mes.janeiro, valor_mes.fevereiro, valor_mes.marco, valor_mes.abril, valor_mes.maio, valor_mes.junho, valor_mes.julho, valor_mes.agosto, valor_mes.setembro, valor_mes.outubro, valor_mes.novembro, valor_mes.dezembro,] 
+                    # valores_1 = [valor_mes.janeiro, valor_mes.fevereiro, valor_mes.marco, valor_mes.abril, valor_mes.maio, valor_mes.junho, valor_mes.julho, valor_mes.agosto, valor_mes.setembro, valor_mes.outubro, valor_mes.novembro, valor_mes.dezembro] 
+
+                    meses_dict = {'janeiro':valor_mes.janeiro, 'fevereiro':valor_mes.fevereiro, 'marco':valor_mes.marco, 'abril':valor_mes.abril, 'maio':valor_mes.maio, 'junho':valor_mes.junho, 'julho':valor_mes.julho, 'agosto':valor_mes.agosto, 'setembro':valor_mes.setembro, 'outubro':valor_mes.outubro, 'novembro':valor_mes.novembro, 'dezembro':valor_mes.dezembro}
+
+                    meses = list(meses_dict.keys())
+                    indice_filtro_1, indice_filtro_2 = meses.index(mes_1), meses.index(mes_2)
+
+                    valores = {meses_dict[mes] for mes in meses[indice_filtro_1:indice_filtro_2 +1]}
+
+                    meses_filtrados = meses[indice_filtro_1:indice_filtro_2 +1]
+                    valores_filtrados = list(meses_dict[mes] for mes in meses_filtrados )                                   
+
         else:
-            valores
+            valores_1 = valores
 
         # Ficha 2
         if municipio_id and receita_id and ano_2_id:
@@ -303,14 +312,14 @@ class GerarRelatorioGrafico(LoginRequiredMixin, View):
 
             if ficha:
                 try:
-                    valor_mes = get_object_or_404(ValorMes, ficha_id=ficha.id)
+                    valor_mes = ValorMes.objects.get(ficha_id=ficha.id)
                 except:
                     valor_mes = None
 
                 if valor_mes:
-                    valores_2 = [valor_mes.janeiro, valor_mes.fevereiro, valor_mes.marco, valor_mes.abril, valor_mes.maio, valor_mes.junho, valor_mes.julho, valor_mes.agosto, valor_mes.setembro, valor_mes.outubro, valor_mes.novembro, valor_mes.dezembro,] 
+                    valores_2 = [valor_mes.janeiro, valor_mes.fevereiro, valor_mes.marco, valor_mes.abril, valor_mes.maio, valor_mes.junho, valor_mes.julho, valor_mes.agosto, valor_mes.setembro, valor_mes.outubro, valor_mes.novembro, valor_mes.dezembro] 
         else:
-            valores
+            valores_2 = valores
         
         meses = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro']
 
