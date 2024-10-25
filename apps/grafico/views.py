@@ -1,3 +1,4 @@
+from decimal import Decimal
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse, reverse_lazy
@@ -5,6 +6,8 @@ from django.views.generic import View, TemplateView
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.views.generic.list import ListView
 from django.contrib.auth.mixins import LoginRequiredMixin
+from matplotlib.patches import FancyBboxPatch
+import numpy as np
 from .models import Ficha, ValorMes
 from apps.municipios.models import Municipio
 from .models import Receita, Ano
@@ -248,11 +251,19 @@ class Relatorios(LoginRequiredMixin, TemplateView):
         context['anos'] = Ano.objects.all()
         return context
 
+def rounded_bar(ax, x, height, width=0.4, color='b'):
+    """Cria uma barra com bordas arredondadas."""
+    # Cria um retângulo com cantos arredondados
+    bar = FancyBboxPatch((x - width / 2, 0), width, height, boxstyle="round,pad=0.05", color=color)
+    ax.add_patch(bar)
+
+
 class GerarRelatorioGrafico(LoginRequiredMixin, View):
     def get(self, request, *args, **kwargs):
         pdf = FPDF()
         pdf.add_page()
 
+        # Layout do gráfico, criado no canva
         pdf.image('static/img/layout.png', 0, 0, 210, 297)
 
         municipio_id= request.GET.get('municipio') # -> Retorna o ID do município
@@ -296,9 +307,9 @@ class GerarRelatorioGrafico(LoginRequiredMixin, View):
 
                     indice_filtro_1, indice_filtro_2 = meses_list.index(mes_1), meses_list.index(mes_2)
 
-                    meses_1 = meses_list[indice_filtro_1:indice_filtro_2 +1]
+                    meses = meses_list[indice_filtro_1:indice_filtro_2 +1]
 
-                    valores_1 = list(objeto[mes] for mes in meses_1 )           
+                    valores_1 = list(objeto[mes] for mes in meses )           
 
         else:
             valores_1 = valores
@@ -325,31 +336,41 @@ class GerarRelatorioGrafico(LoginRequiredMixin, View):
 
                     indice_filtro_1, indice_filtro_2 = meses_list.index(mes_1), meses_list.index(mes_2)
 
-                    meses_2 = meses_list[indice_filtro_1:indice_filtro_2 +1]
+                    meses = meses_list[indice_filtro_1:indice_filtro_2 +1]
 
-                    valores_2 = list(objeto[mes] for mes in meses_2 )  
+                    valores_2 = list(objeto[mes] for mes in meses )  
         else:
             valores_2 = valores
 
-        # # Configurações do gráfico
+        # Configurações do gráfico, largura e Altura
         plt.figure(figsize=(20,10))
 
-        # Gráfico de linhas ao invés de barras
-        plt.plot(meses_1, valores_1, marker='o', linestyle='-', color='b', label=ano_1)
-        plt.plot(meses_2, valores_2, marker='o', linestyle='--', color='r', label=ano_2)
+        x = np.arange(len(meses))  # Posiciona os meses
+        largura = 0.40  # Largura das barras(ajustável)
+
+        # Gráfico de barras 
+        plt.bar(x - largura/2, valores_1, width=largura, color='#3c94e5', label=ano_1)   # Ajusta para a esquerda
+        plt.bar(x + largura/2, valores_2, width=largura, color='#faa460', label=ano_2)  # Ajusta para a direita
+
+        # # Gráfico de linhas
+        # plt.plot(meses_1, valores_1, marker='o', linestyle='-', color='b', label=ano_1)
+        # plt.plot(meses_2, valores_2, marker='o', linestyle='--', color='r', label=ano_2)
+
+        # Alterar a cor de fundo da área do gráfico
+        plt.gca().set_facecolor('#eeeeee') 
 
         # Título e rótulos
-        plt.title('Gráfico de arrecadação de tributos')
+        plt.title('Gráfico de Arrecadação de Tributos')
         plt.ylabel('Valores')
         plt.xlabel('Meses')
-        plt.legend()  # Exibir legenda para identificar cada ano
-        plt.grid(True)  # Adicionar grade
+        plt.xticks(x, meses)  # Rótulos dos meses
+        plt.legend()  # Exibir legenda
 
-       # Verificar como criar o gráfico como uma imagem temporária apenas para ser incluida no relatório, depois excluir.  <<======
-        plt.savefig('static/img/grafico.png')
-        
-        plt.close()
+        # Salvar o gráfico como imagem
+        plt.savefig('static/img/grafico.png')  # Salva o gráfico
+        plt.close()  # Fecha a figura para liberar memória
 
+        # Imagem do gráfico
         pdf.image('static/img/grafico.png', -10, 40, 230) #x=30, y=40, tamanho imagem=200
 
         pdf.set_font("Arial", size=12)  # Defina a fonte e o tamanho
