@@ -251,11 +251,11 @@ class Relatorios(LoginRequiredMixin, TemplateView):
         context['anos'] = Ano.objects.all()
         return context
 
-def rounded_bar(ax, x, height, width=0.4, color='b'):
-    """Cria uma barra com bordas arredondadas."""
-    # Cria um retângulo com cantos arredondados
-    bar = FancyBboxPatch((x - width / 2, 0), width, height, boxstyle="round,pad=0.05", color=color)
-    ax.add_patch(bar)
+# def rounded_bar(ax, x, height, width=0.4, color='b'):
+#     """Cria uma barra com bordas arredondadas."""
+#     # Cria um retângulo com cantos arredondados
+#     bar = FancyBboxPatch((x - width / 2, 0), width, height, boxstyle="round,pad=0.05", color=color)
+#     ax.add_patch(bar)
 
 class GerarRelatorioGrafico(LoginRequiredMixin, View):
     def get(self, request, *args, **kwargs):
@@ -277,6 +277,7 @@ class GerarRelatorioGrafico(LoginRequiredMixin, View):
             receita = Receita.objects.get(id=receita_id)
             ano_1 = Ano.objects.get(id=ano_1_id)
             ano_2 = Ano.objects.get(id=ano_2_id)
+            municipio = Municipio.objects.get(id=municipio_id)
         except Receita.DoesNotExist:
             receita = None
         except Ano.DoesNotExist:
@@ -356,7 +357,7 @@ class GerarRelatorioGrafico(LoginRequiredMixin, View):
 
         # Rótulos e legenda
         # plt.ylabel('Valores')
-        # plt.xlabel('Meses')
+        plt.xlabel('Valor em R$', fontsize=15)
 
         # Rótulos de meses e conversão explícita de strings
         meses_lista = ['janeiro', 'fevereiro', 'marco', 'abril', 'maio', 'junho', 'julho', 'agosto', 'setembro', 'outubro', 'novembro', 'dezembro']
@@ -369,18 +370,50 @@ class GerarRelatorioGrafico(LoginRequiredMixin, View):
         plt.close()
 
         # Adicionar o gráfico ao PDF
-        pdf.image(temp_image.name, x=-12, y=15, w=320) #240
-        pdf.image('static/img/logo-empresa.png', 10, 2, 22)
+        pdf.image(temp_image.name, x=-31, y=15, w=350) #320
+        pdf.image('static/img/logo-empresa.png', x=10, y=2, w=20)
 
         # Limpar o arquivo temporário de imagem
         temp_image.close()
         os.remove(temp_image.name)
 
-        # Adicionar título e texto de receita
+        # RETÂNGULO PARA PREENCHIMENTO DE FUNDO
+        largura = 230  
+        altura = 19 
+        eixo_x = 35  
+        eixo_y = 3  
+        pdf.set_xy(eixo_x, eixo_y) # Define a posição de acordo com eixo x e y
         pdf.set_font("Arial", style='B', size=15)
-        pdf.set_text_color(255, 255, 255)
-        pdf.cell(200, 2, txt="ARRECADAÇÃO MENSAL DE TRIBUTOS", ln=True, align='C')
-        pdf.cell(200, 12, txt=str(receita.nome) if receita else "N/A", ln=True, align='C')
+        pdf.set_fill_color(18,161,215)  # Valores de cor RGB, cor de fundo
+        pdf.set_text_color(0, 0, 0)
+        pdf.cell(largura, altura, ln=True, align='C', fill=True)
+
+        # TEXTO ->  MUNICÍPIO
+        eixo_x = 20  
+        eixo_y = 7
+        pdf.set_xy(eixo_x, eixo_y)
+        pdf.set_font("Arial", style='B', size=12)
+        pdf.set_fill_color(200, 200, 200)  # Valores de cor RGB, cor de fundo
+        pdf.set_text_color(255,255,255)
+        pdf.cell(0, 0, txt=f"MUNICÍPIO DE {municipio.nome.upper()}", ln=True, align='C')
+
+        # TEXTO ->  FIXO
+        eixo_x = 20  
+        eixo_y = 13
+        pdf.set_xy(eixo_x, eixo_y)
+        pdf.set_font("Arial", style='B', size=12)
+        pdf.set_fill_color(200, 200, 200)  # Valores de cor RGB, cor de fundo
+        pdf.set_text_color(255,255,255)
+        pdf.cell(0, 0, txt="ARRECADAÇÃO MENSAL DE TRIBUTOS", ln=True, align='C')
+
+        # TEXTO -> RECEITA
+        eixo_x = 20  
+        eixo_y = 19
+        pdf.set_xy(eixo_x, eixo_y)
+        pdf.set_font("Arial", style='B', size=12)
+        pdf.set_fill_color(200, 200, 200)  # Valores de cor RGB, cor de fundo
+        pdf.set_text_color(255,255,255)
+        pdf.cell(0, 0, txt=str(receita.nome) if receita else "N/A", ln=True, align='C')
 
         # Criar arquivo temporário para o PDF
         temp_file = tempfile.NamedTemporaryFile(delete=False, suffix='.pdf')
