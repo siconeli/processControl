@@ -321,18 +321,15 @@ class GerarRelatorioGrafico(LoginRequiredMixin, View):
         def formatar_valor(valor):
             valor = str(valor)
             fatiado = valor[:-2]
-
-            if()
-
-            print(f'Vem do banco -> {valor}')
-            print(f'Fatiado: {fatiado}')
-            print(f'Tamanho: {len(fatiado)}')
-
-            # print(f'Tamanho: {len(str(valor))}')
+            length = len(valor[:-2])
             # valor =  f'{valor:,.2f}  '.replace(',', 'X').replace('.', ',').replace('X', '.')
-            # print(f'Valor formatado: {valor}')
 
-            # valor = valor[:7]
+            if length < 4:
+                return fatiado
+            elif length < 7:  # Para milhares
+                valor = f'{fatiado[:length - 3]}K'
+            elif length < 10:  # Para milhões
+                valor = f'{fatiado[:length - 6]}M'
             return valor
 
         # Colocando os valores na parte superior das barras, mas dentro
