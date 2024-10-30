@@ -365,16 +365,20 @@ class GerarRelatorioGrafico(LoginRequiredMixin, View):
         # Adicionar o gráfico ao PDF
         pdf.image(temp_image.name, x=-31, y=15, w=350) #320
 
-        pdf.image('static/img/camapua.png', x=10, y=1, w=25, h=22)
-
+        # Adicionar o brasão do município ao PDF
+        try:
+            pdf.image('static/img/camapua.png', x=10, y=1, w=25, h=22)
+        except:
+            pdf.image('static/img/brasao.png', x=10, y=1, w=25, h=22)
+            
         # Limpar o arquivo temporário de imagem
         temp_image.close()
         os.remove(temp_image.name)
 
         # RETÂNGULO PARA PREENCHIMENTO DE FUNDO
-        largura = 222  
+        largura = 220  
         altura = 19 
-        eixo_x = 35  
+        eixo_x = 38 
         eixo_y = 3  
         pdf.set_xy(eixo_x, eixo_y) # Define a posição de acordo com eixo x e y
         pdf.set_font("Arial", style='B', size=15)
