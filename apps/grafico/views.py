@@ -319,17 +319,39 @@ class GerarRelatorioGrafico(LoginRequiredMixin, View):
 
         # Função para formatar e exibir valores em cima das barras
         def formatar_valor(valor):
-            valor = str(valor)
-            fatiado = valor[:-2]
-            length = len(valor[:-2])
+            valor = float(valor)
+            valor = f'{valor:.0f}' 
+            length = len(valor)
             # valor =  f'{valor:,.2f}  '.replace(',', 'X').replace('.', ',').replace('X', '.')
 
-            if length < 4:
-                return fatiado
-            elif length < 7:  # Para milhares
-                valor = f'{fatiado[:length - 3]}K'
-            elif length < 10:  # Para milhões
-                valor = f'{fatiado[:length - 6]}M'
+            if(length == 3):
+                print(valor)
+                valor = valor
+            elif(length == 4):
+                print(f'{valor[:1]}K')
+                valor = f'{valor[:1]}K'
+            elif(length == 5):
+                print(f'{valor[:2]}K')
+                valor = f'{valor[:2]}K'
+            elif(length == 6):
+                print(f'{valor[:3]}K')
+                valor = f'{valor[:3]}K'
+            elif(length == 7):
+                print(f'{valor[:1]}M')
+                valor = f'{valor[:1]}M'
+            elif(length == 8):
+                print(f'{valor[:2]}M')
+                valor = f'{valor[:2]}M'
+            elif(length == 9):
+                print(f'{valor[:3]}M')
+                valor = f'{valor[:3]}M'
+
+            # if length < 4:
+            #     return valor
+            # elif length < 7:  # Para milhares
+            #     valor = f'{valor[:length - 3]} K'
+            # elif length < 10:  # Para milhões
+            #     valor = f'{valor[:length - 6]} M'
             return valor
 
         # Colocando os valores na parte superior das barras, mas dentro
