@@ -309,7 +309,7 @@ class GerarRelatorioGrafico(LoginRequiredMixin, View):
         valores_2 = get_valores_por_mes(ficha_ano_2)
 
         # Configurações do gráfico
-        plt.figure(figsize=(20, 6)) # 17, 10
+        plt.figure(figsize=(20, 6)) 
         x = np.arange(len(valores_1))
         largura = 0.40
 
@@ -317,41 +317,22 @@ class GerarRelatorioGrafico(LoginRequiredMixin, View):
         bars1 = plt.bar(x - largura / 2, valores_1, width=largura, color='#3c94e5', label=str(ano_1))
         bars2 = plt.bar(x + largura / 2, valores_2, width=largura, color='#faa460', label=str(ano_2))
 
+        # Remover valores do eixo y, lado esquerdo externo do gráfico
+        plt.yticks([]) 
+
         # Função para formatar e exibir valores em cima das barras
         def formatar_valor(valor):
             valor = float(valor)
             valor = f'{valor:.0f}' 
-            length = len(valor)
-            # valor =  f'{valor:,.2f}  '.replace(',', 'X').replace('.', ',').replace('X', '.')
+            valor = int(valor)
 
-            if(length == 3):
-                print(valor)
-                valor = valor
-            elif(length == 4):
-                print(f'{valor[:1]}K')
-                valor = f'{valor[:1]}K'
-            elif(length == 5):
-                print(f'{valor[:2]}K')
-                valor = f'{valor[:2]}K'
-            elif(length == 6):
-                print(f'{valor[:3]}K')
-                valor = f'{valor[:3]}K'
-            elif(length == 7):
-                print(f'{valor[:1]}M')
-                valor = f'{valor[:1]}M'
-            elif(length == 8):
-                print(f'{valor[:2]}M')
-                valor = f'{valor[:2]}M'
-            elif(length == 9):
-                print(f'{valor[:3]}M')
-                valor = f'{valor[:3]}M'
+            if valor >= 1_000_000:
+                valor = f'{valor // 1_000_000},{(valor % 1_000_000) // 100_000}M'
+            elif valor >= 1_000:
+                valor = f'{valor // 1_000},{(valor % 1_000) // 100}K'
+            else:
+                valor = str(valor)
 
-            # if length < 4:
-            #     return valor
-            # elif length < 7:  # Para milhares
-            #     valor = f'{valor[:length - 3]} K'
-            # elif length < 10:  # Para milhões
-            #     valor = f'{valor[:length - 6]} M'
             return valor
 
         # Colocando os valores na parte superior das barras, mas dentro
@@ -374,12 +355,12 @@ class GerarRelatorioGrafico(LoginRequiredMixin, View):
             )
 
         # Rótulos e legenda
-        plt.ylabel('Valores')
-        plt.xlabel('Meses')
+        # plt.ylabel('Valores')
+        # plt.xlabel('Meses')
 
         # Rótulos de meses e conversão explícita de strings
         meses_lista = ['janeiro', 'fevereiro', 'marco', 'abril', 'maio', 'junho', 'julho', 'agosto', 'setembro', 'outubro', 'novembro', 'dezembro']
-        plt.xticks(x, meses_lista[meses_lista.index(mes_1):meses_lista.index(mes_2) + 1])
+        plt.xticks(x, meses_lista[meses_lista.index(mes_1):meses_lista.index(mes_2) + 1], fontsize=15)
         plt.legend()
 
         # Salvar o gráfico em um arquivo temporário
