@@ -251,12 +251,6 @@ class Relatorios(LoginRequiredMixin, TemplateView):
         context['anos'] = Ano.objects.all()
         return context
 
-# def rounded_bar(ax, x, height, width=0.4, color='b'):
-#     """Cria uma barra com bordas arredondadas."""
-#     # Cria um retângulo com cantos arredondados
-#     bar = FancyBboxPatch((x - width / 2, 0), width, height, boxstyle="round,pad=0.05", color=color)
-#     ax.add_patch(bar)
-
 class GerarRelatorioGrafico(LoginRequiredMixin, View):
     def get(self, request, *args, **kwargs):
         pdf = FPDF()
@@ -264,7 +258,6 @@ class GerarRelatorioGrafico(LoginRequiredMixin, View):
 
         # Layout do gráfico e logo
         # pdf.image('static/img/layout.png', 0, 0, 210, 297)
-        pdf.image('static/img/logo-empresa.png', 10, 2, 22)
 
         municipio_id = request.GET.get('municipio')
         receita_id = request.GET.get('receita')
@@ -371,14 +364,15 @@ class GerarRelatorioGrafico(LoginRequiredMixin, View):
 
         # Adicionar o gráfico ao PDF
         pdf.image(temp_image.name, x=-31, y=15, w=350) #320
-        pdf.image('static/img/logo-empresa.png', x=10, y=2, w=20)
+
+        pdf.image('static/img/camapua.png', x=10, y=1, w=25, h=22)
 
         # Limpar o arquivo temporário de imagem
         temp_image.close()
         os.remove(temp_image.name)
 
         # RETÂNGULO PARA PREENCHIMENTO DE FUNDO
-        largura = 230  
+        largura = 222  
         altura = 19 
         eixo_x = 35  
         eixo_y = 3  
@@ -414,6 +408,8 @@ class GerarRelatorioGrafico(LoginRequiredMixin, View):
         pdf.set_fill_color(200, 200, 200)  # Valores de cor RGB, cor de fundo
         pdf.set_text_color(255,255,255)
         pdf.cell(0, 0, txt=str(receita.nome) if receita else "N/A", ln=True, align='C')
+
+        pdf.image('static/img/aeg5.png', x=260, y=1, w=25, h=22)
 
         # Criar arquivo temporário para o PDF
         temp_file = tempfile.NamedTemporaryFile(delete=False, suffix='.pdf')
