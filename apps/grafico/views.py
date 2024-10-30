@@ -257,165 +257,141 @@ def rounded_bar(ax, x, height, width=0.4, color='b'):
     bar = FancyBboxPatch((x - width / 2, 0), width, height, boxstyle="round,pad=0.05", color=color)
     ax.add_patch(bar)
 
-
 class GerarRelatorioGrafico(LoginRequiredMixin, View):
     def get(self, request, *args, **kwargs):
         pdf = FPDF()
-        pdf.add_page()
+        pdf.add_page(orientation='L')
 
-        # Layout do gráfico, criado no canva
-        pdf.image('static/img/layout.png', 0, 0, 210, 297)
+        # Layout do gráfico e logo
+        # pdf.image('static/img/layout.png', 0, 0, 210, 297)
+        pdf.image('static/img/logo-empresa.png', 10, 2, 22)
 
-        pdf.image('static/img/logo-empresa.png', 10, 2, 22) #x=30, y=40, tamanho imagem=230
-
-        municipio_id= request.GET.get('municipio') # -> Retorna o ID do município
-        receita_id= request.GET.get('receita')
+        municipio_id = request.GET.get('municipio')
+        receita_id = request.GET.get('receita')
         ano_1_id = request.GET.get('ano_1')
         ano_2_id = request.GET.get('ano_2')
-        mes_1 = request.GET.get('mes_1') # -> Retorna string com o nome do mês
+        mes_1 = request.GET.get('mes_1')
         mes_2 = request.GET.get('mes_2')
 
         try:
             receita = Receita.objects.get(id=receita_id)
-        except:
-            receita = ''
-
-        try:
             ano_1 = Ano.objects.get(id=ano_1_id)
-        except:
-            ano_1 = ''
-
-        try:
             ano_2 = Ano.objects.get(id=ano_2_id)
-        except:
-            ano_2 = ''
+        except Receita.DoesNotExist:
+            receita = None
+        except Ano.DoesNotExist:
+            ano_1 = ano_2 = None
 
-        valores = [0] * 12
-
-        # Ficha 1
-        if municipio_id and receita_id and ano_1_id:
+        # Função para obter valores filtrados por meses
+        def get_valores_por_mes(ficha):
+            if not ficha:
+                return [0] * 12
             try:
-                ficha = Ficha.objects.get(municipio_id=municipio_id, receita_id=receita_id, ano_id=ano_1_id)
-            except:
-                ficha = None
+                valor_mes = ValorMes.objects.get(ficha_id=ficha.id)
+                valores = [
+                    valor_mes.janeiro, valor_mes.fevereiro, valor_mes.marco, valor_mes.abril,
+                    valor_mes.maio, valor_mes.junho, valor_mes.julho, valor_mes.agosto,
+                    valor_mes.setembro, valor_mes.outubro, valor_mes.novembro, valor_mes.dezembro
+                ]
+                # Filtrar meses entre mes_1 e mes_2
+                meses_lista = ['janeiro', 'fevereiro', 'marco', 'abril', 'maio', 'junho',
+                               'julho', 'agosto', 'setembro', 'outubro', 'novembro', 'dezembro']
+                indice_inicio = meses_lista.index(mes_1)
+                indice_fim = meses_lista.index(mes_2) + 1
+                return valores[indice_inicio:indice_fim]
+            except ValorMes.DoesNotExist:
+                return [0] * 12
 
-            if ficha:
-                try:
-                    valor_mes = ValorMes.objects.get(ficha_id=ficha.id)
-                except:
-                    valor_mes = None
+        # Obter fichas e valores para os dois anos
+        ficha_ano_1 = Ficha.objects.filter(municipio_id=municipio_id, receita_id=receita_id, ano_id=ano_1_id).first()
+        ficha_ano_2 = Ficha.objects.filter(municipio_id=municipio_id, receita_id=receita_id, ano_id=ano_2_id).first()
+        valores_1 = get_valores_por_mes(ficha_ano_1)
+        valores_2 = get_valores_por_mes(ficha_ano_2)
 
-                if valor_mes:
-                    valores_1 = [valor_mes.janeiro, valor_mes.fevereiro, valor_mes.marco, valor_mes.abril, valor_mes.maio, valor_mes.junho, valor_mes.julho, valor_mes.agosto, valor_mes.setembro, valor_mes.outubro, valor_mes.novembro, valor_mes.dezembro] 
+        # Configurações do gráfico
+        plt.figure(figsize=(20, 6)) # 17, 10
+        x = np.arange(len(valores_1))
+        largura = 0.40
 
-                    objeto = {'janeiro':valor_mes.janeiro, 'fevereiro':valor_mes.fevereiro, 'marco':valor_mes.marco, 'abril':valor_mes.abril, 'maio':valor_mes.maio, 'junho':valor_mes.junho, 'julho':valor_mes.julho, 'agosto':valor_mes.agosto, 'setembro':valor_mes.setembro, 'outubro':valor_mes.outubro, 'novembro':valor_mes.novembro, 'dezembro':valor_mes.dezembro}
+        # Gráfico de barras
+        bars1 = plt.bar(x - largura / 2, valores_1, width=largura, color='#3c94e5', label=str(ano_1))
+        bars2 = plt.bar(x + largura / 2, valores_2, width=largura, color='#faa460', label=str(ano_2))
 
-                    meses_list = list(objeto.keys())
-
-                    indice_filtro_1, indice_filtro_2 = meses_list.index(mes_1), meses_list.index(mes_2)
-
-                    meses = meses_list[indice_filtro_1:indice_filtro_2 +1]
-
-                    valores_1 = list(objeto[mes] for mes in meses )           
-
-        else:
-            valores_1 = valores
-
-        # Ficha 2
-        if municipio_id and receita_id and ano_2_id:
-            try:
-                ficha = Ficha.objects.get(municipio_id=municipio_id, receita_id=receita_id, ano_id=ano_2_id)
-            except:
-                ficha = None
-
-            if ficha:
-                try:
-                    valor_mes = ValorMes.objects.get(ficha_id=ficha.id)
-                except:
-                    valor_mes = None
-
-                if valor_mes:
-                    valores_2 = [valor_mes.janeiro, valor_mes.fevereiro, valor_mes.marco, valor_mes.abril, valor_mes.maio, valor_mes.junho, valor_mes.julho, valor_mes.agosto, valor_mes.setembro, valor_mes.outubro, valor_mes.novembro, valor_mes.dezembro] 
-
-                    objeto = {'janeiro':valor_mes.janeiro, 'fevereiro':valor_mes.fevereiro, 'marco':valor_mes.marco, 'abril':valor_mes.abril, 'maio':valor_mes.maio, 'junho':valor_mes.junho, 'julho':valor_mes.julho, 'agosto':valor_mes.agosto, 'setembro':valor_mes.setembro, 'outubro':valor_mes.outubro, 'novembro':valor_mes.novembro, 'dezembro':valor_mes.dezembro}
-
-                    meses_list = list(objeto.keys())
-
-                    indice_filtro_1, indice_filtro_2 = meses_list.index(mes_1), meses_list.index(mes_2)
-
-                    meses = meses_list[indice_filtro_1:indice_filtro_2 +1]
-
-                    valores_2 = list(objeto[mes] for mes in meses )  
-                    print(valores_2[0])
-        else:
-            valores_2 = valores
-
-        # Configurações do gráfico, largura e Altura
-        plt.figure(figsize=(20,10))
-
-        x = np.arange(len(meses))  # Posiciona os meses
-        largura = 0.40  # Largura das barras(ajustável)
-
-        # Gráfico de barras 
-        bars1 = plt.bar(x - largura/2, valores_1, width=largura, color='#3c94e5', label=ano_1)   # Ajusta para a esquerda
-        bars2 = plt.bar(x + largura/2, valores_2, width=largura, color='#faa460', label=ano_2)  # Ajusta para a direita
-
-        # # Gráfico de linhas
-        # plt.plot(meses_1, valores_1, marker='o', linestyle='-', color='b', label=ano_1)
-        # plt.plot(meses_2, valores_2, marker='o', linestyle='--', color='r', label=ano_2)
-
-        # Função para formatar o valor em R$
+        # Função para formatar e exibir valores em cima das barras
         def formatar_valor(valor):
-            return f'{valor:,.2f}'.replace(',', 'X').replace('.', ',').replace('X', '.')
+            valor = str(valor)
+            fatiado = valor[:-2]
 
-        # Adicionar valores em cima das barras com formatação R$
+            if()
+
+            print(f'Vem do banco -> {valor}')
+            print(f'Fatiado: {fatiado}')
+            print(f'Tamanho: {len(fatiado)}')
+
+            # print(f'Tamanho: {len(str(valor))}')
+            # valor =  f'{valor:,.2f}  '.replace(',', 'X').replace('.', ',').replace('X', '.')
+            # print(f'Valor formatado: {valor}')
+
+            # valor = valor[:7]
+            return valor
+
+        # Colocando os valores na parte superior das barras, mas dentro
         for bar in bars1:
-            yval = bar.get_height()  # Obtém a altura da barra
-            plt.text(bar.get_x() + bar.get_width() / 2, yval, formatar_valor(yval), ha='center', va='bottom')  # Adiciona o texto com rotação
+            plt.text(
+                bar.get_x() + bar.get_width() / 2,  # Posição x centralizada
+                bar.get_height() - 5,                # Posição y um pouco abaixo do topo da barra
+                formatar_valor(bar.get_height()),     # Valor formatado
+                ha='center', va='bottom',              # Alinhamento central e na parte inferior do texto
+                fontsize=10, color='black', rotation=0  # Cor do texto e tamanho da fonte
+            )
 
         for bar in bars2:
-            yval = bar.get_height()  # Obtém a altura da barra
-            plt.text(bar.get_x() + bar.get_width() / 2, yval, formatar_valor(yval), ha='center', va='bottom')  # Adiciona o texto com rotação
+            plt.text(
+                bar.get_x() + bar.get_width() / 2,
+                bar.get_height() - 5,                # Posição y um pouco abaixo do topo da barra
+                formatar_valor(bar.get_height()),
+                ha='center', va='bottom',              # Alinhamento central e na parte inferior do texto
+                fontsize=10, color='black', rotation=0  # Cor do texto e tamanho da fonte
+            )
 
-        # Alterar a cor de fundo da área do gráfico
-        plt.gca().set_facecolor('#eeeeee') 
+        # Rótulos e legenda
+        plt.ylabel('Valores')
+        plt.xlabel('Meses')
 
-        # Título e rótulos
-        # plt.title('Gráfico de Arrecadação de Tributos')
-        plt.ylabel('Valores', fontsize=14)
-        plt.xlabel('Meses', fontsize=14)
-        plt.xticks(x, meses, fontsize=15)  # Rótulos dos meses
-        plt.yticks(fontsize=14)  # Rótulos da média de valores
-        plt.legend()  # Exibir legenda
+        # Rótulos de meses e conversão explícita de strings
+        meses_lista = ['janeiro', 'fevereiro', 'marco', 'abril', 'maio', 'junho', 'julho', 'agosto', 'setembro', 'outubro', 'novembro', 'dezembro']
+        plt.xticks(x, meses_lista[meses_lista.index(mes_1):meses_lista.index(mes_2) + 1])
+        plt.legend()
 
-        # Salvar o gráfico como imagem
-        plt.savefig('static/img/grafico.png')  # Salva o gráfico
-        plt.close()  # Fecha a figura para liberar memória
+        # Salvar o gráfico em um arquivo temporário
+        temp_image = tempfile.NamedTemporaryFile(delete=False, suffix='.png')
+        plt.savefig(temp_image.name, format='png')
+        plt.close()
 
-        # Imagem do gráfico
-        pdf.image('static/img/grafico.png', -15, 25, 240) #x=-15, y=22, tamanho imagem=240
+        # Adicionar o gráfico ao PDF
+        pdf.image(temp_image.name, x=-12, y=15, w=320) #240
+        pdf.image('static/img/logo-empresa.png', 10, 2, 22)
 
-        pdf.set_font("Arial", style='B', size=15)  # Defina a fonte e o tamanho
-        pdf.set_text_color(255, 255, 255)  # RGB para branco
+        # Limpar o arquivo temporário de imagem
+        temp_image.close()
+        os.remove(temp_image.name)
+
+        # Adicionar título e texto de receita
+        pdf.set_font("Arial", style='B', size=15)
+        pdf.set_text_color(255, 255, 255)
         pdf.cell(200, 2, txt="ARRECADAÇÃO MENSAL DE TRIBUTOS", ln=True, align='C')
+        pdf.cell(200, 12, txt=str(receita.nome) if receita else "N/A", ln=True, align='C')
 
-        # Text Receita
-        pdf.set_font("Arial", style='B', size=15)  # Defina a fonte e o tamanho
-        pdf.set_text_color(255, 255, 255)  # RGB para branco
-        pdf.cell(200, 12, txt=receita.nome, ln=True, align='C')
-
-        # Crie um arquivo temporário
+        # Criar arquivo temporário para o PDF
         temp_file = tempfile.NamedTemporaryFile(delete=False, suffix='.pdf')
         pdf.output(temp_file.name)
-
         temp_file.close()
-        
+
+        # Retornar o PDF como resposta HTTP
         with open(temp_file.name, 'rb') as file:
             pdf_content = file.read()
-        
-        os.unlink(temp_file.name)  # Exclua o arquivo temporário
+        os.unlink(temp_file.name)
 
         response = HttpResponse(pdf_content, content_type='application/pdf')
         response['Content-Disposition'] = 'inline; filename="grafico.pdf"'
-
         return response
