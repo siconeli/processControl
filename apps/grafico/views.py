@@ -445,7 +445,7 @@ class GerarRelatorioGrafico(LoginRequiredMixin, View):
             val_ano_1 = f'R$ {valores_1[cont]:,.2f}'.replace(',', 'X').replace('.', ',').replace('X', '.')
             val_ano_2 = f'R$ {valores_2[cont]:,.2f}'.replace(',', 'X').replace('.', ',').replace('X', '.')
 
-            incremento_real = f'R$ {incremento_real}'
+            incremento_real = f'R$ {incremento_real:,.2f}'.replace(',', 'X').replace('.', ',').replace('X', '.')
 
             linha = {
                 'mes': meses_lista[cont].title(),
@@ -459,7 +459,7 @@ class GerarRelatorioGrafico(LoginRequiredMixin, View):
             cont += 1
 
         for linha in linha_list:
-            pdf.set_font('Arial', size=6) 
+            pdf.set_font('Arial', size=8) 
             pdf.set_text_color(0, 0, 0)
             pdf.cell(77 * 0.7, 4, linha['mes'], 1, align='C')
             pdf.cell(78 * 0.7, 4,  linha['val_ano_1'], 1, align='C')
