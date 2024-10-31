@@ -442,13 +442,19 @@ class GerarRelatorioGrafico(LoginRequiredMixin, View):
             else:
                 incremento_porc = '-'
 
+            val_ano_1 = f'R$ {valores_1[cont]:,.2f}'.replace(',', 'X').replace('.', ',').replace('X', '.')
+            val_ano_2 = f'R$ {valores_2[cont]:,.2f}'.replace(',', 'X').replace('.', ',').replace('X', '.')
+
+            incremento_real = f'R$ {incremento_real}'
+
             linha = {
-                'mes': meses_lista[cont],
-                'val_ano_1': str(valores_1[cont]),
-                'val_ano_2': str(valores_2[cont]), 
-                'incremento_real': str(incremento_real), 
+                'mes': meses_lista[cont].title(),
+                'val_ano_1': val_ano_1,
+                'val_ano_2': val_ano_2, 
+                'incremento_real': incremento_real, 
                 'incremento_porc': incremento_porc
             }
+
             linha_list.append(linha)
             cont += 1
 
