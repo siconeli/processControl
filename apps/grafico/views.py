@@ -302,6 +302,11 @@ class GerarRelatorioGrafico(LoginRequiredMixin, View):
         valores_1 = get_valores_por_mes(ficha_ano_1)
         valores_2 = get_valores_por_mes(ficha_ano_2)
 
+        # print(ficha_ano_1)
+        # print(ficha_ano_2)
+        # print(valores_1)
+        # print(valores_2)
+
         # Configurações do gráfico
         plt.figure(figsize=(20, 6)) 
         x = np.arange(len(valores_1))
@@ -414,6 +419,33 @@ class GerarRelatorioGrafico(LoginRequiredMixin, View):
         pdf.cell(0, 0, txt=str(receita.nome) if receita else "N/A", ln=True, align='C')
 
         pdf.image('static/img/aeg5.png', x=260, y=1, w=25, h=22)
+
+        # CABEÇALHO -> TABELA DE VALORES
+        eixo_x = 13
+        eixo_y = 120
+        pdf.set_xy(eixo_x, eixo_y)
+        pdf.set_font('Arial', 'B', size=7) 
+        pdf.set_draw_color(0, 0, 0) 
+        pdf.set_line_width(0.3) 
+        pdf.set_fill_color(18,161,215)
+        pdf.cell(77 * 0.7, 4, 'MÊS', 1, align='C', fill=True) 
+        pdf.cell(78 * 0.7, 4, '2022', 1, align='C', fill=True) 
+        pdf.cell(78 * 0.7, 4, '2023', 1, align='C', fill=True) 
+        pdf.cell(78 * 0.7, 4, 'INCREMENTO R$', 1, align='C', fill=True) 
+        pdf.cell(77 * 0.7, 4, 'INCREMENTO %', 1, align='C', fill=True) 
+        pdf.ln()
+
+        # for valor in valores_1:
+        #     print(valor)
+        #     valor = str(valor)
+        #     print(valor)
+        pdf.set_font('Arial', 'B', size=7) 
+        pdf.set_draw_color(0, 0, 0) 
+        pdf.set_line_width(0.3) 
+        pdf.set_fill_color(18,161,215)
+        pdf.cell(13 * 0.7, 4, str('55.123,44'), 1, align='L')
+
+        print(valores_1[0])
 
         # Criar arquivo temporário para o PDF
         temp_file = tempfile.NamedTemporaryFile(delete=False, suffix='.pdf')
