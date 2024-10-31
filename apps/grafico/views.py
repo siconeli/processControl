@@ -302,11 +302,6 @@ class GerarRelatorioGrafico(LoginRequiredMixin, View):
         valores_1 = get_valores_por_mes(ficha_ano_1)
         valores_2 = get_valores_por_mes(ficha_ano_2)
 
-        # print(ficha_ano_1)
-        # print(ficha_ano_2)
-        print(valores_1[0])
-        print(valores_2[0])
-
         # Configurações do gráfico
         plt.figure(figsize=(20, 6)) 
         x = np.arange(len(valores_1))
@@ -425,7 +420,7 @@ class GerarRelatorioGrafico(LoginRequiredMixin, View):
         eixo_y = 120
         pdf.set_xy(eixo_x, eixo_y)
         pdf.set_font('Arial', 'B', size=7) 
-        pdf.set_line_width(0.3) 
+        pdf.set_line_width(0.1) 
         pdf.set_fill_color(18,161,215)
         pdf.cell(77 * 0.7, 4, 'MÊS', 1, align='C', fill=True) 
         pdf.cell(78 * 0.7, 4, ano_1.nome, 1, align='C', fill=True) 
@@ -438,15 +433,24 @@ class GerarRelatorioGrafico(LoginRequiredMixin, View):
         linha_list = []
         cont = 0
 
-        if len(valores_1) == len(valores_2): # Se os valores do ano 1 e do ano 2 forem iguais...
-            for valor in valores_1:
-                linha = {
-                    'mes': meses_lista[cont],
-                    'val_ano_1': str(valores_1[cont]),
-                    'val_ano_2': str(valores_2[cont])  
-                }
-                linha_list.append(linha)
-                cont += 1
+        for valor in valores_1: # Poderia ser valores_2, tanto faz, pois as duas listas possuem 12 valores, se o usuário não informar o valor, por padrão será zero.
+            incremento_real = valores_2[cont] - valores_1[cont]
+
+            if incremento_real > 1: # Se o incremento for positivo, quer dizer que os dois valores são maior que zero.
+                incremento_porc = (((incremento_real / valores_1[cont]) * 100))
+                incremento_porc = f'{incremento_porc:.1f} %'.replace('.', ',')
+            else:
+                incremento_porc = '-'
+
+            linha = {
+                'mes': meses_lista[cont],
+                'val_ano_1': str(valores_1[cont]),
+                'val_ano_2': str(valores_2[cont]), 
+                'incremento_real': str(incremento_real), 
+                'incremento_porc': incremento_porc
+            }
+            linha_list.append(linha)
+            cont += 1
 
         for linha in linha_list:
             pdf.set_font('Arial', size=6) 
@@ -454,8 +458,8 @@ class GerarRelatorioGrafico(LoginRequiredMixin, View):
             pdf.cell(77 * 0.7, 4, linha['mes'], 1, align='C')
             pdf.cell(78 * 0.7, 4,  linha['val_ano_1'], 1, align='C')
             pdf.cell(78 * 0.7, 4, linha['val_ano_2'], 1, align='C')
-            pdf.cell(78 * 0.7, 4, 'teste', 1, align='C')
-            pdf.cell(77 * 0.7, 4, 'teste', 1, align='C')
+            pdf.cell(78 * 0.7, 4, linha['incremento_real'], 1, align='C')
+            pdf.cell(77 * 0.7, 4, linha['incremento_porc'], 1, align='C')
             pdf.ln()
 
         # Criar arquivo temporário para o PDF
