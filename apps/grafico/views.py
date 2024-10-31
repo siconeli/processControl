@@ -304,8 +304,8 @@ class GerarRelatorioGrafico(LoginRequiredMixin, View):
 
         # print(ficha_ano_1)
         # print(ficha_ano_2)
-        # print(valores_1)
-        # print(valores_2)
+        print(valores_1[0])
+        print(valores_2[0])
 
         # Configurações do gráfico
         plt.figure(figsize=(20, 6)) 
@@ -425,27 +425,38 @@ class GerarRelatorioGrafico(LoginRequiredMixin, View):
         eixo_y = 120
         pdf.set_xy(eixo_x, eixo_y)
         pdf.set_font('Arial', 'B', size=7) 
-        pdf.set_draw_color(0, 0, 0) 
         pdf.set_line_width(0.3) 
         pdf.set_fill_color(18,161,215)
         pdf.cell(77 * 0.7, 4, 'MÊS', 1, align='C', fill=True) 
-        pdf.cell(78 * 0.7, 4, '2022', 1, align='C', fill=True) 
-        pdf.cell(78 * 0.7, 4, '2023', 1, align='C', fill=True) 
+        pdf.cell(78 * 0.7, 4, ano_1.nome, 1, align='C', fill=True) 
+        pdf.cell(78 * 0.7, 4, ano_2.nome, 1, align='C', fill=True) 
         pdf.cell(78 * 0.7, 4, 'INCREMENTO R$', 1, align='C', fill=True) 
         pdf.cell(77 * 0.7, 4, 'INCREMENTO %', 1, align='C', fill=True) 
         pdf.ln()
 
-        # for valor in valores_1:
-        #     print(valor)
-        #     valor = str(valor)
-        #     print(valor)
-        pdf.set_font('Arial', 'B', size=7) 
-        pdf.set_draw_color(0, 0, 0) 
-        pdf.set_line_width(0.3) 
-        pdf.set_fill_color(18,161,215)
-        pdf.cell(13 * 0.7, 4, str('55.123,44'), 1, align='L')
 
-        print(valores_1[0])
+        linha_list = []
+        cont = 0
+
+        if len(valores_1) == len(valores_2): # Se os valores do ano 1 e do ano 2 forem iguais...
+            for valor in valores_1:
+                linha = {
+                    'mes': meses_lista[cont],
+                    'val_ano_1': str(valores_1[cont]),
+                    'val_ano_2': str(valores_2[cont])  
+                }
+                linha_list.append(linha)
+                cont += 1
+
+        for linha in linha_list:
+            pdf.set_font('Arial', size=6) 
+            pdf.set_text_color(0, 0, 0)
+            pdf.cell(77 * 0.7, 4, linha['mes'], 1, align='C')
+            pdf.cell(78 * 0.7, 4,  linha['val_ano_1'], 1, align='C')
+            pdf.cell(78 * 0.7, 4, linha['val_ano_2'], 1, align='C')
+            pdf.cell(78 * 0.7, 4, 'teste', 1, align='C')
+            pdf.cell(77 * 0.7, 4, 'teste', 1, align='C')
+            pdf.ln()
 
         # Criar arquivo temporário para o PDF
         temp_file = tempfile.NamedTemporaryFile(delete=False, suffix='.pdf')
