@@ -1,15 +1,3 @@
-filtro_1 = 'marco'
-filtro_2 = 'setembro'
+lista = 'Desenvolvi um software para o centro recreativo Dinossauros, voltado ao gerenciamento de cadastros de alunos e responsáveis. Atualmente, o controle dos dados é manual, em papel. O novo sistema centraliza as informações em banco de dados, padronizando e agilizando a organização e aumentando a segurança, evitando perdas e facilitando atualizações. Oferece cadastro de alunos, responsáveis, contratos e fichas de anamnese, com opções de filtragem, edição e exclusão. Na seção de responsáveis, um formulário PDF permite autorização de armazenamento conforme a LGPD. Desenvolvido em Python com Django e SQLITE3, o sistema está hospedado em uma VPS Linux Ubuntu da Hostinger. Essas funcionalidades iniciais ajudarão no levantamento de requisitos para módulos de controle de funcionários e financeiro.'
 
-palavras = {'janeiro': 1250, 'fevereiro': 500, 'marco': 375, 'abril':878, 'maio':6758, 'junho':656, 'julho':753, 'agosto':159, 'setembro':13150, 'outubro':789, 'novembro':456, 'dezembro': 78}
-
-meses = list(palavras.keys())
-
-indice_1, indice_2 = meses.index(filtro_1), meses.index(filtro_2)
-
-valores_filtrados = {mes: palavras[mes] for mes in meses[indice_1:indice_2 +1]}
-
-meses_intervalo = meses[indice_1:indice_2 +1]
-
-valores_intervalo = list(palavras[mes] for mes in meses_intervalo)
-
+print(len(lista))

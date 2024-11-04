@@ -350,7 +350,7 @@ class GerarRelatorioGrafico(LoginRequiredMixin, View):
 
         # Rótulos e legenda
         # plt.ylabel('Valores')
-        plt.xlabel('Valor em R$', fontsize=15)
+        # plt.xlabel('Valor em R$', fontsize=15)
 
         # Rótulos de meses e conversão explícita de strings
         meses_lista = ['janeiro', 'fevereiro', 'marco', 'abril', 'maio', 'junho', 'julho', 'agosto', 'setembro', 'outubro', 'novembro', 'dezembro']
@@ -427,8 +427,6 @@ class GerarRelatorioGrafico(LoginRequiredMixin, View):
         pdf.cell(78 * 0.7, 4, ano_2.nome, 1, align='C', fill=True) 
         pdf.cell(78 * 0.7, 4, 'INCREMENTO R$', 1, align='C', fill=True) 
         pdf.cell(77 * 0.7, 4, 'INCREMENTO %', 1, align='C', fill=True) 
-        pdf.ln()
-
 
         linha_list = []
         cont = 0
@@ -458,7 +456,11 @@ class GerarRelatorioGrafico(LoginRequiredMixin, View):
             linha_list.append(linha)
             cont += 1
 
+        # CABEÇALHO -> TABELA DE VALORES
+        eixo_x = 13
+        eixo_y = 124
         for linha in linha_list:
+            pdf.set_xy(eixo_x, eixo_y)
             pdf.set_font('Arial', size=8) 
             pdf.set_text_color(0, 0, 0)
             pdf.cell(77 * 0.7, 4, linha['mes'], 1, align='C')
@@ -466,11 +468,11 @@ class GerarRelatorioGrafico(LoginRequiredMixin, View):
             pdf.cell(78 * 0.7, 4, linha['val_ano_2'], 1, align='C')
             pdf.cell(78 * 0.7, 4, linha['incremento_real'], 1, align='C')
             pdf.cell(77 * 0.7, 4, linha['incremento_porc'], 1, align='C')
-            pdf.ln()
+            eixo_y += 4 # Adiciono 4 a cada linha, para que as linhas não fiquem uma em cima da outra.
 
         # Criar arquivo temporário para o PDF
         temp_file = tempfile.NamedTemporaryFile(delete=False, suffix='.pdf')
-        pdf.output(temp_file.name)
+        pdf.output(temp_file.name)  
         temp_file.close()
 
         # Retornar o PDF como resposta HTTP
