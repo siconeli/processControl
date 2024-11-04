@@ -302,6 +302,9 @@ class GerarRelatorioGrafico(LoginRequiredMixin, View):
         valores_1 = get_valores_por_mes(ficha_ano_1)
         valores_2 = get_valores_por_mes(ficha_ano_2)
 
+        valores_1_tot = sum(valores_1)
+        valores_2_tot = sum(valores_2)
+
         # Configurações do gráfico
         plt.figure(figsize=(20, 6)) 
         x = np.arange(len(valores_1))
@@ -427,21 +430,26 @@ class GerarRelatorioGrafico(LoginRequiredMixin, View):
         pdf.cell(78 * 0.7, 4, ano_2.nome, 1, align='C', fill=True) 
         pdf.cell(78 * 0.7, 4, 'INCREMENTO R$', 1, align='C', fill=True) 
         pdf.cell(77 * 0.7, 4, 'INCREMENTO %', 1, align='C', fill=True) 
+    
+        incremento_real_tot = 0
+        incremento_porc_tot = 0
 
         linha_list = []
         cont = 0
-
         for valor in valores_1: # Poderia ser valores_2, tanto faz, pois as duas listas possuem 12 valores, se o usuário não informar o valor, por padrão será zero.
             incremento_real = valores_2[cont] - valores_1[cont]
 
-            if incremento_real > 1: # Se o incremento for positivo, quer dizer que os dois valores são maior que zero.
+            if incremento_real >= 1: # Se o incremento for positivo, quer dizer que os dois valores são maior que zero.
+                incremento_real_tot += incremento_real
                 incremento_porc = (((incremento_real / valores_1[cont]) * 100))
+                incremento_porc_tot += incremento_porc
                 incremento_porc = f'{incremento_porc:.1f} %'.replace('.', ',')
             else:
                 incremento_porc = '-'
 
             val_ano_1 = f'R$ {valores_1[cont]:,.2f}'.replace(',', 'X').replace('.', ',').replace('X', '.')
             val_ano_2 = f'R$ {valores_2[cont]:,.2f}'.replace(',', 'X').replace('.', ',').replace('X', '.')
+
 
             incremento_real = f'R$ {incremento_real:,.2f}'.replace(',', 'X').replace('.', ',').replace('X', '.')
 
@@ -456,7 +464,6 @@ class GerarRelatorioGrafico(LoginRequiredMixin, View):
             linha_list.append(linha)
             cont += 1
 
-        # CABEÇALHO -> TABELA DE VALORES
         eixo_x = 13
         eixo_y = 124
         for linha in linha_list:
@@ -469,6 +476,23 @@ class GerarRelatorioGrafico(LoginRequiredMixin, View):
             pdf.cell(78 * 0.7, 4, linha['incremento_real'], 1, align='C')
             pdf.cell(77 * 0.7, 4, linha['incremento_porc'], 1, align='C')
             eixo_y += 4 # Adiciono 4 a cada linha, para que as linhas não fiquem uma em cima da outra.
+
+        valores_1_tot = f'R$ {valores_1_tot:,.2f}'.replace(',', 'X').replace('.', ',').replace('X', '.')
+        valores_2_tot = f'R$ {valores_2_tot:,.2f}'.replace(',', 'X').replace('.', ',').replace('X', '.')
+        incremento_real_tot = f'R$ {incremento_real_tot:,.2f}'.replace(',', 'X').replace('.', ',').replace('X', '.')
+        incremento_porc_tot = f'{incremento_porc_tot:.1f} %'.replace('.', ',')
+        
+
+        eixo_x = 13
+        eixo_y = eixo_y # Começa do eixo_y da linha de valores à cima
+        pdf.set_xy(eixo_x, eixo_y)
+        pdf.set_font('Arial', size=8) 
+        pdf.set_text_color(0, 0, 0)
+        pdf.cell(77 * 0.7, 4, '', 1, align='C')
+        pdf.cell(78 * 0.7, 4,  valores_1_tot, 1, align='C')
+        pdf.cell(78 * 0.7, 4, valores_2_tot, 1, align='C')
+        pdf.cell(78 * 0.7, 4, incremento_real_tot, 1, align='C')
+        pdf.cell(77 * 0.7, 4, incremento_porc_tot, 1, align='C')
 
         # Criar arquivo temporário para o PDF
         temp_file = tempfile.NamedTemporaryFile(delete=False, suffix='.pdf')
