@@ -357,7 +357,7 @@ class GerarRelatorioGrafico(LoginRequiredMixin, View):
 
         # Rótulos de meses e conversão explícita de strings
         meses_lista = ['janeiro', 'fevereiro', 'marco', 'abril', 'maio', 'junho', 'julho', 'agosto', 'setembro', 'outubro', 'novembro', 'dezembro']
-        plt.xticks(x, meses_lista[meses_lista.index(mes_1):meses_lista.index(mes_2) + 1], fontsize=15)
+        plt.xticks(x, meses_lista[meses_lista.index(mes_1):meses_lista.index(mes_2) + 1], fontsize=12) # Configuração da legenda de meses na parte inferior do gráfico.
         plt.legend()
 
         # Salvar o gráfico em um arquivo temporário
@@ -488,11 +488,11 @@ class GerarRelatorioGrafico(LoginRequiredMixin, View):
         pdf.set_xy(eixo_x, eixo_y)
         pdf.set_font('Arial', size=8) 
         pdf.set_text_color(0, 0, 0)
-        pdf.cell(77 * 0.7, 4, '', 1, align='C')
-        pdf.cell(78 * 0.7, 4,  valores_1_tot, 1, align='C')
-        pdf.cell(78 * 0.7, 4, valores_2_tot, 1, align='C')
-        pdf.cell(78 * 0.7, 4, incremento_real_tot, 1, align='C')
-        pdf.cell(77 * 0.7, 4, incremento_porc_tot, 1, align='C')
+        pdf.cell(77 * 0.7, 4, '', align='C') # Remover o ,1 para retirar as linhas da tabela e deixar somente o valor total
+        pdf.cell(78 * 0.7, 4,  valores_1_tot, align='C')
+        pdf.cell(78 * 0.7, 4, valores_2_tot, align='C')
+        pdf.cell(78 * 0.7, 4, incremento_real_tot, align='C')
+        pdf.cell(77 * 0.7, 4, incremento_porc_tot, align='C')
 
         # Criar arquivo temporário para o PDF
         temp_file = tempfile.NamedTemporaryFile(delete=False, suffix='.pdf')
