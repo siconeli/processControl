@@ -357,7 +357,9 @@ class GerarRelatorioGrafico(LoginRequiredMixin, View):
 
         # Rótulos de meses e conversão explícita de strings
         meses_lista = ['janeiro', 'fevereiro', 'marco', 'abril', 'maio', 'junho', 'julho', 'agosto', 'setembro', 'outubro', 'novembro', 'dezembro']
-        plt.xticks(x, [mes[:3].title() for mes in meses_lista], fontsize=10) # Configuração da legenda de meses na parte inferior do gráfico.
+        # [mes[:3].title() for mes in meses_lista], fontsize=10)
+        # plt.xticks(x, [mes[:3].title() for mes in meses_lista], fontsize=10) # Configuração da legenda de meses na parte inferior do gráfico.
+        plt.xticks(x, meses_lista[meses_lista.index(mes_1):meses_lista.index(mes_2) + 1], fontsize=10) # Configuração da legenda de meses na parte inferior do gráfico.
         plt.legend()
 
         # Salvar o gráfico em um arquivo temporário
