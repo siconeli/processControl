@@ -256,9 +256,7 @@ class GerarRelatorioGrafico(LoginRequiredMixin, View):
         pdf = FPDF()
         pdf.add_page(orientation='L')
 
-        # Layout do gráfico e logo
-        # pdf.image('static/img/layout.png', 0, 0, 210, 297)
-
+        modelo_id = request.GET.get('modelo')
         municipio_id = request.GET.get('municipio')
         receita_id = request.GET.get('receita')
         ano_1_id = request.GET.get('ano_1')
@@ -293,6 +291,7 @@ class GerarRelatorioGrafico(LoginRequiredMixin, View):
                 indice_inicio = meses_lista.index(mes_1)
                 indice_fim = meses_lista.index(mes_2) + 1
                 return valores[indice_inicio:indice_fim]
+            
             except ValorMes.DoesNotExist:
                 return [0] * 12
 
@@ -310,6 +309,8 @@ class GerarRelatorioGrafico(LoginRequiredMixin, View):
         x = np.arange(len(valores_1))
         largura = 0.40
 
+        
+
         # Gráfico de barras
         bars1 = plt.bar(x - largura / 2, valores_1, width=largura, color='#3c94e5', label=str(ano_1))
         bars2 = plt.bar(x + largura / 2, valores_2, width=largura, color='#faa460', label=str(ano_2))
@@ -317,7 +318,7 @@ class GerarRelatorioGrafico(LoginRequiredMixin, View):
         # Remover valores do eixo y, lado esquerdo externo do gráfico
         plt.yticks([]) 
 
-        # Função para formatar e exibir valores em cima das barras
+        # Função para formatar valores que vão em cima das barras
         def formatar_valor(valor):
             valor = float(valor)
             valor = f'{valor:.0f}' 

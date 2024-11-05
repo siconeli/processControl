@@ -31,6 +31,14 @@
                             <form method="get" action="{% url 'relatorio-grafico' %}" target="_blank">
 
                                 <div>
+                                    <label for="modelo">Modelo</label>
+                                    <select name="modelo" id="modelo">
+                                        <option value="1">Mensal</option> <!--Default-->
+                                        <option value="2">Anual</option>
+                                    </select>
+                                </div>
+                                <br><br>
+                                <div>
                                     <label for="municipio">Município</label>
                                     <select name="municipio" id="municipio" required>
                                         <option value="">-------------</option>
