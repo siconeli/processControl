@@ -250,44 +250,306 @@ class Relatorios(LoginRequiredMixin, TemplateView):
         context['receitas'] = Receita.objects.all()
         context['anos'] = Ano.objects.all().order_by('nome')
         return context
+    
+# Função para obter valores filtrados por meses
+def get_valores_por_mes(ficha, mes_1, mes_2):
+    if not ficha:
+        return [0] * 12
+    try:
+        valor_mes = ValorMes.objects.get(ficha_id=ficha.id)
+        valores = [
+            valor_mes.janeiro, valor_mes.fevereiro, valor_mes.marco, valor_mes.abril,
+            valor_mes.maio, valor_mes.junho, valor_mes.julho, valor_mes.agosto,
+            valor_mes.setembro, valor_mes.outubro, valor_mes.novembro, valor_mes.dezembro
+        ]
+        # Filtrar meses entre mes_1 e mes_2
+        meses_lista = ['janeiro', 'fevereiro', 'marco', 'abril', 'maio', 'junho',
+                        'julho', 'agosto', 'setembro', 'outubro', 'novembro', 'dezembro']
+        indice_inicio = meses_lista.index(mes_1)
+        indice_fim = meses_lista.index(mes_2) + 1
+        return valores[indice_inicio:indice_fim]
+    
+    except ValorMes.DoesNotExist:
+        return [0] * 12
 
 class GerarRelatorioGrafico(LoginRequiredMixin, View):
     def get(self, request, *args, **kwargs):
-        pdf = FPDF()
-        pdf.add_page(orientation='L')
-
-        modelo_id = request.GET.get('modelo')
-        municipio_id = request.GET.get('municipio')
-        receita_id = request.GET.get('receita')
-        ano_1_id = request.GET.get('ano_1')
-        ano_2_id = request.GET.get('ano_2')
-        mes_1 = request.GET.get('mes_1')
-        mes_2 = request.GET.get('mes_2')
-
-        # if modelo_id == 1:
-
-        # elif modelo_id == 2:
-
         try:
-            receita = Receita.objects.get(id=receita_id)
-            ano_1 = Ano.objects.get(id=ano_1_id)
-            ano_2 = Ano.objects.get(id=ano_2_id)
-            municipio = Municipio.objects.get(id=municipio_id)
-        except Receita.DoesNotExist:
-            receita = None
-        except Ano.DoesNotExist:
-            ano_1 = ano_2 = None
+            pdf = FPDF()
+            pdf.add_page(orientation='L')
 
-        anos_filtrados = Ano.objects.filter(nome__range=(ano_1, ano_2))
+            modelo_id = request.GET.get('modelo')
+            municipio_id = request.GET.get('municipio')
+            receita_id = request.GET.get('receita')
+            ano_1_id = request.GET.get('ano_1')
+            ano_2_id = request.GET.get('ano_2')
+            mes_1 = request.GET.get('mes_1')
+            mes_2 = request.GET.get('mes_2')
 
-        # for ano in anos_filtrados:
-        
-        # Gerar relatório vazio se a diferença de ano selecionado por maior que 1
-        if ano_1 and ano_2 is not None:
-            ano_1_int = int(ano_1.nome)
-            ano_2_int = int(ano_2.nome)
+            try:
+                receita = Receita.objects.get(id=receita_id)
+                ano_1 = Ano.objects.get(id=ano_1_id)
+                ano_2 = Ano.objects.get(id=ano_2_id)
+                municipio = Municipio.objects.get(id=municipio_id)
+            except Receita.DoesNotExist:
+                receita = None
+            except Ano.DoesNotExist:
+                ano_1 = ano_2 = None
+            
+            anos_filtrados = Ano.objects.filter(nome__range=(ano_1, ano_2))
+            
+            if modelo_id == '1': # MODELO MENSAL
+                # Gerar relatório vazio se a diferença de ano selecionado for maior que 1
+                if ano_1 and ano_2 is not None:
+                    ano_1_int = int(ano_1.nome)
+                    ano_2_int = int(ano_2.nome)
 
-            if ano_2_int - ano_1_int != 1:
+                    if ano_2_int - ano_1_int != 1:
+
+                        # Criar arquivo temporário para o PDF
+                        temp_file = tempfile.NamedTemporaryFile(delete=False, suffix='.pdf')
+                        pdf.output(temp_file.name)  
+                        temp_file.close()
+
+                        # Retornar o PDF como resposta HTTP
+                        with open(temp_file.name, 'rb') as file:
+                            pdf_content = file.read()
+                        os.unlink(temp_file.name)
+
+                        response = HttpResponse(pdf_content, content_type='application/pdf')
+                        response['Content-Disposition'] = 'inline; filename="grafico.pdf"'
+                        return response
+
+                # Obter fichas e valores para os dois anos
+                ficha_ano_1 = Ficha.objects.filter(municipio_id=municipio_id, receita_id=receita_id, ano_id=ano_1_id).first()
+                ficha_ano_2 = Ficha.objects.filter(municipio_id=municipio_id, receita_id=receita_id, ano_id=ano_2_id).first()
+                valores_1 = get_valores_por_mes(ficha_ano_1, mes_1, mes_2)
+                valores_2 = get_valores_por_mes(ficha_ano_2, mes_1, mes_2)
+
+                valores_1_tot = sum(valores_1)
+                valores_2_tot = sum(valores_2)
+
+                # Configurações do gráfico
+                plt.figure(figsize=(20, 6)) 
+                x = np.arange(len(valores_1))
+                largura = 0.40
+
+                # Gráfico de barras
+                bars1 = plt.bar(x - largura / 2, valores_1, width=largura, color='#3c94e5', label=str(ano_1))
+                bars2 = plt.bar(x + largura / 2, valores_2, width=largura, color='#faa460', label=str(ano_2))
+
+                # Remover valores do eixo y, lado esquerdo externo do gráfico
+                plt.yticks([]) 
+
+                # Função para formatar valores que vão em cima das barras
+                def formatar_valor(valor):
+                    valor = float(valor)
+                    valor = f'{valor:.0f}' 
+                    valor = int(valor)
+
+                    if valor >= 1_000_000:
+                        valor = f'{valor // 1_000_000},{(valor % 1_000_000) // 100_000}M'
+                    elif valor >= 1_000:
+                        valor = f'{valor // 1_000},{(valor % 1_000) // 100}K'
+                    else:
+                        valor = str(valor)
+
+                    return valor
+
+                # Colocando os valores na parte superior das barras, mas dentro
+                for bar in bars1:
+                    plt.text(
+                        bar.get_x() + bar.get_width() / 2,  # Posição x centralizada
+                        bar.get_height() - 5,                # Posição y um pouco abaixo do topo da barra
+                        formatar_valor(bar.get_height()),     # Valor formatado
+                        ha='center', va='bottom',              # Alinhamento central e na parte inferior do texto
+                        fontsize=10, color='black', rotation=0  # Cor do texto e tamanho da fonte
+                    )
+
+                for bar in bars2:
+                    plt.text(
+                        bar.get_x() + bar.get_width() / 2,
+                        bar.get_height() - 5,                # Posição y um pouco abaixo do topo da barra
+                        formatar_valor(bar.get_height()),
+                        ha='center', va='bottom',              # Alinhamento central e na parte inferior do texto
+                        fontsize=10, color='black', rotation=0  # Cor do texto e tamanho da fonte
+                    )
+
+                # Rótulos e legenda
+                # plt.ylabel('Valores')
+                # plt.xlabel('Valor em R$', fontsize=15)
+
+                # Rótulos de meses e conversão explícita de strings
+                meses_lista = ['janeiro', 'fevereiro', 'marco', 'abril', 'maio', 'junho', 'julho', 'agosto', 'setembro', 'outubro', 'novembro', 'dezembro']
+                lista_footer_grafico = meses_lista[meses_lista.index(mes_1):meses_lista.index(mes_2) + 1]
+                lista_footer_grafico = [mes[:3].title() for mes in lista_footer_grafico]
+
+                # plt.xticks(x, [mes[:3].title() for mes in meses_lista], fontsize=10) # Configuração da legenda de meses na parte inferior do gráfico.
+                plt.xticks(x, lista_footer_grafico, fontsize=10) # Configuração da legenda de meses na parte inferior do gráfico.
+                plt.legend()
+
+                # Salvar o gráfico em um arquivo temporário
+                temp_image = tempfile.NamedTemporaryFile(delete=False, suffix='.png')
+                plt.savefig(temp_image.name, format='png')
+                plt.close()
+
+                # Adicionar o gráfico ao PDF
+                pdf.image(temp_image.name, x=-31, y=12, w=350)
+
+                # Adicionar o brasão do município ao PDF
+                try:
+                    pdf.image('static/img/camapua.png', x=10, y=1, w=25, h=22)
+                except:
+                    pdf.image('static/img/brasao.png', x=10, y=1, w=25, h=22)
+                    
+                # Limpar o arquivo temporário de imagem
+                temp_image.close()
+                os.remove(temp_image.name)
+
+                # RETÂNGULO PARA PREENCHIMENTO DE FUNDO HEADER
+                largura = 220  
+                altura = 19 
+                eixo_x = 38 
+                eixo_y = 3  
+                pdf.set_xy(eixo_x, eixo_y) # Define a posição de acordo com eixo x e y
+                pdf.set_font("Arial", style='B', size=15)
+                pdf.set_fill_color(18,161,215)  # Valores de cor RGB, cor de fundo
+                pdf.cell(largura, altura, ln=True, align='C', fill=True)
+
+                # TEXTO ->  MUNICÍPIO
+                eixo_x = 20  
+                eixo_y = 7
+                pdf.set_xy(eixo_x, eixo_y)
+                pdf.set_font("Arial", style='B', size=12)
+                pdf.set_fill_color(200, 200, 200)  # Valores de cor RGB, cor de fundo
+                pdf.set_text_color(255,255,255)
+                pdf.cell(0, 0, txt=f"MUNICÍPIO DE {municipio.nome.upper()}", ln=True, align='C')
+
+                # TEXTO ->  FIXO
+                eixo_x = 20  
+                eixo_y = 13
+                pdf.set_xy(eixo_x, eixo_y)
+                pdf.set_font("Arial", style='B', size=12)
+                pdf.set_fill_color(200, 200, 200)  # Valores de cor RGB, cor de fundo
+                pdf.set_text_color(255,255,255)
+                pdf.cell(0, 0, txt="ARRECADAÇÃO MENSAL DE TRIBUTOS", ln=True, align='C')
+
+                # TEXTO -> RECEITA
+                eixo_x = 20  
+                eixo_y = 19
+                pdf.set_xy(eixo_x, eixo_y)
+                pdf.set_font("Arial", style='B', size=12)
+                pdf.set_fill_color(200, 200, 200)  # Valores de cor RGB, cor de fundo
+                pdf.set_text_color(255,255,255)
+                pdf.cell(0, 0, txt=str(receita.nome) if receita else "N/A", ln=True, align='C')
+
+                pdf.image('static/img/aeg5.png', x=260, y=1, w=25, h=22)
+
+                # CABEÇALHO -> TABELA DE VALORES
+                eixo_x = 13
+                eixo_y = 112
+                pdf.set_xy(eixo_x, eixo_y)
+                pdf.set_font('Arial', 'B', size=7) 
+                pdf.set_line_width(0.1) 
+                pdf.set_fill_color(18,161,215)
+                pdf.cell(77 * 0.7, 4, 'MÊS', 1, align='C', fill=True) 
+                pdf.cell(78 * 0.7, 4, ano_1.nome, 1, align='C', fill=True) 
+                pdf.cell(78 * 0.7, 4, ano_2.nome, 1, align='C', fill=True) 
+                pdf.cell(78 * 0.7, 4, 'INCREMENTO R$', 1, align='C', fill=True) 
+                pdf.cell(77 * 0.7, 4, 'INCREMENTO %', 1, align='C', fill=True) 
+            
+                incremento_real_tot = 0
+                incremento_porc_tot = 0
+
+                linha_list = []
+                cont = 0
+                for valor in valores_1: # Poderia ser valores_2, tanto faz, pois as duas listas possuem 12 valores, se o usuário não informar o valor, por padrão será zero.
+                    incremento_real = valores_2[cont] - valores_1[cont]
+
+                    if incremento_real >= 1: # Se o incremento for positivo, quer dizer que os dois valores são maior que zero.
+                        incremento_real_tot += incremento_real
+                        incremento_porc = (((incremento_real / valores_1[cont]) * 100))
+                        incremento_porc_tot += incremento_porc
+                        incremento_porc = f'{incremento_porc:.1f} %'.replace('.', ',')
+                    else:
+                        incremento_porc = '-'
+
+                    val_ano_1 = f'R$ {valores_1[cont]:,.2f}'.replace(',', 'X').replace('.', ',').replace('X', '.')
+                    val_ano_2 = f'R$ {valores_2[cont]:,.2f}'.replace(',', 'X').replace('.', ',').replace('X', '.')
+
+
+                    incremento_real = f'R$ {incremento_real:,.2f}'.replace(',', 'X').replace('.', ',').replace('X', '.')
+
+                    linha = {
+                        'mes': meses_lista[cont].title(),
+                        'val_ano_1': val_ano_1,
+                        'val_ano_2': val_ano_2, 
+                        'incremento_real': incremento_real, 
+                        'incremento_porc': incremento_porc
+                    }
+
+                    linha_list.append(linha)
+                    cont += 1
+
+                eixo_x = 13
+                eixo_y = 116
+                for linha in linha_list:
+                    pdf.set_xy(eixo_x, eixo_y)
+                    pdf.set_font('Arial', size=8) 
+                    pdf.set_text_color(0, 0, 0)
+                    pdf.cell(77 * 0.7, 4, linha['mes'], 1, align='C')
+                    pdf.cell(78 * 0.7, 4,  linha['val_ano_1'], 1, align='C')
+                    pdf.cell(78 * 0.7, 4, linha['val_ano_2'], 1, align='C')
+                    pdf.cell(78 * 0.7, 4, linha['incremento_real'], 1, align='C')
+                    pdf.cell(77 * 0.7, 4, linha['incremento_porc'], 1, align='C')
+                    eixo_y += 4 # Adiciono 4 a cada linha, para que as linhas não fiquem uma em cima da outra.
+
+                valores_1_tot = f'R$ {valores_1_tot:,.2f}'.replace(',', 'X').replace('.', ',').replace('X', '.')
+                valores_2_tot = f'R$ {valores_2_tot:,.2f}'.replace(',', 'X').replace('.', ',').replace('X', '.')
+                incremento_real_tot = f'R$ {incremento_real_tot:,.2f}'.replace(',', 'X').replace('.', ',').replace('X', '.')
+                incremento_porc_tot = f'{incremento_porc_tot:.1f} %'.replace('.', ',')
+
+                eixo_x = 13
+                eixo_y = eixo_y # Começa do eixo_y da linha de valores à cima
+                pdf.set_xy(eixo_x, eixo_y)
+                pdf.set_font('Arial', size=8) 
+                pdf.set_text_color(0, 0, 0) 
+                pdf.cell(77 * 0.7, 4, '', align='C') # Remover o ,1 para retirar as linhas da tabela e deixar somente o valor
+                pdf.cell(78 * 0.7, 4,  valores_1_tot, align='C')
+                pdf.cell(78 * 0.7, 4, valores_2_tot, align='C')
+                pdf.cell(78 * 0.7, 4, incremento_real_tot, align='C')
+                pdf.cell(77 * 0.7, 4, incremento_porc_tot, align='C')
+                pdf.ln(7)
+
+                # Definir coordenadas e dimensões da borda
+                x = 122  # Posição x inicial
+                y = pdf.get_y()  # Posição y atual
+                width = 77 * 0.7  # Largura total das células
+                height = 4 * 2  # Altura total das células (duas linhas de altura 4)
+                # Desenhar borda ao redor das células
+                pdf.rect(x, y, width, height)
+                pdf.set_x(122)
+                pdf.cell(77 * 0.7, 4, 'PERÍODO DE COMPARAÇÃO', align='C', ln=True)
+                pdf.set_x(122)
+                pdf.cell(77 * 0.7, 4, f'{mes_1[:3].upper()} - {mes_2[:3].upper()} DE {ano_1.nome} A {ano_2.nome}', align='C', ln=True)
+
+                # RETÂNGULO PARA PREENCHIMENTO DE FUNDO FOOTER
+                largura = 272 
+                altura = 8
+                eixo_x = 13 
+                eixo_y = 181
+                pdf.set_xy(eixo_x, eixo_y) # Define a posição de acordo com eixo x e y
+                pdf.set_font("Arial", style='B', size=15)
+                pdf.set_fill_color(18,161,215)  # Valores de cor RGB, cor de fundo
+                pdf.cell(largura, altura, ln=True, align='C', fill=True)
+
+                eixo_x = 121
+                eixo_y = 183
+                pdf.set_xy(eixo_x, eixo_y)
+                pdf.set_font('Arial', style='B', size=10) 
+                pdf.set_text_color(255, 255, 255) 
+                pdf.cell(77 * 0.7, 4, 'AEG - ASSESSORAMENTO E CONSULTORIA TRIBUTÁRIA LTDA | RUA 14 DE JULHO, 4576 | CAMPO GRANDE - MS | AEGCONSULTORIA@ISSQN.NET', align='C')
+
                 # Criar arquivo temporário para o PDF
                 temp_file = tempfile.NamedTemporaryFile(delete=False, suffix='.pdf')
                 pdf.output(temp_file.name)  
@@ -302,270 +564,23 @@ class GerarRelatorioGrafico(LoginRequiredMixin, View):
                 response['Content-Disposition'] = 'inline; filename="grafico.pdf"'
                 return response
 
-               
+            elif modelo_id == '2':
+                print(anos_filtrados)
+                pdf = FPDF()
+                pdf.add_page(orientation='L')
 
+                # Criar arquivo temporário para o PDF
+                temp_file = tempfile.NamedTemporaryFile(delete=False, suffix='.pdf')
+                pdf.output(temp_file.name)  
+                temp_file.close()
 
-        # Função para obter valores filtrados por meses
-        def get_valores_por_mes(ficha):
-            if not ficha:
-                return [0] * 12
-            try:
-                valor_mes = ValorMes.objects.get(ficha_id=ficha.id)
-                valores = [
-                    valor_mes.janeiro, valor_mes.fevereiro, valor_mes.marco, valor_mes.abril,
-                    valor_mes.maio, valor_mes.junho, valor_mes.julho, valor_mes.agosto,
-                    valor_mes.setembro, valor_mes.outubro, valor_mes.novembro, valor_mes.dezembro
-                ]
-                # Filtrar meses entre mes_1 e mes_2
-                meses_lista = ['janeiro', 'fevereiro', 'marco', 'abril', 'maio', 'junho',
-                               'julho', 'agosto', 'setembro', 'outubro', 'novembro', 'dezembro']
-                indice_inicio = meses_lista.index(mes_1)
-                indice_fim = meses_lista.index(mes_2) + 1
-                return valores[indice_inicio:indice_fim]
-            
-            except ValorMes.DoesNotExist:
-                return [0] * 12
+                # Retornar o PDF como resposta HTTP
+                with open(temp_file.name, 'rb') as file:
+                    pdf_content = file.read()
+                os.unlink(temp_file.name)
 
-        # Obter fichas e valores para os dois anos
-        ficha_ano_1 = Ficha.objects.filter(municipio_id=municipio_id, receita_id=receita_id, ano_id=ano_1_id).first()
-        ficha_ano_2 = Ficha.objects.filter(municipio_id=municipio_id, receita_id=receita_id, ano_id=ano_2_id).first()
-        valores_1 = get_valores_por_mes(ficha_ano_1)
-        valores_2 = get_valores_por_mes(ficha_ano_2)
-
-        valores_1_tot = sum(valores_1)
-        valores_2_tot = sum(valores_2)
-
-        # Configurações do gráfico
-        plt.figure(figsize=(20, 6)) 
-        x = np.arange(len(valores_1))
-        largura = 0.40
-
-        # Gráfico de barras
-        bars1 = plt.bar(x - largura / 2, valores_1, width=largura, color='#3c94e5', label=str(ano_1))
-        bars2 = plt.bar(x + largura / 2, valores_2, width=largura, color='#faa460', label=str(ano_2))
-
-        # Remover valores do eixo y, lado esquerdo externo do gráfico
-        plt.yticks([]) 
-
-        # Função para formatar valores que vão em cima das barras
-        def formatar_valor(valor):
-            valor = float(valor)
-            valor = f'{valor:.0f}' 
-            valor = int(valor)
-
-            if valor >= 1_000_000:
-                valor = f'{valor // 1_000_000},{(valor % 1_000_000) // 100_000}M'
-            elif valor >= 1_000:
-                valor = f'{valor // 1_000},{(valor % 1_000) // 100}K'
-            else:
-                valor = str(valor)
-
-            return valor
-
-        # Colocando os valores na parte superior das barras, mas dentro
-        for bar in bars1:
-            plt.text(
-                bar.get_x() + bar.get_width() / 2,  # Posição x centralizada
-                bar.get_height() - 5,                # Posição y um pouco abaixo do topo da barra
-                formatar_valor(bar.get_height()),     # Valor formatado
-                ha='center', va='bottom',              # Alinhamento central e na parte inferior do texto
-                fontsize=10, color='black', rotation=0  # Cor do texto e tamanho da fonte
-            )
-
-        for bar in bars2:
-            plt.text(
-                bar.get_x() + bar.get_width() / 2,
-                bar.get_height() - 5,                # Posição y um pouco abaixo do topo da barra
-                formatar_valor(bar.get_height()),
-                ha='center', va='bottom',              # Alinhamento central e na parte inferior do texto
-                fontsize=10, color='black', rotation=0  # Cor do texto e tamanho da fonte
-            )
-
-        # Rótulos e legenda
-        # plt.ylabel('Valores')
-        # plt.xlabel('Valor em R$', fontsize=15)
-
-        # Rótulos de meses e conversão explícita de strings
-        meses_lista = ['janeiro', 'fevereiro', 'marco', 'abril', 'maio', 'junho', 'julho', 'agosto', 'setembro', 'outubro', 'novembro', 'dezembro']
-        lista_footer_grafico = meses_lista[meses_lista.index(mes_1):meses_lista.index(mes_2) + 1]
-        lista_footer_grafico = [mes[:3].title() for mes in lista_footer_grafico]
-
-        # plt.xticks(x, [mes[:3].title() for mes in meses_lista], fontsize=10) # Configuração da legenda de meses na parte inferior do gráfico.
-        plt.xticks(x, lista_footer_grafico, fontsize=10) # Configuração da legenda de meses na parte inferior do gráfico.
-        plt.legend()
-
-        # Salvar o gráfico em um arquivo temporário
-        temp_image = tempfile.NamedTemporaryFile(delete=False, suffix='.png')
-        plt.savefig(temp_image.name, format='png')
-        plt.close()
-
-        # Adicionar o gráfico ao PDF
-        pdf.image(temp_image.name, x=-31, y=12, w=350)
-
-        # Adicionar o brasão do município ao PDF
-        try:
-            pdf.image('static/img/camapua.png', x=10, y=1, w=25, h=22)
-        except:
-            pdf.image('static/img/brasao.png', x=10, y=1, w=25, h=22)
-            
-        # Limpar o arquivo temporário de imagem
-        temp_image.close()
-        os.remove(temp_image.name)
-
-        # RETÂNGULO PARA PREENCHIMENTO DE FUNDO HEADER
-        largura = 220  
-        altura = 19 
-        eixo_x = 38 
-        eixo_y = 3  
-        pdf.set_xy(eixo_x, eixo_y) # Define a posição de acordo com eixo x e y
-        pdf.set_font("Arial", style='B', size=15)
-        pdf.set_fill_color(18,161,215)  # Valores de cor RGB, cor de fundo
-        pdf.cell(largura, altura, ln=True, align='C', fill=True)
-
-        # TEXTO ->  MUNICÍPIO
-        eixo_x = 20  
-        eixo_y = 7
-        pdf.set_xy(eixo_x, eixo_y)
-        pdf.set_font("Arial", style='B', size=12)
-        pdf.set_fill_color(200, 200, 200)  # Valores de cor RGB, cor de fundo
-        pdf.set_text_color(255,255,255)
-        pdf.cell(0, 0, txt=f"MUNICÍPIO DE {municipio.nome.upper()}", ln=True, align='C')
-
-        # TEXTO ->  FIXO
-        eixo_x = 20  
-        eixo_y = 13
-        pdf.set_xy(eixo_x, eixo_y)
-        pdf.set_font("Arial", style='B', size=12)
-        pdf.set_fill_color(200, 200, 200)  # Valores de cor RGB, cor de fundo
-        pdf.set_text_color(255,255,255)
-        pdf.cell(0, 0, txt="ARRECADAÇÃO MENSAL DE TRIBUTOS", ln=True, align='C')
-
-        # TEXTO -> RECEITA
-        eixo_x = 20  
-        eixo_y = 19
-        pdf.set_xy(eixo_x, eixo_y)
-        pdf.set_font("Arial", style='B', size=12)
-        pdf.set_fill_color(200, 200, 200)  # Valores de cor RGB, cor de fundo
-        pdf.set_text_color(255,255,255)
-        pdf.cell(0, 0, txt=str(receita.nome) if receita else "N/A", ln=True, align='C')
-
-        pdf.image('static/img/aeg5.png', x=260, y=1, w=25, h=22)
-
-        # CABEÇALHO -> TABELA DE VALORES
-        eixo_x = 13
-        eixo_y = 112
-        pdf.set_xy(eixo_x, eixo_y)
-        pdf.set_font('Arial', 'B', size=7) 
-        pdf.set_line_width(0.1) 
-        pdf.set_fill_color(18,161,215)
-        pdf.cell(77 * 0.7, 4, 'MÊS', 1, align='C', fill=True) 
-        pdf.cell(78 * 0.7, 4, ano_1.nome, 1, align='C', fill=True) 
-        pdf.cell(78 * 0.7, 4, ano_2.nome, 1, align='C', fill=True) 
-        pdf.cell(78 * 0.7, 4, 'INCREMENTO R$', 1, align='C', fill=True) 
-        pdf.cell(77 * 0.7, 4, 'INCREMENTO %', 1, align='C', fill=True) 
-    
-        incremento_real_tot = 0
-        incremento_porc_tot = 0
-
-        linha_list = []
-        cont = 0
-        for valor in valores_1: # Poderia ser valores_2, tanto faz, pois as duas listas possuem 12 valores, se o usuário não informar o valor, por padrão será zero.
-            incremento_real = valores_2[cont] - valores_1[cont]
-
-            if incremento_real >= 1: # Se o incremento for positivo, quer dizer que os dois valores são maior que zero.
-                incremento_real_tot += incremento_real
-                incremento_porc = (((incremento_real / valores_1[cont]) * 100))
-                incremento_porc_tot += incremento_porc
-                incremento_porc = f'{incremento_porc:.1f} %'.replace('.', ',')
-            else:
-                incremento_porc = '-'
-
-            val_ano_1 = f'R$ {valores_1[cont]:,.2f}'.replace(',', 'X').replace('.', ',').replace('X', '.')
-            val_ano_2 = f'R$ {valores_2[cont]:,.2f}'.replace(',', 'X').replace('.', ',').replace('X', '.')
-
-
-            incremento_real = f'R$ {incremento_real:,.2f}'.replace(',', 'X').replace('.', ',').replace('X', '.')
-
-            linha = {
-                'mes': meses_lista[cont].title(),
-                'val_ano_1': val_ano_1,
-                'val_ano_2': val_ano_2, 
-                'incremento_real': incremento_real, 
-                'incremento_porc': incremento_porc
-            }
-
-            linha_list.append(linha)
-            cont += 1
-
-        eixo_x = 13
-        eixo_y = 116
-        for linha in linha_list:
-            pdf.set_xy(eixo_x, eixo_y)
-            pdf.set_font('Arial', size=8) 
-            pdf.set_text_color(0, 0, 0)
-            pdf.cell(77 * 0.7, 4, linha['mes'], 1, align='C')
-            pdf.cell(78 * 0.7, 4,  linha['val_ano_1'], 1, align='C')
-            pdf.cell(78 * 0.7, 4, linha['val_ano_2'], 1, align='C')
-            pdf.cell(78 * 0.7, 4, linha['incremento_real'], 1, align='C')
-            pdf.cell(77 * 0.7, 4, linha['incremento_porc'], 1, align='C')
-            eixo_y += 4 # Adiciono 4 a cada linha, para que as linhas não fiquem uma em cima da outra.
-
-        valores_1_tot = f'R$ {valores_1_tot:,.2f}'.replace(',', 'X').replace('.', ',').replace('X', '.')
-        valores_2_tot = f'R$ {valores_2_tot:,.2f}'.replace(',', 'X').replace('.', ',').replace('X', '.')
-        incremento_real_tot = f'R$ {incremento_real_tot:,.2f}'.replace(',', 'X').replace('.', ',').replace('X', '.')
-        incremento_porc_tot = f'{incremento_porc_tot:.1f} %'.replace('.', ',')
-
-        eixo_x = 13
-        eixo_y = eixo_y # Começa do eixo_y da linha de valores à cima
-        pdf.set_xy(eixo_x, eixo_y)
-        pdf.set_font('Arial', size=8) 
-        pdf.set_text_color(0, 0, 0) 
-        pdf.cell(77 * 0.7, 4, '', align='C') # Remover o ,1 para retirar as linhas da tabela e deixar somente o valor
-        pdf.cell(78 * 0.7, 4,  valores_1_tot, align='C')
-        pdf.cell(78 * 0.7, 4, valores_2_tot, align='C')
-        pdf.cell(78 * 0.7, 4, incremento_real_tot, align='C')
-        pdf.cell(77 * 0.7, 4, incremento_porc_tot, align='C')
-        pdf.ln(7)
-
-        # Definir coordenadas e dimensões da borda
-        x = 122  # Posição x inicial
-        y = pdf.get_y()  # Posição y atual
-        width = 77 * 0.7  # Largura total das células
-        height = 4 * 2  # Altura total das células (duas linhas de altura 4)
-        # Desenhar borda ao redor das células
-        pdf.rect(x, y, width, height)
-        pdf.set_x(122)
-        pdf.cell(77 * 0.7, 4, 'PERÍODO DE COMPARAÇÃO', align='C', ln=True)
-        pdf.set_x(122)
-        pdf.cell(77 * 0.7, 4, f'{mes_1[:3].upper()} - {mes_2[:3].upper()} DE {ano_1.nome} A {ano_2.nome}', align='C', ln=True)
-
-        # RETÂNGULO PARA PREENCHIMENTO DE FUNDO FOOTER
-        largura = 272 
-        altura = 8
-        eixo_x = 13 
-        eixo_y = 181
-        pdf.set_xy(eixo_x, eixo_y) # Define a posição de acordo com eixo x e y
-        pdf.set_font("Arial", style='B', size=15)
-        pdf.set_fill_color(18,161,215)  # Valores de cor RGB, cor de fundo
-        pdf.cell(largura, altura, ln=True, align='C', fill=True)
-
-        eixo_x = 121
-        eixo_y = 183
-        pdf.set_xy(eixo_x, eixo_y)
-        pdf.set_font('Arial', style='B', size=10) 
-        pdf.set_text_color(255, 255, 255) 
-        pdf.cell(77 * 0.7, 4, 'AEG - ASSESSORAMENTO E CONSULTORIA TRIBUTÁRIA LTDA | RUA 14 DE JULHO, 4576 | CAMPO GRANDE - MS | AEGCONSULTORIA@ISSQN.NET', align='C')
-
-        # Criar arquivo temporário para o PDF
-        temp_file = tempfile.NamedTemporaryFile(delete=False, suffix='.pdf')
-        pdf.output(temp_file.name)  
-        temp_file.close()
-
-        # Retornar o PDF como resposta HTTP
-        with open(temp_file.name, 'rb') as file:
-            pdf_content = file.read()
-        os.unlink(temp_file.name)
-
-        response = HttpResponse(pdf_content, content_type='application/pdf')
-        response['Content-Disposition'] = 'inline; filename="grafico.pdf"'
-        return response
+                response = HttpResponse(pdf_content, content_type='application/pdf')
+                response['Content-Disposition'] = 'inline; filename="grafico.pdf"'
+                return response
+        except Exception as e:
+            print(f'GerarRelatorioGrafico -> {e}')

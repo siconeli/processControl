@@ -36,7 +36,6 @@
                         <br>
                         <div class="row" style="margin: 0cm;">
                             <form method="get" action="{% url 'relatorio-grafico' %}" target="_blank">
-
                                 <div>
                                     <label for="modelo">Modelo</label>
                                     <select name="modelo" id="modelo">
@@ -135,31 +134,39 @@
 {% endblock %}
 
 {% block scripts %}
+    <!-- Modelo Mensal (1): A diferença entre os anos deve ser exatamente 1, e o ano inicial não pode ser menor que o ano final. -->
+    <!-- Modelo Anual (2): O botão será habilitado para qualquer intervalo de anos, desde que o ano inicial não seja menor que o ano final. -->
     <script>
         // Função para verificar as condições dos anos selecionados
         function checkYearDifference() {
             const ano1 = parseInt(document.getElementById('ano_1').value);
             const ano2 = parseInt(document.getElementById('ano_2').value);
+            const modelo = document.getElementById('modelo').value;
             const button = document.getElementById('btnGerarRelatorio');
-
+    
             if (!isNaN(ano1) && !isNaN(ano2)) {
-                // Verifica se a diferença entre os anos é exatamente 1 e se o ano final não é menor que o inicial
-                if (ano2 === ano1 + 1) {
-                    button.disabled = false; // Habilita o botão se a diferença for exatamente 1
-                } else {
-                    button.disabled = true; // Desabilita o botão se a condição não for atendida
+                const diff = ano2 - ano1;
+    
+                if (modelo === "1") {
+                    // Modelo Mensal: habilita se a diferença entre os anos for exatamente 1
+                    button.disabled = !(diff === 1 && ano1 < ano2);
+                } else if (modelo === "2") {
+                    // Modelo Anual: permite qualquer intervalo onde ano1 seja menor que ano2
+                    button.disabled = !(ano1 < ano2);
                 }
             } else {
                 // Desativa o botão se algum dos anos não estiver selecionado
                 button.disabled = true;
             }
         }
-
-        // Adiciona os eventos de mudança nos selects
+    
+        // Adiciona os eventos de mudança nos selects de anos e modelo
         document.getElementById('ano_1').addEventListener('change', checkYearDifference);
         document.getElementById('ano_2').addEventListener('change', checkYearDifference);
+        document.getElementById('modelo').addEventListener('change', checkYearDifference);
     </script>
-
+    
+    <!-- Impede o usuário de selecionar um mês inicial menor que o mês final -->
     <script>
         // Mapeamento dos meses para valores numéricos (1 para Janeiro, 2 para Fevereiro, etc.)
         const mesMap = {
@@ -176,29 +183,26 @@
             "novembro": 11,
             "dezembro": 12
         };
-
+    
         // Função para verificar se o mês inicial não é menor que o mês final
         function checkMonthDifference() {
             const mes1 = document.getElementById('mes_1').value;
             const mes2 = document.getElementById('mes_2').value;
             const button = document.getElementById('btnGerarRelatorio');
-
+    
             // Converte os meses para números usando o mapa
             const mes1Num = mesMap[mes1];
             const mes2Num = mesMap[mes2];
-
+    
             // Verifica se o mês inicial é menor que o mês final
-            if (mes1Num > mes2Num) {
-                button.disabled = true; // Desabilita o botão se o mês inicial for maior
-            } else {
-                button.disabled = false; // Habilita o botão se a condição for válida
-            }
+            button.disabled = mes1Num > mes2Num;
         }
-
+    
         // Adiciona os eventos de mudança nos selects dos meses
         document.getElementById('mes_1').addEventListener('change', checkMonthDifference);
         document.getElementById('mes_2').addEventListener('change', checkMonthDifference);
     </script>
+    
 {% endblock %}
 
 
