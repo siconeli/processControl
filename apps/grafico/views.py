@@ -297,7 +297,7 @@ class GerarRelatorioGrafico(LoginRequiredMixin, View):
                 ano_1 = ano_2 = None
             
             anos_filtrados = Ano.objects.filter(nome__range=(ano_1, ano_2))
-            
+
             if modelo_id == '1': # MODELO MENSAL
                 # Gerar relatório vazio se a diferença de ano selecionado for maior que 1
                 if ano_1 and ano_2 is not None:
@@ -565,7 +565,8 @@ class GerarRelatorioGrafico(LoginRequiredMixin, View):
                 return response
 
             elif modelo_id == '2':
-                print(anos_filtrados)
+
+
                 pdf = FPDF()
                 pdf.add_page(orientation='L')
 
