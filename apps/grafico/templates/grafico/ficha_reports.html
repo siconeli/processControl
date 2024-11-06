@@ -22,6 +22,13 @@
             <br>
             <div class="row">
                 <div class="col">
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="alert {% if message.tags %}alert-{{ message.tags }}{% endif %}">
+                                {{ message }}
+                            </div>
+                        {% endfor %}
+                    {% endif %}
                     <div class="card" style="width: 500px; margin: 0 auto;">
                         <div class="card-header text-white" style="background-color: #5c5c5c;">
                             <h4 style="text-align: center;">Relatório de gráficos - Mensal</h4>
@@ -150,6 +157,31 @@
             filtro_rel_1.addEventListener("change", verificarFiltro1);
             filtro_rel_2.addEventListener("change", verificarFiltro2);
         });
+    </script>
+
+    <script>
+        // Função para verificar as condições dos anos selecionados
+        function checkYearDifference() {
+            const ano1 = parseInt(document.getElementById('ano_1').value);
+            const ano2 = parseInt(document.getElementById('ano_2').value);
+            const button = document.getElementById('btnGerarRelatorio2');
+
+            if (!isNaN(ano1) && !isNaN(ano2)) {
+                // Verifica se a diferença entre os anos é exatamente 1 e se o ano final não é menor que o inicial
+                if (ano2 === ano1 + 1) {
+                    button.disabled = false; // Habilita o botão se a diferença for exatamente 1
+                } else {
+                    button.disabled = true; // Desabilita o botão se a condição não for atendida
+                }
+            } else {
+                // Desativa o botão se algum dos anos não estiver selecionado
+                button.disabled = true;
+            }
+        }
+
+        // Adiciona os eventos de mudança nos selects
+        document.getElementById('ano_1').addEventListener('change', checkYearDifference);
+        document.getElementById('ano_2').addEventListener('change', checkYearDifference);
     </script>
 {% endblock %}
 

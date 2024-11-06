@@ -248,7 +248,7 @@ class Relatorios(LoginRequiredMixin, TemplateView):
         context = super().get_context_data(**kwargs)
         context['municipios'] = Municipio.objects.filter(tipo_contrato='Assessoria', ativo=True).order_by('nome')
         context['receitas'] = Receita.objects.all()
-        context['anos'] = Ano.objects.all()
+        context['anos'] = Ano.objects.all().order_by('nome')
         return context
 
 class GerarRelatorioGrafico(LoginRequiredMixin, View):
@@ -264,6 +264,10 @@ class GerarRelatorioGrafico(LoginRequiredMixin, View):
         mes_1 = request.GET.get('mes_1')
         mes_2 = request.GET.get('mes_2')
 
+        # if modelo_id == 1:
+
+        # elif modelo_id == 2:
+
         try:
             receita = Receita.objects.get(id=receita_id)
             ano_1 = Ano.objects.get(id=ano_1_id)
@@ -273,6 +277,33 @@ class GerarRelatorioGrafico(LoginRequiredMixin, View):
             receita = None
         except Ano.DoesNotExist:
             ano_1 = ano_2 = None
+
+        anos_filtrados = Ano.objects.filter(nome__range=(ano_1, ano_2))
+
+        # for ano in anos_filtrados:
+        
+        # Gerar relatório vazio se a diferença de ano selecionado por maior que 1
+        if ano_1 and ano_2 is not None:
+            ano_1_int = int(ano_1.nome)
+            ano_2_int = int(ano_2.nome)
+
+            if ano_2_int - ano_1_int != 1:
+                # Criar arquivo temporário para o PDF
+                temp_file = tempfile.NamedTemporaryFile(delete=False, suffix='.pdf')
+                pdf.output(temp_file.name)  
+                temp_file.close()
+
+                # Retornar o PDF como resposta HTTP
+                with open(temp_file.name, 'rb') as file:
+                    pdf_content = file.read()
+                os.unlink(temp_file.name)
+
+                response = HttpResponse(pdf_content, content_type='application/pdf')
+                response['Content-Disposition'] = 'inline; filename="grafico.pdf"'
+                return response
+
+               
+
 
         # Função para obter valores filtrados por meses
         def get_valores_por_mes(ficha):
@@ -308,8 +339,6 @@ class GerarRelatorioGrafico(LoginRequiredMixin, View):
         plt.figure(figsize=(20, 6)) 
         x = np.arange(len(valores_1))
         largura = 0.40
-
-        
 
         # Gráfico de barras
         bars1 = plt.bar(x - largura / 2, valores_1, width=largura, color='#3c94e5', label=str(ano_1))
