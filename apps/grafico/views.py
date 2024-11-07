@@ -568,9 +568,6 @@ class GerarRelatorioGrafico(LoginRequiredMixin, View):
                 pdf = FPDF()
                 pdf.add_page(orientation='L')
 
-                # eixo_x = 13
-                # eixo_y = 116
-                # pdf.set_xy(eixo_x, eixo_y)
                 pdf.set_font('Arial', size=8) 
                 pdf.set_text_color(0, 0, 0)
                 pdf.cell(77 * 0.7, 4, 'ANO', 1, align='C')
@@ -578,32 +575,57 @@ class GerarRelatorioGrafico(LoginRequiredMixin, View):
                 pdf.cell(78 * 0.7, 4, 'INCREMENTO R$', 1, align='C')
                 pdf.cell(78 * 0.7, 4, 'INCREMENTO %', 1, align='C', ln=True)
 
+
                 tot_ano_anterior = 0
+                tot_soma_anos = 0
+                incremento_real_tot = 0
+                incremento_porc_tot = 0
                 for ano in anos_filtrados:
                     try:
                         ficha = Ficha.objects.get(municipio_id=municipio_id, receita_id=receita_id, ano_id=ano.id)
                         valores = get_valores_por_mes(ficha.id, mes_1, mes_2)
                         tot_ano = sum(valores)
+                        tot_soma_anos += tot_ano
                         incremento_real = tot_ano - tot_ano_anterior
+
+                        if incremento_real != tot_ano and incremento_real > 0:
+                            incremento_real_tot += incremento_real
+
                     except:
                         tot_ano = 0
                         incremento_real = 0
-                    
 
                     if tot_ano_anterior != 0 and tot_ano != 0:
                         incremento_porc = (incremento_real/tot_ano_anterior) * 100
+                        if incremento_porc > 0:
+                            incremento_porc_tot += incremento_porc
+                        incremento_porc_str = f'{incremento_porc:.1f} %'.replace('.', ',')
                     else:
-                        incremento_porc = ''
+                        incremento_porc_str = ''
                     
-                    if incremento_real == tot_ano:
-                        incremento_real = ''
-
                     tot_ano_anterior = tot_ano
 
+                    tot_ano_str = f'R$  {tot_ano:,.2f}'.replace(',', 'X').replace('.', ',').replace('X', '.')
+                    incremento_real_str = f'R$  {incremento_real:,.2f}'.replace(',', 'X').replace('.', ',').replace('X', '.')
+
+                    if incremento_real == tot_ano:
+                        incremento_real_str = ''
+
                     pdf.cell(77 * 0.7, 4, ano.nome, 1, align='C')
-                    pdf.cell(78 * 0.7, 4,  str(tot_ano), 1, align='C')
-                    pdf.cell(78 * 0.7, 4, str(incremento_real), 1, align='C')
-                    pdf.cell(78 * 0.7, 4, str(incremento_porc), 1, align='C', ln=True)
+                    pdf.cell(78 * 0.7, 4,  tot_ano_str, 1, align='C')
+                    pdf.cell(78 * 0.7, 4, incremento_real_str, 1, align='C')
+                    pdf.cell(78 * 0.7, 4, incremento_porc_str, 1, align='C', ln=True)
+
+                tot_soma_anos_str = f'R$  {tot_soma_anos:,.2f}'.replace(',', 'X').replace('.', ',').replace('X', '.')
+                incremento_real_tot_str = f'R$  {incremento_real_tot:,.2f}'.replace(',', 'X').replace('.', ',').replace('X', '.')
+                incremento_porc_tot_str = f'{incremento_porc_tot:.1f} %'.replace('.', ',')
+            
+                pdf.cell(77 * 0.7, 4, '', align='C')
+                pdf.cell(78 * 0.7, 4,  tot_soma_anos_str, align='C')
+                pdf.cell(78 * 0.7, 4, incremento_real_tot_str, align='C')
+                pdf.cell(78 * 0.7, 4, incremento_porc_tot_str, align='C', ln=True)
+
+
 
 
 
