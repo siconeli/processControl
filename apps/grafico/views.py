@@ -63,6 +63,8 @@ class FichaCreate(LoginRequiredMixin, CreateView):
         else:
             context['valor_mes_form'] = kwargs['valor_mes_form']
 
+        context['anos'] = Ano.objects.all().order_by('-nome')
+
         return context
 
     def get_success_url(self):
@@ -105,7 +107,7 @@ class FichaList(LoginRequiredMixin, ListView):
             fichas_filtradas = self.model.objects.none()
 
             if municipio_input or municipio_input and receita_input or municipio_input and ano_input:
-                fichas_filtradas = self.model.objects.all().order_by('-ano')
+                fichas_filtradas = self.model.objects.all().order_by('-ano__nome')
 
                 if municipio_input:
                     fichas_filtradas = fichas_filtradas.filter(municipio_id=municipio_input)
@@ -118,7 +120,7 @@ class FichaList(LoginRequiredMixin, ListView):
                 fichas_filtradas = cache_fichas_filtradas
 
             elif cache.get(f'cache_key_municipio_{usuario_pk}') or cache.get(f'cache_key_receita_{usuario_pk}') or cache.get(f'cache_key_ano_{usuario_pk}'):        
-                fichas_filtradas = self.model.objects.all().order_by('-ano')
+                fichas_filtradas = self.model.objects.all().order_by('-ano__nome')
 
                 cache_municipio = cache.get(f'cache_key_municipio_{usuario_pk}')
                 cache_receita = cache.get(f'cache_key_receita_{usuario_pk}')
@@ -159,7 +161,7 @@ class FichaList(LoginRequiredMixin, ListView):
 
             context['municipios'] = Municipio.objects.filter(tipo_contrato='Assessoria', ativo=True).order_by('nome')
             context['receitas'] = Receita.objects.all().order_by('nome')
-            context['anos'] = Ano.objects.all().order_by('nome')
+            context['anos'] = Ano.objects.all().order_by('-nome')
             return context
         except Exception as e:
             print(e)
@@ -248,7 +250,7 @@ class Relatorios(LoginRequiredMixin, TemplateView):
         context = super().get_context_data(**kwargs)
         context['municipios'] = Municipio.objects.filter(tipo_contrato='Assessoria', ativo=True).order_by('nome')
         context['receitas'] = Receita.objects.all()
-        context['anos'] = Ano.objects.all().order_by('nome')
+        context['anos'] = Ano.objects.all().order_by('-nome')
         return context
     
 # Função para obter valores filtrados por meses

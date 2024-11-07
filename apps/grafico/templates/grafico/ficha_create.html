@@ -22,7 +22,14 @@
             {% render_field form.receita id="receita" name="receita" %}
 
             <label for="ano">Ano</label>
-            {% render_field form.ano id="ano" name="ano" %}
+            <!-- {% render_field form.ano id="ano" name="ano" %} -->
+
+            <select name="ano" id="ano" required>
+                <option value="">-------------</option>
+                {% for a in anos %}
+                    <option value="{{ a.pk }}" {% if a.pk|stringformat:"s" == request.GET.ano|stringformat:"s" %} selected {% endif %}>{{ a.nome }}</option>
+                {% endfor %}
+            </select>
 
             <h1>Valor Mês</h1>
 
