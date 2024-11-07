@@ -252,17 +252,17 @@ class Relatorios(LoginRequiredMixin, TemplateView):
         return context
     
 # Função para obter valores filtrados por meses
-def get_valores_por_mes(ficha, mes_1, mes_2):
-    if not ficha:
+def get_valores_por_mes(ficha_id, mes_1, mes_2):
+    if not ficha_id:
         return [0] * 12
     try:
-        valor_mes = ValorMes.objects.get(ficha_id=ficha.id)
+        valor_mes = ValorMes.objects.get(ficha_id=ficha_id)
         valores = [
             valor_mes.janeiro, valor_mes.fevereiro, valor_mes.marco, valor_mes.abril,
             valor_mes.maio, valor_mes.junho, valor_mes.julho, valor_mes.agosto,
             valor_mes.setembro, valor_mes.outubro, valor_mes.novembro, valor_mes.dezembro
         ]
-        # Filtrar meses entre mes_1 e mes_2
+        # # Filtrar meses entre mes_1 e mes_2
         meses_lista = ['janeiro', 'fevereiro', 'marco', 'abril', 'maio', 'junho',
                         'julho', 'agosto', 'setembro', 'outubro', 'novembro', 'dezembro']
         indice_inicio = meses_lista.index(mes_1)
@@ -299,7 +299,7 @@ class GerarRelatorioGrafico(LoginRequiredMixin, View):
             anos_filtrados = Ano.objects.filter(nome__range=(ano_1, ano_2))
 
             if modelo_id == '1': # MODELO MENSAL
-                # Gerar relatório vazio se a diferença de ano selecionado for maior que 1
+                # Gerar relatório vazio se a diferença de ano selecionado for maior que 1, o front-and já faz esse controle com Js, mas estou prevenindo erro de servidor.
                 if ano_1 and ano_2 is not None:
                     ano_1_int = int(ano_1.nome)
                     ano_2_int = int(ano_2.nome)
@@ -565,10 +565,32 @@ class GerarRelatorioGrafico(LoginRequiredMixin, View):
                 return response
 
             elif modelo_id == '2':
-
-
                 pdf = FPDF()
                 pdf.add_page(orientation='L')
+
+                # eixo_x = 13
+                # eixo_y = 116
+                # pdf.set_xy(eixo_x, eixo_y)
+                pdf.set_font('Arial', size=8) 
+                pdf.set_text_color(0, 0, 0)
+                pdf.cell(77 * 0.7, 4, 'ANO', 1, align='C')
+                pdf.cell(78 * 0.7, 4,  'VALOR', 1, align='C')
+                pdf.cell(78 * 0.7, 4, 'INCREMENTO R$', 1, align='C')
+                pdf.cell(78 * 0.7, 4, 'INCREMENTO %', 1, align='C', ln=True)
+
+
+                for ano in anos_filtrados:
+                    ficha = Ficha.objects.filter(municipio_id=municipio_id, receita_id=receita_id, ano_id=ano.id).first()
+                    valores = get_valores_por_mes(ficha.id, mes_1, mes_2)
+                    tot_ano = sum(valores)
+
+                    pdf.cell(77 * 0.7, 4, ano.nome, 1, align='C')
+                    pdf.cell(78 * 0.7, 4,  str(tot_ano), 1, align='C')
+                    pdf.cell(78 * 0.7, 4, 'INCREMENTO R$', 1, align='C')
+                    pdf.cell(78 * 0.7, 4, 'INCREMENTO %', 1, align='C', ln=True)
+
+
+            
 
                 # Criar arquivo temporário para o PDF
                 temp_file = tempfile.NamedTemporaryFile(delete=False, suffix='.pdf')
