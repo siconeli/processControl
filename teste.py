@@ -1,1 +1,3 @@
-print([0]*12)
+val = 0
+
+tot = sum(val)

@@ -564,7 +564,7 @@ class GerarRelatorioGrafico(LoginRequiredMixin, View):
                 response['Content-Disposition'] = 'inline; filename="grafico.pdf"'
                 return response
 
-            elif modelo_id == '2':
+            elif modelo_id == '2': # MODELO ANUAL
                 pdf = FPDF()
                 pdf.add_page(orientation='L')
 
@@ -578,19 +578,34 @@ class GerarRelatorioGrafico(LoginRequiredMixin, View):
                 pdf.cell(78 * 0.7, 4, 'INCREMENTO R$', 1, align='C')
                 pdf.cell(78 * 0.7, 4, 'INCREMENTO %', 1, align='C', ln=True)
 
-
+                tot_ano_anterior = 0
                 for ano in anos_filtrados:
-                    ficha = Ficha.objects.filter(municipio_id=municipio_id, receita_id=receita_id, ano_id=ano.id).first()
-                    valores = get_valores_por_mes(ficha.id, mes_1, mes_2)
-                    tot_ano = sum(valores)
+                    try:
+                        ficha = Ficha.objects.get(municipio_id=municipio_id, receita_id=receita_id, ano_id=ano.id)
+                        valores = get_valores_por_mes(ficha.id, mes_1, mes_2)
+                        tot_ano = sum(valores)
+                        incremento_real = tot_ano - tot_ano_anterior
+                    except:
+                        tot_ano = 0
+                        incremento_real = 0
+                    
+
+                    if tot_ano_anterior != 0 and tot_ano != 0:
+                        incremento_porc = (incremento_real/tot_ano_anterior) * 100
+                    else:
+                        incremento_porc = ''
+                    
+                    if incremento_real == tot_ano:
+                        incremento_real = ''
+
+                    tot_ano_anterior = tot_ano
 
                     pdf.cell(77 * 0.7, 4, ano.nome, 1, align='C')
                     pdf.cell(78 * 0.7, 4,  str(tot_ano), 1, align='C')
-                    pdf.cell(78 * 0.7, 4, 'INCREMENTO R$', 1, align='C')
-                    pdf.cell(78 * 0.7, 4, 'INCREMENTO %', 1, align='C', ln=True)
+                    pdf.cell(78 * 0.7, 4, str(incremento_real), 1, align='C')
+                    pdf.cell(78 * 0.7, 4, str(incremento_porc), 1, align='C', ln=True)
 
 
-            
 
                 # Criar arquivo temporário para o PDF
                 temp_file = tempfile.NamedTemporaryFile(delete=False, suffix='.pdf')
