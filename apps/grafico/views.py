@@ -573,13 +573,15 @@ class GerarRelatorioGrafico(LoginRequiredMixin, View):
 
                 anos_filtrados = Ano.objects.filter(nome__range=(ano_1, ano_2)).order_by('nome')
                 
-                pdf.set_xy(13, 130)
-                pdf.set_font('Arial', size=8) 
-                pdf.set_text_color(0, 0, 0)
-                pdf.cell(77 * 0.7, 4, 'ANO', 1, align='C')
-                pdf.cell(78 * 0.7, 4,  'VALOR', 1, align='C')
-                pdf.cell(78 * 0.7, 4, 'INCREMENTO R$', 1, align='C')
-                pdf.cell(78 * 0.7, 4, 'INCREMENTO %', 1, align='C', ln=True)
+                pdf.set_xy(13, 120)
+                pdf.set_font('Arial', 'B', size=7) 
+                pdf.set_line_width(0.1) 
+                pdf.set_fill_color(18,161,215)
+                pdf.set_text_color(255,255,255)
+                pdf.cell(97 * 0.7, 4, 'ANO', 1, align='C', fill=True)
+                pdf.cell(97 * 0.7, 4,  'VALOR', 1, align='C', fill=True)
+                pdf.cell(97 * 0.7, 4, 'INCREMENTO R$', 1, align='C', fill=True)
+                pdf.cell(97 * 0.7, 4, 'INCREMENTO %', 1, align='C', fill=True, ln=True)
 
                 ano_val_list = []
                 tot_ano_anterior = 0
@@ -619,19 +621,19 @@ class GerarRelatorioGrafico(LoginRequiredMixin, View):
                         incremento_real_str = ''
 
                     pdf.set_x(13)
-                    pdf.cell(77 * 0.7, 4, ano.nome, 1, align='C')
-                    pdf.cell(78 * 0.7, 4,  tot_ano_str, 1, align='C')
-                    pdf.cell(78 * 0.7, 4, incremento_real_str, 1, align='C')
-                    pdf.cell(78 * 0.7, 4, incremento_porc_str, 1, align='C', ln=True)
+                    pdf.cell(97 * 0.7, 4, ano.nome, 1, align='C')
+                    pdf.cell(97 * 0.7, 4,  tot_ano_str, 1, align='C')
+                    pdf.cell(97 * 0.7, 4, incremento_real_str, 1, align='C')
+                    pdf.cell(97 * 0.7, 4, incremento_porc_str, 1, align='C', ln=True)
 
                 tot_soma_anos_str = f'R$  {tot_soma_anos:,.2f}'.replace(',', 'X').replace('.', ',').replace('X', '.')
                 incremento_real_tot_str = f'R$  {incremento_real_tot:,.2f}'.replace(',', 'X').replace('.', ',').replace('X', '.')
                 incremento_porc_tot_str = f'{incremento_porc_tot:.1f} %'.replace('.', ',')
             
-                pdf.cell(77 * 0.7, 4, '', align='C')
-                pdf.cell(78 * 0.7, 4,  tot_soma_anos_str, align='C')
-                pdf.cell(78 * 0.7, 4, incremento_real_tot_str, align='C')
-                pdf.cell(78 * 0.7, 4, incremento_porc_tot_str, align='C', ln=True)
+                pdf.cell(97 * 0.7, 4, '', align='C')
+                pdf.cell(97 * 0.7, 4,  tot_soma_anos_str, align='C')
+                pdf.cell(97 * 0.7, 4, incremento_real_tot_str, align='C')
+                pdf.cell(97 * 0.7, 4, incremento_porc_tot_str, align='C', ln=True)
 
                 plt.figure(figsize=(20, 6)) 
                 x = np.arange(len(anos_filtrados))
@@ -655,9 +657,7 @@ class GerarRelatorioGrafico(LoginRequiredMixin, View):
                         ha='center', va='bottom',              # Alinhamento central e na parte inferior do texto
                         fontsize=10, color='black', rotation=0  # Cor do texto e tamanho da fonte
                     )
-
-
-
+             
                 # Salvar o gráfico em um arquivo temporário
                 temp_image = tempfile.NamedTemporaryFile(delete=False, suffix='.png')
                 plt.savefig(temp_image.name, format='png')
@@ -665,6 +665,51 @@ class GerarRelatorioGrafico(LoginRequiredMixin, View):
 
                 # Adicionar o gráfico ao PDF
                 pdf.image(temp_image.name, x=-31, y=12, w=350)
+
+                # Adicionar o brasão do município ao PDF
+                try:
+                    pdf.image('static/img/camapua.png', x=10, y=1, w=25, h=22)
+                except:
+                    pdf.image('static/img/brasao.png', x=10, y=1, w=25, h=22)
+
+                # RETÂNGULO PARA PREENCHIMENTO DE FUNDO HEADER
+                largura = 220  
+                altura = 19 
+                eixo_x = 38 
+                eixo_y = 3  
+                pdf.set_xy(eixo_x, eixo_y) # Define a posição de acordo com eixo x e y
+                pdf.set_font("Arial", style='B', size=15)
+                pdf.set_fill_color(18,161,215)  # Valores de cor RGB, cor de fundo
+                pdf.cell(largura, altura, ln=True, align='C', fill=True)
+
+                # TEXTO ->  MUNICÍPIO
+                eixo_x = 20  
+                eixo_y = 7
+                pdf.set_xy(eixo_x, eixo_y)
+                pdf.set_font("Arial", style='B', size=12)
+                pdf.set_fill_color(200, 200, 200)  # Valores de cor RGB, cor de fundo
+                pdf.set_text_color(255,255,255)
+                pdf.cell(0, 0, txt=f"MUNICÍPIO DE {municipio.nome.upper()}", ln=True, align='C')
+
+                # TEXTO ->  FIXO
+                eixo_x = 20  
+                eixo_y = 13
+                pdf.set_xy(eixo_x, eixo_y)
+                pdf.set_font("Arial", style='B', size=12)
+                pdf.set_fill_color(200, 200, 200)  # Valores de cor RGB, cor de fundo
+                pdf.set_text_color(255,255,255)
+                pdf.cell(0, 0, txt="ARRECADAÇÃO ANUAL DE TRIBUTOS", ln=True, align='C')
+
+                # TEXTO -> RECEITA
+                eixo_x = 20  
+                eixo_y = 19
+                pdf.set_xy(eixo_x, eixo_y)
+                pdf.set_font("Arial", style='B', size=12)
+                pdf.set_fill_color(200, 200, 200)  # Valores de cor RGB, cor de fundo
+                pdf.set_text_color(255,255,255)
+                pdf.cell(0, 0, txt=str(receita.nome) if receita else "N/A", ln=True, align='C')
+
+                pdf.image('static/img/aeg5.png', x=260, y=1, w=25, h=22)
 
                 # Criar arquivo temporário para o PDF
                 temp_file = tempfile.NamedTemporaryFile(delete=False, suffix='.pdf')
