@@ -273,6 +273,20 @@ def get_valores_por_mes(ficha_id, mes_1, mes_2):
     
     except ValorMes.DoesNotExist:
         return [0] * 12
+    
+# Função para formatar valores que vão em cima das barras
+def formatar_valor(valor):
+    valor = float(valor)
+    valor = f'{valor:.0f}' 
+    valor = int(valor)
+
+    if valor >= 1_000_000:
+        valor = f'{valor // 1_000_000},{(valor % 1_000_000) // 100_000}M'
+    elif valor >= 1_000:
+        valor = f'{valor // 1_000},{(valor % 1_000) // 100}K'
+    else:
+        valor = str(valor)
+    return valor    
 
 class GerarRelatorioGrafico(LoginRequiredMixin, View):
     def get(self, request, *args, **kwargs):
@@ -343,20 +357,7 @@ class GerarRelatorioGrafico(LoginRequiredMixin, View):
                 # Remover valores do eixo y, lado esquerdo externo do gráfico
                 plt.yticks([]) 
 
-                # Função para formatar valores que vão em cima das barras
-                def formatar_valor(valor):
-                    valor = float(valor)
-                    valor = f'{valor:.0f}' 
-                    valor = int(valor)
-
-                    if valor >= 1_000_000:
-                        valor = f'{valor // 1_000_000},{(valor % 1_000_000) // 100_000}M'
-                    elif valor >= 1_000:
-                        valor = f'{valor // 1_000},{(valor % 1_000) // 100}K'
-                    else:
-                        valor = str(valor)
-
-                    return valor
+                # FUNÇÃO DE FORMATAR VALOR ESTAVA AQUI!
 
                 # Colocando os valores na parte superior das barras, mas dentro
                 for bar in bars1:
@@ -571,7 +572,8 @@ class GerarRelatorioGrafico(LoginRequiredMixin, View):
                 pdf.add_page(orientation='L')
 
                 anos_filtrados = Ano.objects.filter(nome__range=(ano_1, ano_2)).order_by('nome')
-
+                
+                pdf.set_xy(13, 130)
                 pdf.set_font('Arial', size=8) 
                 pdf.set_text_color(0, 0, 0)
                 pdf.cell(77 * 0.7, 4, 'ANO', 1, align='C')
@@ -579,6 +581,7 @@ class GerarRelatorioGrafico(LoginRequiredMixin, View):
                 pdf.cell(78 * 0.7, 4, 'INCREMENTO R$', 1, align='C')
                 pdf.cell(78 * 0.7, 4, 'INCREMENTO %', 1, align='C', ln=True)
 
+                ano_val_list = []
                 tot_ano_anterior = 0
                 tot_soma_anos = 0
                 incremento_real_tot = 0
@@ -588,6 +591,7 @@ class GerarRelatorioGrafico(LoginRequiredMixin, View):
                         ficha = Ficha.objects.get(municipio_id=municipio_id, receita_id=receita_id, ano_id=ano.id)
                         valores = get_valores_por_mes(ficha.id, mes_1, mes_2)
                         tot_ano = sum(valores)
+                        ano_val_list.append(tot_ano)
                         tot_soma_anos += tot_ano
                         incremento_real = tot_ano - tot_ano_anterior
 
@@ -614,6 +618,7 @@ class GerarRelatorioGrafico(LoginRequiredMixin, View):
                     if incremento_real == tot_ano:
                         incremento_real_str = ''
 
+                    pdf.set_x(13)
                     pdf.cell(77 * 0.7, 4, ano.nome, 1, align='C')
                     pdf.cell(78 * 0.7, 4,  tot_ano_str, 1, align='C')
                     pdf.cell(78 * 0.7, 4, incremento_real_str, 1, align='C')
@@ -628,8 +633,38 @@ class GerarRelatorioGrafico(LoginRequiredMixin, View):
                 pdf.cell(78 * 0.7, 4, incremento_real_tot_str, align='C')
                 pdf.cell(78 * 0.7, 4, incremento_porc_tot_str, align='C', ln=True)
 
+                plt.figure(figsize=(20, 6)) 
+                x = np.arange(len(anos_filtrados))
+                largura = 0.40
+
+                nome_ano_list = [ano.nome for ano in anos_filtrados]
+                val_ano_list = [val for val in ano_val_list]
+                cores = ['skyblue', 'salmon', 'lightgreen', 'gold', 'red'] 
+
+                # Remover valores do eixo y, lado esquerdo externo do gráfico
+                plt.yticks([]) 
+
+                barras = plt.bar(nome_ano_list, val_ano_list, width=largura, color=cores, label=nome_ano_list)
+
+                # Colocando os valores na parte superior das barras
+                for bar in barras:
+                    plt.text(
+                        bar.get_x() + bar.get_width() / 2,  # Posição x centralizada
+                        bar.get_height() - 5,                # Posição y um pouco abaixo do topo da barra
+                        formatar_valor(bar.get_height()),     # Valor formatado
+                        ha='center', va='bottom',              # Alinhamento central e na parte inferior do texto
+                        fontsize=10, color='black', rotation=0  # Cor do texto e tamanho da fonte
+                    )
 
 
+
+                # Salvar o gráfico em um arquivo temporário
+                temp_image = tempfile.NamedTemporaryFile(delete=False, suffix='.png')
+                plt.savefig(temp_image.name, format='png')
+                plt.close()
+
+                # Adicionar o gráfico ao PDF
+                pdf.image(temp_image.name, x=-31, y=12, w=350)
 
                 # Criar arquivo temporário para o PDF
                 temp_file = tempfile.NamedTemporaryFile(delete=False, suffix='.pdf')
