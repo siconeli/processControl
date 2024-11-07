@@ -386,8 +386,6 @@ class GerarRelatorioGrafico(LoginRequiredMixin, View):
                 meses_lista = ['janeiro', 'fevereiro', 'marco', 'abril', 'maio', 'junho', 'julho', 'agosto', 'setembro', 'outubro', 'novembro', 'dezembro']
                 lista_footer_grafico = meses_lista[meses_lista.index(mes_1):meses_lista.index(mes_2) + 1]
                 lista_footer_grafico = [mes[:3].title() for mes in lista_footer_grafico]
-
-                # plt.xticks(x, [mes[:3].title() for mes in meses_lista], fontsize=10) # Configuração da legenda de meses na parte inferior do gráfico.
                 plt.xticks(x, lista_footer_grafico, fontsize=10) # Configuração da legenda de meses na parte inferior do gráfico.
                 plt.legend()
 
@@ -575,7 +573,7 @@ class GerarRelatorioGrafico(LoginRequiredMixin, View):
                 
                 pdf.set_xy(13, 120)
                 pdf.set_font('Arial', 'B', size=7) 
-                pdf.set_line_width(0.1) 
+                # pdf.set_line_width(0.1) 
                 pdf.set_fill_color(18,161,215)
                 pdf.set_text_color(255,255,255)
                 pdf.cell(97 * 0.7, 4, 'ANO', 1, align='C', fill=True)
@@ -621,6 +619,8 @@ class GerarRelatorioGrafico(LoginRequiredMixin, View):
                         incremento_real_str = ''
 
                     pdf.set_x(13)
+                    pdf.set_font('Arial', size=7) 
+                    pdf.set_text_color(0,0,0)
                     pdf.cell(97 * 0.7, 4, ano.nome, 1, align='C')
                     pdf.cell(97 * 0.7, 4,  tot_ano_str, 1, align='C')
                     pdf.cell(97 * 0.7, 4, incremento_real_str, 1, align='C')
@@ -630,6 +630,7 @@ class GerarRelatorioGrafico(LoginRequiredMixin, View):
                 incremento_real_tot_str = f'R$  {incremento_real_tot:,.2f}'.replace(',', 'X').replace('.', ',').replace('X', '.')
                 incremento_porc_tot_str = f'{incremento_porc_tot:.1f} %'.replace('.', ',')
             
+                pdf.set_x(13)
                 pdf.cell(97 * 0.7, 4, '', align='C')
                 pdf.cell(97 * 0.7, 4,  tot_soma_anos_str, align='C')
                 pdf.cell(97 * 0.7, 4, incremento_real_tot_str, align='C')
@@ -657,6 +658,9 @@ class GerarRelatorioGrafico(LoginRequiredMixin, View):
                         ha='center', va='bottom',              # Alinhamento central e na parte inferior do texto
                         fontsize=10, color='black', rotation=0  # Cor do texto e tamanho da fonte
                     )
+                
+                # Adicionar legenda
+                plt.legend()
              
                 # Salvar o gráfico em um arquivo temporário
                 temp_image = tempfile.NamedTemporaryFile(delete=False, suffix='.png')
@@ -710,6 +714,40 @@ class GerarRelatorioGrafico(LoginRequiredMixin, View):
                 pdf.cell(0, 0, txt=str(receita.nome) if receita else "N/A", ln=True, align='C')
 
                 pdf.image('static/img/aeg5.png', x=260, y=1, w=25, h=22)
+
+                # Desenhar borda ao redor das células
+                # Definir coordenadas e dimensões da borda
+                x = 122  
+                y = 171
+                width = 77 * 0.7  # Largura total das células
+                height = 4 * 2  # Altura total das células (duas linhas de altura 4)
+                pdf.rect(x, y, width, height)
+
+                pdf.set_xy(122, 171)
+                pdf.set_font('Arial', size=8) 
+                pdf.set_text_color(0,0,0)
+                pdf.cell(77 * 0.7, 4, 'PERÍODO DE COMPARAÇÃO', align='C', ln=True)
+                pdf.set_x(122)
+                pdf.cell(77 * 0.7, 4, f'{mes_1[:3].upper()} - {mes_2[:3].upper()} DE {ano_1.nome} A {ano_2.nome}', align='C', ln=True)
+
+                # RETÂNGULO PARA PREENCHIMENTO DE FUNDO FOOTER
+                largura = 272 
+                altura = 8
+                eixo_x = 13 
+                eixo_y = 181
+                pdf.set_xy(eixo_x, eixo_y) # Define a posição de acordo com eixo x e y
+                pdf.set_font("Arial", style='B', size=15)
+                pdf.set_fill_color(18,161,215)  # Valores de cor RGB, cor de fundo
+                pdf.cell(largura, altura, ln=True, align='C', fill=True)
+
+                eixo_x = 121
+                eixo_y = 183
+                pdf.set_xy(eixo_x, eixo_y)
+                pdf.set_font('Arial', style='B', size=10) 
+                pdf.set_text_color(255, 255, 255) 
+                pdf.cell(77 * 0.7, 4, 'AEG - ASSESSORAMENTO E CONSULTORIA TRIBUTÁRIA LTDA | RUA 14 DE JULHO, 4576 | CAMPO GRANDE - MS | AEGCONSULTORIA@ISSQN.NET', align='C')
+
+
 
                 # Criar arquivo temporário para o PDF
                 temp_file = tempfile.NamedTemporaryFile(delete=False, suffix='.pdf')
