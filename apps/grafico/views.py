@@ -285,6 +285,8 @@ class GerarRelatorioGrafico(LoginRequiredMixin, View):
             ano_2_id = request.GET.get('ano_2')
             mes_1 = request.GET.get('mes_1')
             mes_2 = request.GET.get('mes_2')
+            
+            print(ano_1_id)
 
             try:
                 receita = Receita.objects.get(id=receita_id)
@@ -295,8 +297,6 @@ class GerarRelatorioGrafico(LoginRequiredMixin, View):
                 receita = None
             except Ano.DoesNotExist:
                 ano_1 = ano_2 = None
-            
-            anos_filtrados = Ano.objects.filter(nome__range=(ano_1, ano_2))
 
             if modelo_id == '1': # MODELO MENSAL
                 # Gerar relatório vazio se a diferença de ano selecionado for maior que 1, o front-and já faz esse controle com Js, mas estou prevenindo erro de servidor.
@@ -568,13 +568,14 @@ class GerarRelatorioGrafico(LoginRequiredMixin, View):
                 pdf = FPDF()
                 pdf.add_page(orientation='L')
 
+                anos_filtrados = Ano.objects.filter(nome__range=(ano_1, ano_2)).order_by('nome')
+
                 pdf.set_font('Arial', size=8) 
                 pdf.set_text_color(0, 0, 0)
                 pdf.cell(77 * 0.7, 4, 'ANO', 1, align='C')
                 pdf.cell(78 * 0.7, 4,  'VALOR', 1, align='C')
                 pdf.cell(78 * 0.7, 4, 'INCREMENTO R$', 1, align='C')
                 pdf.cell(78 * 0.7, 4, 'INCREMENTO %', 1, align='C', ln=True)
-
 
                 tot_ano_anterior = 0
                 tot_soma_anos = 0
@@ -624,7 +625,6 @@ class GerarRelatorioGrafico(LoginRequiredMixin, View):
                 pdf.cell(78 * 0.7, 4,  tot_soma_anos_str, align='C')
                 pdf.cell(78 * 0.7, 4, incremento_real_tot_str, align='C')
                 pdf.cell(78 * 0.7, 4, incremento_porc_tot_str, align='C', ln=True)
-
 
 
 
